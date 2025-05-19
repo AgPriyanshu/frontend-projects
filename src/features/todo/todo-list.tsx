@@ -6,16 +6,37 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const TodoList = () => {
-  const { todos, addTodo, toggleTodo, deleteTodo } = useTodo();
+  const { todos, addTodo, toggleTodo, deleteTodo, isLoading, error } =
+    useTodo();
   const [newTodo, setNewTodo] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newTodo.trim()) {
-      addTodo(newTodo.trim());
+      await addTodo(newTodo.trim());
       setNewTodo("");
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-muted-foreground">
+          Loading todos...
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-destructive">
+          {error}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto w-full">
@@ -45,7 +66,7 @@ export const TodoList = () => {
                     todo.completed ? "line-through text-muted-foreground" : ""
                   }`}
                 >
-                  {todo.text}
+                  {todo.description}
                 </span>
                 <Button
                   variant="ghost"
