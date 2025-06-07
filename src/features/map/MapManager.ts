@@ -8,7 +8,7 @@ export type MapOptions = {
 };
 
 export type MarkerOptions = {
-  id: string;
+  id:string;
   lngLat: [number, number];
   popup?: {
     content: string;
@@ -16,6 +16,16 @@ export type MarkerOptions = {
   };
   options?: maplibregl.MarkerOptions;
 };
+
+// Basic GeoJSON Feature interface
+export interface GeoJSONFeature {
+  type: "Feature";
+  geometry: {
+    type: string; // e.g., "Point", "LineString", "Polygon"
+    coordinates: any; // Can be [number, number] | [number, number][] | [number, number][][] etc.
+  };
+  properties?: { [key: string]: any };
+}
 
 export class MapManager {
   private static instance: MapManager;
