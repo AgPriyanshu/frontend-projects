@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as TodoListImport } from './routes/todo-list'
+import { Route as MapImport } from './routes/map'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as IndexImport } from './routes/index'
 const TodoListRoute = TodoListImport.update({
   id: '/todo-list',
   path: '/todo-list',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MapRoute = MapImport.update({
+  id: '/map',
+  path: '/map',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +46,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapImport
+      parentRoute: typeof rootRoute
+    }
     '/todo-list': {
       id: '/todo-list'
       path: '/todo-list'
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/todo-list'
+  fullPaths: '/' | '/map' | '/todo-list'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/todo-list'
-  id: '__root__' | '/' | '/todo-list'
+  to: '/' | '/map' | '/todo-list'
+  id: '__root__' | '/' | '/map' | '/todo-list'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MapRoute: typeof MapRoute
   TodoListRoute: typeof TodoListRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MapRoute: MapRoute,
   TodoListRoute: TodoListRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/map",
         "/todo-list"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/map": {
+      "filePath": "map.tsx"
     },
     "/todo-list": {
       "filePath": "todo-list.tsx"
