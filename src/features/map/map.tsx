@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import "./map.css";
 
 interface MapProps {
@@ -16,6 +18,7 @@ export const Map = ({
 }: MapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const draw = useRef<MaplibreTerradrawControl | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -30,6 +33,26 @@ export const Map = ({
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+
+    // Initialize Terra Draw
+    if (map.current) {
+      draw.current = new MaplibreTerradrawControl({
+        modes: [
+          "point",
+          "linestring",
+          "polygon",
+          "rectangle",
+          "circle",
+          "freehand",
+          "select",
+          "delete-selection",
+          "delete",
+        ],
+        open: true,
+      });
+
+      map.current.addControl(draw.current, "top-left");
+    }
 
     // Cleanup on unmount
     return () => {
