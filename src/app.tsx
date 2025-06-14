@@ -2,6 +2,8 @@ import "./app.css";
 import { ThemeToggle } from "./components/theme-toggle";
 import { type ReactNode } from "react";
 import { Navigation } from "./components/navigation";
+import { Link } from "@tanstack/react-router";
+import { Globe } from "lucide-react";
 
 interface AppProps {
   children: ReactNode;
@@ -12,7 +14,13 @@ export const App = ({ children }: AppProps) => {
     <div className="h-full flex flex-col">
       <header className="border-b border-border">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Apps</h1>
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-xl font-semibold hover:text-primary transition-colors"
+          >
+            <Globe className="h-6 w-6" />
+            Apps
+          </Link>
           <div className="flex items-center gap-4">
             <Navigation />
             <ThemeToggle />

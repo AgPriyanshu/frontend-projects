@@ -18,6 +18,13 @@ export const Navigation = () => {
         Map
       </Link>
       <Link
+        to="/gadget-classifier"
+        className="text-sm font-medium transition-colors hover:text-primary"
+        activeProps={{ className: "text-primary" }}
+      >
+        Gadget Classifier
+      </Link>
+      <Link
         to="/todo-list"
         className="text-sm font-medium transition-colors hover:text-primary"
         activeProps={{ className: "text-primary" }}

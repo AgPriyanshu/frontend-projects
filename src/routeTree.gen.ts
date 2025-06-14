@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as TodoListImport } from './routes/todo-list'
 import { Route as MapImport } from './routes/map'
+import { Route as GadgetClassifierImport } from './routes/gadget-classifier'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -26,6 +27,12 @@ const TodoListRoute = TodoListImport.update({
 const MapRoute = MapImport.update({
   id: '/map',
   path: '/map',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GadgetClassifierRoute = GadgetClassifierImport.update({
+  id: '/gadget-classifier',
+  path: '/gadget-classifier',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,6 +51,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/gadget-classifier': {
+      id: '/gadget-classifier'
+      path: '/gadget-classifier'
+      fullPath: '/gadget-classifier'
+      preLoaderRoute: typeof GadgetClassifierImport
       parentRoute: typeof rootRoute
     }
     '/map': {
@@ -67,12 +81,14 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
   '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
   '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
@@ -80,27 +96,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
   '/map': typeof MapRoute
   '/todo-list': typeof TodoListRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/map' | '/todo-list'
+  fullPaths: '/' | '/gadget-classifier' | '/map' | '/todo-list'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/map' | '/todo-list'
-  id: '__root__' | '/' | '/map' | '/todo-list'
+  to: '/' | '/gadget-classifier' | '/map' | '/todo-list'
+  id: '__root__' | '/' | '/gadget-classifier' | '/map' | '/todo-list'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GadgetClassifierRoute: typeof GadgetClassifierRoute
   MapRoute: typeof MapRoute
   TodoListRoute: typeof TodoListRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GadgetClassifierRoute: GadgetClassifierRoute,
   MapRoute: MapRoute,
   TodoListRoute: TodoListRoute,
 }
@@ -116,12 +135,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/gadget-classifier",
         "/map",
         "/todo-list"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/gadget-classifier": {
+      "filePath": "gadget-classifier.tsx"
     },
     "/map": {
       "filePath": "map.tsx"

@@ -26,7 +26,7 @@ export const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-secondary hover:bg-secondary/80"
+      className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 w-10 h-10"
     >
       {isDark ? "🌞" : "🌙"}
     </button>

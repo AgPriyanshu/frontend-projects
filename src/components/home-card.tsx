@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 
 interface HomeCardProps {
   to: string;
@@ -11,19 +11,20 @@ interface HomeCardProps {
 }
 
 export const HomeCard = ({
-  className,
   to,
   icon,
   title,
   description,
+  className,
 }: HomeCardProps) => {
-  const customClassName = classnames(
-    "block p-6 bg-card text-card-foreground rounded-lg border border-border hover:border-primary transition-colors self-center",
-    className
-  );
-
   return (
-    <Link to={to} className={customClassName}>
+    <Link
+      to={to}
+      className={cn(
+        "block p-6 bg-card text-card-foreground rounded-lg border border-border hover:border-primary transition-colors",
+        className
+      )}
+    >
       <div className="flex items-center gap-4">
         <div className="p-3 bg-primary/10 rounded-lg">{icon}</div>
         <div>
