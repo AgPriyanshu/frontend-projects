@@ -1,7 +1,11 @@
 import axios, { AxiosError } from "axios";
+import type {
+  APIResponse,
+  Prediction,
+} from "./features/device-classifier/types";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/tasks",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -100,5 +104,18 @@ export const todoApi = {
       }
       throw error;
     }
+  },
+};
+
+export const deviceClassifierApi = {
+  classifyImage: async (image: File): Promise<APIResponse> => {
+    const formData = new FormData();
+    formData.append("device", image);
+    const response = await api.post("/device-classifier/classify/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
   },
 };

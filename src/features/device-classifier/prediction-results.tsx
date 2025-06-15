@@ -1,10 +1,10 @@
 import {
   Camera,
   CheckCircle,
-  Laptop,
   Smartphone,
   Tablet,
   Watch,
+  Headphones,
 } from "lucide-react";
 
 interface Prediction {
@@ -18,19 +18,19 @@ interface PredictionResultsProps {
 }
 
 const deviceIcons = {
+  headphones: Headphones,
   smartphone: Smartphone,
   smartwatch: Watch,
   tablet: Tablet,
   camera: Camera,
-  laptop: Laptop,
 };
 
 const deviceColors = {
+  headphones: "text-yellow-600 bg-yellow-100",
   smartphone: "text-blue-600 bg-blue-100",
   smartwatch: "text-purple-600 bg-purple-100",
   tablet: "text-green-600 bg-green-100",
   camera: "text-orange-600 bg-orange-100",
-  laptop: "text-indigo-600 bg-indigo-100",
 };
 
 export default function PredictionResults({

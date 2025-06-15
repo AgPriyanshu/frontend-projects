@@ -5,7 +5,7 @@ import {
   type ReactNode,
   useEffect,
 } from "react";
-import { todoApi, type Task, ApiError } from "./api";
+import { todoApi, type Task, ApiError } from "../../api";
 
 interface TodoContextType {
   todos: Task[];

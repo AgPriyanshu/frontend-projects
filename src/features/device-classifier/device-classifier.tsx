@@ -5,11 +5,8 @@ import { useState } from "react";
 import DropZone from "./drop-zone";
 import ImagePreview from "./image-preview";
 import PredictionResults from "./prediction-results";
-
-interface Prediction {
-  device: string;
-  confidence: number;
-}
+import type { Prediction, APIResponse } from "./types";
+import { deviceClassifierApi } from "@/api";
 
 function GadgetClassifier() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -17,48 +14,53 @@ function GadgetClassifier() {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string>("");
 
-  const generateMockPredictions = (): Prediction[] => {
-    const devices = ["smartphone", "smartwatch", "tablet", "camera", "laptop"];
-    const randomIndex = Math.floor(Math.random() * devices.length);
-    const topDevice = devices[randomIndex];
+  const classifyImage = async (file: File): Promise<Prediction[]> => {
+    const formData = new FormData();
+    formData.append("device", file);
 
-    // Generate realistic confidence scores
-    const predictions: Prediction[] = devices.map((device) => {
-      let confidence: number;
-      if (device === topDevice) {
-        confidence = 0.75 + Math.random() * 0.24; // 75-99%
-      } else {
-        confidence = Math.random() * 0.25; // 0-25%
-      }
-      return { device, confidence };
-    });
+    try {
+      const response = await deviceClassifierApi.classifyImage(file);
 
-    // Sort by confidence (highest first)
-    return predictions.sort((a, b) => b.confidence - a.confidence);
+      return response.data.all_predictions.map((pred) => ({
+        device: pred.class,
+        confidence: pred.confidence,
+      }));
+    } catch (err) {
+      console.error("Classification error:", err);
+      throw new Error(
+        err instanceof Error ? err.message : "Failed to classify image"
+      );
+    }
   };
 
   const handleImageUpload = async (file: File) => {
     setIsUploading(true);
+    setError("");
     setUploadedImage(file);
 
     // Create preview URL
     const url = URL.createObjectURL(file);
     setImageUrl(url);
 
-    // Simulate upload delay
+    // Simulate upload delay (keeping for UX)
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsUploading(false);
 
     // Start analysis
     setIsAnalyzing(true);
 
-    // Simulate ML model prediction delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const mockPredictions = generateMockPredictions();
-    setPredictions(mockPredictions);
-    setIsAnalyzing(false);
+    try {
+      const apiPredictions = await classifyImage(file);
+      console.log({ apiPredictions });
+      setPredictions(apiPredictions);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to classify image");
+      setPredictions([]);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleRemoveImage = () => {
@@ -68,6 +70,7 @@ function GadgetClassifier() {
     setUploadedImage(null);
     setImageUrl("");
     setPredictions([]);
+    setError("");
   };
 
   const handleStartOver = () => {
@@ -152,8 +155,20 @@ function GadgetClassifier() {
                 />
               </div>
 
+              {/* Error Display */}
+              {error && (
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="p-4">
+                    <div className="text-red-700 text-center">
+                      <p className="font-semibold">Classification Error</p>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Results */}
-              {(isAnalyzing || predictions.length > 0) && (
+              {(isAnalyzing || predictions.length > 0) && !error && (
                 <PredictionResults
                   predictions={predictions}
                   isLoading={isAnalyzing}
@@ -161,7 +176,7 @@ function GadgetClassifier() {
               )}
 
               {/* Action Buttons */}
-              {predictions.length > 0 && (
+              {(predictions.length > 0 || error) && (
                 <div className="text-center">
                   <Button onClick={handleStartOver} size="lg">
                     Classify Another Image
