@@ -1,5 +1,6 @@
 .map {
   border-radius: 1rem;
+  background: hsl(0, 0%, 2%);
 }
 
 .map-base-map {
