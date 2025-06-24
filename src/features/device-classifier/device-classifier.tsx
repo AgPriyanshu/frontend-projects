@@ -5,7 +5,7 @@ import { useState } from "react";
 import DropZone from "./drop-zone";
 import ImagePreview from "./image-preview";
 import PredictionResults from "./prediction-results";
-import type { Prediction, APIResponse } from "./types";
+import type { Prediction } from "./types";
 import { deviceClassifierApi } from "@/api";
 
 function GadgetClassifier() {
@@ -53,7 +53,6 @@ function GadgetClassifier() {
 
     try {
       const apiPredictions = await classifyImage(file);
-      console.log({ apiPredictions });
       setPredictions(apiPredictions);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to classify image");

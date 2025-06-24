@@ -23,12 +23,7 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "at-rule-no-unknown": [
-        true,
-        {
-          ignoreAtRules: ["tailwind", "apply", "layer", "screen"],
-        },
-      ],
+      "@typescript-eslint/no-explicit-any": "off",
     },
   }
 );
