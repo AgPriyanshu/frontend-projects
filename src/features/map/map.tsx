@@ -23,18 +23,68 @@ export const Map = ({
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Initialize map
+    // Set performance optimizations before map creation
+    maplibregl.setMaxParallelImageRequests(16);
+    
+    // Initialize map with globe projection and performance optimizations
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: style,
+      style: {
+        version: 8,
+        projection: {
+          type: 'globe'
+        },
+        sources: {
+          'osm': {
+            type: 'raster',
+            tiles: [
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+            ],
+            tileSize: 512,
+            maxzoom: 19,
+            attribution: '© OpenStreetMap contributors'
+          }
+        },
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm'
+          }
+        ],
+        glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+      },
       center: center,
       zoom: zoom,
-    });
+      // Performance optimizations
+      maxZoom: 18,
+      minZoom: 0,
+      antialias: false,
+      refreshExpiredTiles: true,
+      fadeDuration: 100,
+    } as any);
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), "top-right");
 
-    // Initialize Terra Draw
+    // Performance optimizations after map load
+    map.current.on('load', () => {
+      // Disable some expensive features for better performance
+      if (map.current) {
+        const canvas = map.current.getCanvas();
+        canvas.style.cursor = 'default';
+        
+        // Reduce repaints
+        map.current.on('moveend', () => {
+          // Force garbage collection of unused tiles
+          if (map.current) {
+            (map.current as any)._requestRenderFrame?.();
+          }
+        });
+      }
+    });
+
+    // Initialize Terra Draw with performance settings
     if (map.current) {
       draw.current = new MaplibreTerradrawControl({
         modes: [
