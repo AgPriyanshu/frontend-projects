@@ -1,17 +1,32 @@
+export interface User {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+}
+
 export interface ChatSession {
   id: string;
+  user?: User;
   title: string;
-  createdAt: Date;
-  updatedAt: Date;
-  messageCount: number;
+  model_name: string;
+  temperature: number;
+  max_tokens: number | null;
+  enable_tools: boolean;
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+  messages?: ChatMessage[];
+  message_count: number;
+  last_message_time: string;
 }
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant" | "system";
+  role: "user" | "assistant" | "system" | "tool";
   content: string;
-  timestamp: Date;
-  isStreaming?: boolean;
+  tool_calls?: any;
+  tool_call_id?: string;
   metadata?: {
     geospatialData?: any;
     analysisType?: string;
@@ -27,6 +42,38 @@ export interface ChatMessage {
       statistics: Record<string, any>;
     };
   };
+  created_at: string;
+  token_count?: number;
+  isStreaming?: boolean;
+}
+
+export interface LLMModel {
+  id: number;
+  name: string;
+  display_name: string;
+  description: string;
+  size?: number;
+  parameter_count: string;
+  context_length?: number;
+  is_available: boolean;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatPreset {
+  id: number;
+  name: string;
+  description: string;
+  system_prompt: string;
+  model_name: string;
+  temperature: number;
+  max_tokens: number | null;
+  enable_tools: boolean;
+  is_public: boolean;
+  created_by: User;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface GeospatialContext {
@@ -58,14 +105,42 @@ export interface AnalysisResult {
 
 export interface ChatState {
   messages: ChatMessage[];
+  sessions: ChatSession[];
+  currentSession: ChatSession | null;
   isLoading: boolean;
   isStreaming: boolean;
-  currentSessionId: string | null;
+  isConnected: boolean;
   geospatialContext: GeospatialContext | null;
-  availableTools: Array<{
-    name: string;
-    description: string;
-    parameters: any;
-  }>;
+  availableModels: LLMModel[];
+  availablePresets: ChatPreset[];
   error: string | null;
+}
+
+// WebSocket message types
+export interface WebSocketMessage {
+  type: 'send_message' | 'typing' | 'stop_typing' | 'ping';
+  message?: string;
+}
+
+export interface WebSocketResponse {
+  type: 'connection_established' | 'user_message' | 'ai_typing' | 'ai_message_chunk' | 'ai_message_complete' | 'error' | 'pong';
+  message?: ChatMessage | string;
+  content?: string;
+  full_content?: string;
+  session_id?: string;
+}
+
+// API request types
+export interface CreateSessionRequest {
+  title?: string;
+  model_name?: string;
+  temperature?: number;
+  max_tokens?: number;
+  enable_tools?: boolean;
+  system_prompt?: string;
+}
+
+export interface SendMessageRequest {
+  message: string;
+  stream?: boolean;
 }

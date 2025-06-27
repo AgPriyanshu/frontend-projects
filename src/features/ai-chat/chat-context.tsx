@@ -4,24 +4,42 @@ import {
   useReducer,
   useCallback,
   useRef,
+  useEffect,
 } from "react";
 import type { ReactNode } from "react";
-import { aiChatApi } from "@/api";
+import { aiChatApi, WebSocketManager } from "./api";
 import type {
   ChatMessage,
   ChatState,
+  ChatSession,
   GeospatialContext,
   AnalysisResult,
+  LLMModel,
+  ChatPreset,
+  WebSocketResponse,
 } from "./types";
 
 interface ChatContextType {
   state: ChatState;
-  sendMessage: (message: string, analysisType?: string) => Promise<void>;
-  streamMessage: (message: string, analysisType?: string) => Promise<void>;
+  // Session management
+  createSession: (title?: string, systemPrompt?: string) => Promise<ChatSession>;
+  loadSession: (sessionId: string) => Promise<void>;
+  getSessions: () => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
+  // Message handling
+  sendMessage: (message: string) => Promise<void>;
+  sendMessageWebSocket: (message: string) => void;
+  // Context and state management
   updateGeospatialContext: (context: GeospatialContext) => void;
   clearMessages: () => void;
-  loadChatHistory: (sessionId?: string) => Promise<void>;
   applyAnalysisToMap: (analysis: AnalysisResult) => void;
+  // WebSocket management
+  connectWebSocket: (sessionId: string) => void;
+  disconnectWebSocket: () => void;
+  // Model and preset management
+  loadModels: () => Promise<void>;
+  loadPresets: () => Promise<void>;
+  syncModels: () => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | null>(null);
@@ -29,22 +47,27 @@ const ChatContext = createContext<ChatContextType | null>(null);
 type ChatAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_STREAMING"; payload: boolean }
+  | { type: "SET_CONNECTED"; payload: boolean }
   | { type: "ADD_MESSAGE"; payload: ChatMessage }
-  | { type: "UPDATE_MESSAGE"; payload: { id: string; content: string } }
   | { type: "SET_MESSAGES"; payload: ChatMessage[] }
+  | { type: "SET_SESSIONS"; payload: ChatSession[] }
+  | { type: "SET_CURRENT_SESSION"; payload: ChatSession | null }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "SET_GEOSPATIAL_CONTEXT"; payload: GeospatialContext | null }
-  | { type: "SET_AVAILABLE_TOOLS"; payload: any[] }
-  | { type: "SET_SESSION_ID"; payload: string | null }
+  | { type: "SET_MODELS"; payload: LLMModel[] }
+  | { type: "SET_PRESETS"; payload: ChatPreset[] }
   | { type: "CLEAR_MESSAGES" };
 
 const initialState: ChatState = {
   messages: [],
+  sessions: [],
+  currentSession: null,
   isLoading: false,
   isStreaming: false,
-  currentSessionId: null,
+  isConnected: false,
   geospatialContext: null,
-  availableTools: [],
+  availableModels: [],
+  availablePresets: [],
   error: null,
 };
 
@@ -54,27 +77,24 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
       return { ...state, isLoading: action.payload };
     case "SET_STREAMING":
       return { ...state, isStreaming: action.payload };
+    case "SET_CONNECTED":
+      return { ...state, isConnected: action.payload };
     case "ADD_MESSAGE":
       return { ...state, messages: [...state.messages, action.payload] };
-    case "UPDATE_MESSAGE":
-      return {
-        ...state,
-        messages: state.messages.map((msg) =>
-          msg.id === action.payload.id
-            ? { ...msg, content: action.payload.content, isStreaming: false }
-            : msg
-        ),
-      };
     case "SET_MESSAGES":
       return { ...state, messages: action.payload };
+    case "SET_SESSIONS":
+      return { ...state, sessions: action.payload };
+    case "SET_CURRENT_SESSION":
+      return { ...state, currentSession: action.payload };
     case "SET_ERROR":
       return { ...state, error: action.payload };
     case "SET_GEOSPATIAL_CONTEXT":
       return { ...state, geospatialContext: action.payload };
-    case "SET_AVAILABLE_TOOLS":
-      return { ...state, availableTools: action.payload };
-    case "SET_SESSION_ID":
-      return { ...state, currentSessionId: action.payload };
+    case "SET_MODELS":
+      return { ...state, availableModels: action.payload };
+    case "SET_PRESETS":
+      return { ...state, availablePresets: action.payload };
     case "CLEAR_MESSAGES":
       return { ...state, messages: [] };
     default:
@@ -90,128 +110,251 @@ interface ChatProviderProps {
 export function ChatProvider({ children, onMapUpdate }: ChatProviderProps) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const contextRef = useRef<GeospatialContext | null>(null);
+  const wsManagerRef = useRef<WebSocketManager | null>(null);
 
-  const sendMessage = useCallback(
-    async (message: string, analysisType?: string) => {
-      dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
+  // Session management
+  const createSession = useCallback(async (title?: string, systemPrompt?: string): Promise<ChatSession> => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
 
-      // Add user message
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: "user",
-        content: message,
-        timestamp: new Date(),
-      };
-      dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+    try {
+      const session = await aiChatApi.createSession({
+        title: title || "New AI Chat",
+        system_prompt: systemPrompt,
+      });
+      
+      dispatch({ type: "SET_CURRENT_SESSION", payload: session });
+      dispatch({ type: "SET_MESSAGES", payload: session.messages || [] });
+      
+      // Refresh sessions list
+      await getSessions();
+      
+      return session;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create session";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, []);
 
-      try {
-        const response = await aiChatApi.sendMessage({
-          query: message,
-          features: state.geospatialContext?.features || [],
-          bounds: state.geospatialContext?.bounds,
-          analysisType: analysisType as any,
-          context: `Map center: ${state.geospatialContext?.mapCenter}, Zoom: ${state.geospatialContext?.zoomLevel}`,
-        });
+  const loadSession = useCallback(async (sessionId: string) => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
 
-        // Add assistant response
-        const assistantMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: response.analysis,
-          timestamp: new Date(),
-          metadata: {
-            visualizations: response.visualizations,
-            dataInsights: response.dataInsights,
-            geospatialData: response,
-          },
-        };
-        dispatch({ type: "ADD_MESSAGE", payload: assistantMessage });
+    try {
+      const session = await aiChatApi.getSession(sessionId);
+      const messagesData = await aiChatApi.getMessages(sessionId);
+      
+      dispatch({ type: "SET_CURRENT_SESSION", payload: session });
+      dispatch({ type: "SET_MESSAGES", payload: messagesData.messages });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load session";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, []);
 
-        // Apply analysis to map if callback provided
-        if (onMapUpdate && response.visualizations) {
-          onMapUpdate({
-            type: (analysisType as any) || "spatial",
-            summary: response.analysis,
-            details: response.dataInsights,
-            visualizations: response.visualizations,
-            recommendations: response.suggestions,
-          });
-        }
-      } catch (error) {
-        dispatch({
-          type: "SET_ERROR",
-          payload: error instanceof Error ? error.message : "Unknown error",
-        });
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
+  const getSessions = useCallback(async () => {
+    try {
+      const response = await aiChatApi.getSessions();
+      // Ensure we always get an array, even if the API returns something else
+      const sessions = Array.isArray(response) ? response : [];
+      dispatch({ type: "SET_SESSIONS", payload: sessions });
+    } catch (error) {
+      console.error("Failed to load sessions:", error);
+      // Set empty array on error to prevent map errors
+      dispatch({ type: "SET_SESSIONS", payload: [] });
+    }
+  }, []);
+
+  const deleteSession = useCallback(async (sessionId: string) => {
+    try {
+      await aiChatApi.deleteSession(sessionId);
+      await getSessions(); // Refresh sessions list
+      
+      // If deleted session was current, clear it
+      if (state.currentSession?.id === sessionId) {
+        dispatch({ type: "SET_CURRENT_SESSION", payload: null });
+        dispatch({ type: "SET_MESSAGES", payload: [] });
+        disconnectWebSocket();
       }
-    },
-    [state.geospatialContext, onMapUpdate]
-  );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete session";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+    }
+  }, [state.currentSession?.id]);
 
-  const streamMessage = useCallback(
-    async (message: string, analysisType?: string) => {
-      dispatch({ type: "SET_STREAMING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
+  // WebSocket management
+  const connectWebSocket = useCallback((sessionId: string) => {
+    // Disconnect existing connection
+    if (wsManagerRef.current) {
+      wsManagerRef.current.disconnect();
+    }
 
-      // Add user message
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: "user",
-        content: message,
-        timestamp: new Date(),
-      };
-      dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+    // Create new WebSocket manager
+    wsManagerRef.current = new WebSocketManager(sessionId, {
+      onConnect: () => {
+        dispatch({ type: "SET_CONNECTED", payload: true });
+        dispatch({ type: "SET_ERROR", payload: null });
+      },
+      onDisconnect: () => {
+        dispatch({ type: "SET_CONNECTED", payload: false });
+      },
+      onMessage: (data: WebSocketResponse) => {
+        handleWebSocketMessage(data);
+      },
+      onError: (error) => {
+        console.error("WebSocket error:", error);
+        dispatch({ type: "SET_ERROR", payload: "Connection error" });
+        dispatch({ type: "SET_CONNECTED", payload: false });
+      },
+    });
 
-      // Add streaming assistant message
-      const assistantMessageId = (Date.now() + 1).toString();
-      const assistantMessage: ChatMessage = {
-        id: assistantMessageId,
-        role: "assistant",
-        content: "",
-        timestamp: new Date(),
-        isStreaming: true,
-      };
-      dispatch({ type: "ADD_MESSAGE", payload: assistantMessage });
+    wsManagerRef.current.connect();
+  }, []);
 
-      try {
-        const stream = aiChatApi.streamMessage({
-          query: message,
-          features: state.geospatialContext?.features || [],
-          bounds: state.geospatialContext?.bounds,
-          analysisType: analysisType as any,
-          context: `Map center: ${state.geospatialContext?.mapCenter}, Zoom: ${state.geospatialContext?.zoomLevel}`,
-        });
+  const disconnectWebSocket = useCallback(() => {
+    if (wsManagerRef.current) {
+      wsManagerRef.current.disconnect();
+      wsManagerRef.current = null;
+    }
+    dispatch({ type: "SET_CONNECTED", payload: false });
+  }, []);
 
-        let fullContent = "";
-        for await (const chunk of stream) {
-          fullContent += chunk;
-          dispatch({
-            type: "UPDATE_MESSAGE",
-            payload: { id: assistantMessageId, content: fullContent },
-          });
+  // Handle WebSocket messages
+  const handleWebSocketMessage = useCallback((data: WebSocketResponse) => {
+    switch (data.type) {
+      case 'connection_established':
+        break;
+      
+      case 'user_message':
+      case 'ai_message_complete':
+        if (data.message && typeof data.message === 'object') {
+          dispatch({ type: "ADD_MESSAGE", payload: data.message as ChatMessage });
         }
-      } catch (error) {
-        dispatch({
-          type: "SET_ERROR",
-          payload: error instanceof Error ? error.message : "Unknown error",
-        });
-      } finally {
+        break;
+      
+      case 'ai_typing':
+        dispatch({ type: "SET_STREAMING", payload: true });
+        break;
+      
+      case 'ai_message_chunk':
+        dispatch({ type: "SET_STREAMING", payload: true });
+        break;
+      
+      case 'error':
+        dispatch({ type: "SET_ERROR", payload: data.message as string });
         dispatch({ type: "SET_STREAMING", payload: false });
-      }
-    },
-    [state.geospatialContext]
-  );
+        break;
+    }
+  }, []);
 
+  // Message handling
+  const sendMessage = useCallback(async (message: string) => {
+    if (!state.currentSession) {
+      dispatch({ type: "SET_ERROR", payload: "No active session" });
+      return;
+    }
+
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
+
+    try {
+      // Send via HTTP API
+      const response = await aiChatApi.sendMessage(state.currentSession.id, {
+        message,
+        stream: false,
+      });
+
+      if (response.success) {
+        // Add user message if provided
+        if (response.user_message) {
+          const userMessage: ChatMessage = {
+            id: response.user_message.id,
+            role: "user",
+            content: response.user_message.content,
+            created_at: response.user_message.created_at,
+            metadata: {
+              geospatialData: state.geospatialContext,
+            },
+          };
+          dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+        }
+
+        // Add AI message if provided
+        if (response.ai_message) {
+          const aiMessage: ChatMessage = {
+            id: response.ai_message.id,
+            role: "assistant",
+            content: response.ai_message.content,
+            created_at: response.ai_message.created_at,
+            metadata: {},
+          };
+          dispatch({ type: "ADD_MESSAGE", payload: aiMessage });
+        }
+      } else {
+        dispatch({ type: "SET_ERROR", payload: response.error || "Failed to send message" });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, [state.currentSession, state.geospatialContext]);
+
+  const sendMessageWebSocket = useCallback((message: string) => {
+    if (!wsManagerRef.current || !wsManagerRef.current.isConnected()) {
+      dispatch({ type: "SET_ERROR", payload: "Not connected to chat" });
+      return;
+    }
+
+    // Send via WebSocket for real-time experience
+    wsManagerRef.current.sendMessage(message);
+  }, []);
+
+  // Model and preset management
+  const loadModels = useCallback(async () => {
+    try {
+      const models = await aiChatApi.getModels();
+      dispatch({ type: "SET_MODELS", payload: models });
+    } catch (error) {
+      console.error("Failed to load models:", error);
+    }
+  }, []);
+
+  const loadPresets = useCallback(async () => {
+    try {
+      const presets = await aiChatApi.getPresets();
+      dispatch({ type: "SET_PRESETS", payload: presets });
+    } catch (error) {
+      console.error("Failed to load presets:", error);
+    }
+  }, []);
+
+  const syncModels = useCallback(async () => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const result = await aiChatApi.syncModels();
+      dispatch({ type: "SET_MODELS", payload: result.models });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to sync models";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, []);
+
+  // Context management
   const updateGeospatialContext = useCallback((context: GeospatialContext) => {
-    // Only update if the context has actually changed to prevent unnecessary updates
     const hasChanged =
       !contextRef.current ||
       contextRef.current.features.length !== context.features.length ||
       contextRef.current.zoomLevel !== context.zoomLevel ||
-      JSON.stringify(contextRef.current.bounds) !==
-        JSON.stringify(context.bounds);
+      JSON.stringify(contextRef.current.bounds) !== JSON.stringify(context.bounds);
 
     if (hasChanged) {
       contextRef.current = context;
@@ -223,24 +366,6 @@ export function ChatProvider({ children, onMapUpdate }: ChatProviderProps) {
     dispatch({ type: "CLEAR_MESSAGES" });
   }, []);
 
-  const loadChatHistory = useCallback(async (sessionId?: string) => {
-    try {
-      const messages = await aiChatApi.getChatHistory(sessionId);
-      dispatch({ type: "SET_MESSAGES", payload: messages });
-      if (sessionId) {
-        dispatch({ type: "SET_SESSION_ID", payload: sessionId });
-      }
-    } catch (error) {
-      dispatch({
-        type: "SET_ERROR",
-        payload:
-          error instanceof Error
-            ? error.message
-            : "Failed to load chat history",
-      });
-    }
-  }, []);
-
   const applyAnalysisToMap = useCallback(
     (analysis: AnalysisResult) => {
       if (onMapUpdate) {
@@ -250,14 +375,36 @@ export function ChatProvider({ children, onMapUpdate }: ChatProviderProps) {
     [onMapUpdate]
   );
 
+  // Initialize data on mount
+  useEffect(() => {
+    loadModels();
+    loadPresets();
+    getSessions();
+  }, [loadModels, loadPresets, getSessions]);
+
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      disconnectWebSocket();
+    };
+  }, [disconnectWebSocket]);
+
   const contextValue: ChatContextType = {
     state,
+    createSession,
+    loadSession,
+    getSessions,
+    deleteSession,
     sendMessage,
-    streamMessage,
+    sendMessageWebSocket,
     updateGeospatialContext,
     clearMessages,
-    loadChatHistory,
     applyAnalysisToMap,
+    connectWebSocket,
+    disconnectWebSocket,
+    loadModels,
+    loadPresets,
+    syncModels,
   };
 
   return (

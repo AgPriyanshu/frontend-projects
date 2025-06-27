@@ -12,12 +12,13 @@ export const MessageBubble = memo(function MessageBubble({
   const isUser = message.role === "user";
   const isStreaming = message.isStreaming;
 
-  const formatTimestamp = (timestamp: Date) => {
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
     return new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    }).format(timestamp);
+    }).format(date);
   };
 
   const renderVisualizationPreview = () => {
@@ -123,7 +124,7 @@ export const MessageBubble = memo(function MessageBubble({
             isUser ? "text-right" : "text-left"
           }`}
         >
-          {formatTimestamp(message.timestamp)}
+          {formatTimestamp(message.created_at)}
           {message.metadata?.analysisType && !isUser && (
             <span className="ml-2 bg-muted px-2 py-0.5 rounded text-xs">
               {message.metadata.analysisType}

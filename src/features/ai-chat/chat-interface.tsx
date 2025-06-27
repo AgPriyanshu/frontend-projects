@@ -2,10 +2,24 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Badge } from "@/components/ui/badge";
 import { useChat } from "./chat-context";
 import { MessageBubble } from "./message-bubble";
 import { AnalysisTools } from "./analysis-tools";
-import { Send, Bot, Loader2, MapPin, Trash2, Download } from "lucide-react";
+import { 
+  Send, 
+  Bot, 
+  Loader2, 
+  MapPin, 
+  Trash2, 
+  Download, 
+  Plus,
+  Wifi,
+  WifiOff,
+  Settings,
+  Zap
+} from "lucide-react";
 
 interface ChatInterfaceProps {
   isOpen: boolean;
@@ -18,11 +32,21 @@ export function ChatInterface({
   onClose,
   className,
 }: ChatInterfaceProps) {
-  const { state, sendMessage, streamMessage, clearMessages } = useChat();
+  const { 
+    state, 
+    createSession,
+    loadSession,
+    sendMessage,
+    sendMessageWebSocket,
+    clearMessages,
+    connectWebSocket,
+    disconnectWebSocket,
+  } = useChat();
+  
   const [inputMessage, setInputMessage] = useState("");
-  const [selectedAnalysisType, setSelectedAnalysisType] =
-    useState<string>("spatial");
-  const [useStreaming, setUseStreaming] = useState(true);
+  const [selectedAnalysisType, setSelectedAnalysisType] = useState<string>("spatial");
+  const [useWebSocket, setUseWebSocket] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,24 +64,61 @@ export function ChatInterface({
     }
   }, [isOpen]);
 
+  // Auto-connect WebSocket when session changes
+  useEffect(() => {
+    if (state.currentSession && useWebSocket) {
+      connectWebSocket(state.currentSession.id);
+    } else {
+      disconnectWebSocket();
+    }
+    
+    return () => {
+      disconnectWebSocket();
+    };
+  }, [state.currentSession?.id, useWebSocket, connectWebSocket, disconnectWebSocket]);
+
+  const handleCreateSession = async () => {
+    try {
+      const session = await createSession();
+      if (useWebSocket) {
+        connectWebSocket(session.id);
+      }
+    } catch (error) {
+      console.error("Failed to create session:", error);
+    }
+  };
+
+  const handleSelectSession = async (sessionId: string) => {
+    try {
+      await loadSession(sessionId);
+    } catch (error) {
+      console.error("Failed to load session:", error);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || state.isLoading || state.isStreaming) return;
+    if (!state.currentSession) {
+      await handleCreateSession();
+      return;
+    }
 
     const message = inputMessage.trim();
     setInputMessage("");
 
-    // Get current geospatial context when sending message
-    // Note: We'll implement this differently to avoid the hook call issue
-
     try {
-      if (useStreaming) {
-        await streamMessage(message, selectedAnalysisType);
+      if (useWebSocket && state.isConnected) {
+        sendMessageWebSocket(message);
       } else {
-        await sendMessage(message, selectedAnalysisType);
+        await sendMessage(message);
       }
     } catch (error) {
       console.error("Failed to send message:", error);
     }
+  };
+
+  const handleTyping = () => {
+    // Implement typing indicator logic here if needed
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -75,6 +136,7 @@ export function ChatInterface({
 
   const handleExportChat = () => {
     const chatData = {
+      session: state.currentSession,
       messages: state.messages,
       timestamp: new Date().toISOString(),
       geospatialContext: state.geospatialContext,
@@ -86,7 +148,7 @@ export function ChatInterface({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `geospatial-chat-${
+    a.download = `ai-chat-${state.currentSession?.title || 'session'}-${
       new Date().toISOString().split("T")[0]
     }.json`;
     document.body.appendChild(a);
@@ -105,9 +167,26 @@ export function ChatInterface({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">AI Geospatial Assistant</CardTitle>
+            <CardTitle className="text-lg">AI Chat</CardTitle>
+            {useWebSocket && (
+              <span className={`text-xs px-2 py-1 rounded-full ${state.isConnected ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                {state.isConnected ? (
+                  <><Wifi className="h-3 w-3 mr-1 inline" />Live</>
+                ) : (
+                  <><WifiOff className="h-3 w-3 mr-1 inline" />Offline</>
+                )}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              title="Settings"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -132,6 +211,53 @@ export function ChatInterface({
           </div>
         </div>
 
+        {/* Session Selection */}
+        <div className="flex items-center gap-2 mt-2">
+          <select
+            className="flex-1 px-3 py-2 border border-input bg-background rounded-md"
+            value={state.currentSession?.id || ""}
+            onChange={(e) => e.target.value && handleSelectSession(e.target.value)}
+          >
+            <option value="">Select session</option>
+            {(state.sessions || []).map((session) => (
+              <option key={session.id} value={session.id}>
+                {session.title} ({session.message_count} messages)
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCreateSession}
+            disabled={state.isLoading}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className="mt-2 p-2 bg-muted rounded-lg space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Use WebSocket</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setUseWebSocket(!useWebSocket)}
+              >
+                {useWebSocket ? <Zap className="h-4 w-4" /> : <Wifi className="h-4 w-4" />}
+              </Button>
+            </div>
+            {state.currentSession && (
+              <div className="text-xs text-muted-foreground">
+                Model: {state.currentSession.model_name} | 
+                Temp: {state.currentSession.temperature} | 
+                Tools: {state.currentSession.enable_tools ? 'On' : 'Off'}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Context Indicator */}
         {state.geospatialContext && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
@@ -150,8 +276,8 @@ export function ChatInterface({
           <AnalysisTools
             selectedType={selectedAnalysisType}
             onTypeChange={setSelectedAnalysisType}
-            useStreaming={useStreaming}
-            onStreamingChange={setUseStreaming}
+            useStreaming={useWebSocket}
+            onStreamingChange={setUseWebSocket}
           />
         </div>
 
@@ -160,10 +286,12 @@ export function ChatInterface({
           {state.messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Ask me to analyze your geospatial data!</p>
+              <p className="text-sm">Start a conversation with AI!</p>
               <p className="text-xs mt-1">
-                Draw shapes on the map and ask questions about patterns,
-                distances, or relationships.
+                {state.currentSession 
+                  ? "Ask questions about your data or request analysis."
+                  : "Create a new session to begin chatting."
+                }
               </p>
             </div>
           ) : (
@@ -187,9 +315,16 @@ export function ChatInterface({
             <Input
               ref={inputRef}
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
+              onChange={(e) => {
+                setInputMessage(e.target.value);
+                handleTyping();
+              }}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about your geospatial data..."
+              placeholder={
+                state.currentSession 
+                  ? "Type your message..." 
+                  : "Create a session to start chatting..."
+              }
               disabled={state.isLoading || state.isStreaming}
               className="flex-1"
             />
@@ -208,12 +343,20 @@ export function ChatInterface({
             </Button>
           </div>
 
+          {/* Status Indicator */}
           {(state.isLoading || state.isStreaming) && (
             <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
               <span>
-                {state.isStreaming ? "Streaming response..." : "Analyzing..."}
+                {state.isStreaming ? "AI is responding..." : "Processing..."}
               </span>
+            </div>
+          )}
+          
+          {useWebSocket && !state.isConnected && state.currentSession && (
+            <div className="flex items-center gap-2 mt-2 text-xs text-amber-600">
+              <WifiOff className="h-3 w-3" />
+              <span>Reconnecting...</span>
             </div>
           )}
         </div>
