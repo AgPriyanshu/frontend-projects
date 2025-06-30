@@ -234,9 +234,9 @@ export function ChatInterface({
         </div>
 
         {/* Session Selection */}
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-2 w-full max-w-full">
           <select
-            className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
+            className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm w-full max-w-full box-border"
             value={state.currentSession?.id || ""}
             onChange={(e) => e.target.value && handleSelectSession(e.target.value)}
           >
@@ -366,8 +366,8 @@ export function ChatInterface({
 
         {/* Input */}
         <div className="p-3 border-t shrink-0 bg-background">
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
+          <div className="flex items-end gap-2 w-full max-w-full">
+            <div className="flex-1 w-full max-w-full">
               <Input
                 ref={inputRef}
                 value={inputMessage}
@@ -382,7 +382,7 @@ export function ChatInterface({
                     : "Create a session to start chatting..."
                 }
                 disabled={state.isLoading || state.isStreaming}
-                className="min-h-[2.5rem] resize-none"
+                className="min-h-[2.5rem] resize-none w-full max-w-full box-border"
               />
             </div>
             <Button

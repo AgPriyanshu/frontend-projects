@@ -1,5 +1,8 @@
 import { memo } from "react";
 import { User, Bot, Loader2, Eye, BarChart3, Map } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import type { ChatMessage } from "./types";
 
 interface MessageBubbleProps {
@@ -140,29 +143,66 @@ export const MessageBubble = memo(function MessageBubble({
   };
 
   return (
-    <div className={`flex gap-2 sm:gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div className={`chat-message ${isUser ? "chat-message--user" : "chat-message--assistant"}`}>
       {/* Avatar */}
-      <div
-        className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-          isUser ? "bg-primary text-primary-foreground" : "bg-muted"
-        }`}
-      >
-        {isUser ? <User className="h-3 w-3 sm:h-4 sm:w-4" /> : <Bot className="h-3 w-3 sm:h-4 sm:w-4" />}
+      <div className={`chat-message__avatar ${isUser ? "chat-message__avatar--user" : "chat-message__avatar--assistant"}`}>
+        {isUser ? <User className="chat-message__avatar-icon" /> : <Bot className="chat-message__avatar-icon" />}
       </div>
 
       {/* Message Content */}
-      <div
-        className={`flex-1 max-w-[85%] sm:max-w-[80%] ${isUser ? "text-right" : "text-left"}`}
-      >
-        <div
-          className={`inline-block p-2 sm:p-3 rounded-lg ${
-            isUser ? "bg-primary text-primary-foreground" : "bg-muted border"
-          }`}
-        >
-          <div className="text-sm whitespace-pre-wrap break-words">
-            {message.content}
+      <div className="chat-message__bubble">
+        <div className="chat-message__content">
+          <div className="chat-message__markdown">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={{
+                // Custom styling for different markdown elements
+                h1: ({ children }) => <h1 className="text-lg font-bold mb-2 text-foreground">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-base font-semibold mb-2 text-foreground">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 text-foreground">{children}</h3>,
+                h4: ({ children }) => <h4 className="text-sm font-medium mb-1 text-foreground">{children}</h4>,
+                p: ({ children }) => <p className="mb-2 text-foreground">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                li: ({ children }) => <li className="text-foreground">{children}</li>,
+                table: ({ children }) => (
+                  <div className="overflow-x-auto mb-3">
+                    <table className="min-w-full border-collapse border border-border">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => <thead className="bg-muted">{children}</thead>,
+                tbody: ({ children }) => <tbody>{children}</tbody>,
+                tr: ({ children }) => <tr className="border-b border-border">{children}</tr>,
+                th: ({ children }) => <th className="border border-border px-3 py-2 text-left font-medium text-sm">{children}</th>,
+                td: ({ children }) => <td className="border border-border px-3 py-2 text-sm">{children}</td>,
+                code: ({ children, className }) => {
+                  const isInline = !className;
+                  if (isInline) {
+                    return <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
+                  }
+                  return (
+                    <pre className="bg-muted p-3 rounded-lg overflow-x-auto mb-3">
+                      <code className="text-xs">{children}</code>
+                    </pre>
+                  );
+                },
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground mb-2">
+                    {children}
+                  </blockquote>
+                ),
+                hr: () => <hr className="border-border my-3" />,
+                strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                em: ({ children }) => <em className="italic">{children}</em>,
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
             {isStreaming && (
-              <Loader2 className="inline h-3 w-3 animate-spin ml-1" />
+              <Loader2 className="chat-message__loader" />
             )}
           </div>
 
@@ -176,14 +216,10 @@ export const MessageBubble = memo(function MessageBubble({
         </div>
 
         {/* Timestamp */}
-        <div
-          className={`text-xs text-muted-foreground mt-1 ${
-            isUser ? "text-right" : "text-left"
-          }`}
-        >
+        <div className="chat-message__timestamp">
           {formatTimestamp(message.created_at)}
           {message.metadata?.analysisType && !isUser && (
-            <span className="ml-2 bg-muted px-2 py-0.5 rounded text-xs hidden sm:inline">
+            <span className="chat-message__analysis-type">
               {message.metadata.analysisType}
             </span>
           )}

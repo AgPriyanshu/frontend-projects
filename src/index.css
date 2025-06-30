@@ -29,3 +29,125 @@ body {
   display: flex;
   min-width: 320px;
 }
+
+/* Markdown Content Styling (alignment fix) */
+.prose {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  word-break: break-word;
+}
+.prose p, .prose ul, .prose ol, .prose table, .prose pre, .prose blockquote, .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.prose table {
+  width: 100% !important;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: inherit;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose h1:first-child,
+.prose h2:first-child,
+.prose h3:first-child,
+.prose h4:first-child,
+.prose h5:first-child,
+.prose h6:first-child {
+  margin-top: 0;
+}
+
+.prose p {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.25em;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  font-size: 0.875em;
+}
+
+.prose th,
+.prose td {
+  padding: 0.5rem;
+  text-align: left;
+  border: 1px solid hsl(var(--border));
+}
+
+.prose th {
+  font-weight: 600;
+  background-color: hsl(var(--muted));
+}
+
+.prose code {
+  background-color: hsl(var(--muted));
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.prose pre {
+  background-color: hsl(var(--muted));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.prose blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+  font-style: italic;
+  margin-bottom: 1em;
+  color: hsl(var(--muted-foreground));
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 2rem 0;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .prose {
+    color: hsl(var(--foreground));
+  }
+}
