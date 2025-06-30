@@ -8,6 +8,7 @@ import type { GeospatialContext } from "@/features/ai-chat/types";
 import { shapefileApi, ApiError } from "@/api";
 import type { ShapefileLayer } from "@/api";
 import { Upload, AlertCircle, CheckCircle, XCircle, FileUp, Layers, Eye, EyeOff, Palette, Info, Table, X, ChevronDown, ChevronRight } from "lucide-react";
+import { FeatureTable } from "./components/feature-table";
 
 interface MapProps {
   center?: [number, number];
@@ -29,6 +30,27 @@ interface LoadedLayer {
   layer: ShapefileLayer;
   visible: boolean;
   color: string;
+}
+
+interface FeatureAttributes {
+  [key: string]: any;
+}
+
+interface SelectedFeature {
+  layerId: number;
+  layerName: string;
+  featureId: string | number;
+  attributes: FeatureAttributes;
+  geometry: any;
+}
+
+interface AttributePanelState {
+  isOpen: boolean;
+  mode: 'feature' | 'layer';
+  selectedFeature: SelectedFeature | null;
+  selectedLayerId: number | null;
+  layerFeatures: FeatureAttributes[] | null;
+  isLoading: boolean;
 }
 
 // Generate consistent colors for layers
@@ -60,11 +82,37 @@ export const Map = ({
   const uploadedLayers = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const layersLoadedRef = useRef<boolean>(false);
+  const previousContextRef = useRef<GeospatialContext | null>(null);
 
   // Loaded layers state
   const [loadedLayers, setLoadedLayers] = useState<LoadedLayer[]>([]);
   const [showLayersPanel, setShowLayersPanel] = useState(false);
   const [isLoadingLayers, setIsLoadingLayers] = useState(true);
+
+  // Attribute panel state
+  const [attributePanel, setAttributePanel] = useState<AttributePanelState>({
+    isOpen: false,
+    mode: 'feature',
+    selectedFeature: null,
+    selectedLayerId: null,
+    layerFeatures: null,
+    isLoading: false,
+  });
+
+  // Feature table state
+  const [featureTable, setFeatureTable] = useState<{
+    isOpen: boolean;
+    layerId: number | null;
+    layerName: string;
+    features: FeatureAttributes[];
+    isLoading: boolean;
+  }>({
+    isOpen: false,
+    layerId: null,
+    layerName: '',
+    features: [],
+    isLoading: false,
+  });
 
   // Drag and drop state
   const [dragDropState, setDragDropState] = useState<DragDropState>({
@@ -234,16 +282,7 @@ export const Map = ({
       map.current.on('click', layerId.includes('fill') ? `${layerId}-fill` : layerId, (e) => {
         if (e.features && e.features[0]) {
           const feature = e.features[0];
-          const properties = feature.properties || {};
-          
-          const popupContent = Object.entries(properties)
-            .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-            .join('<br>');
-          
-          new maplibregl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(`<div style="max-width: 200px;">${popupContent}</div>`)
-            .addTo(map.current!);
+          showFeatureAttributes(layer.id, layer.name, feature);
         }
       });
 
@@ -385,6 +424,28 @@ export const Map = ({
 
           map.current!.addLayer(layerConfig);
           uploadedLayers.current.add(loadedLayer.layer.id.toString());
+
+          // Add click handler for feature info
+          const clickLayerId = layerConfig.id.includes('fill') ? `${layerConfig.id}` : layerConfig.id;
+          map.current!.on('click', clickLayerId, (e) => {
+            if (e.features && e.features[0]) {
+              const feature = e.features[0];
+              showFeatureAttributes(loadedLayer.layer.id, loadedLayer.layer.name, feature);
+            }
+          });
+
+          // Change cursor on hover
+          map.current!.on('mouseenter', clickLayerId, () => {
+            if (map.current) {
+              map.current.getCanvas().style.cursor = 'pointer';
+            }
+          });
+          
+          map.current!.on('mouseleave', clickLayerId, () => {
+            if (map.current) {
+              map.current.getCanvas().style.cursor = '';
+            }
+          });
           
         } catch (error) {
           console.error('Failed to add layer:', loadedLayer.layer.name, error);
@@ -400,7 +461,7 @@ export const Map = ({
     } finally {
       setIsLoadingLayers(false);
     }
-  }, []); // No dependencies to avoid circular dependency
+  }, []);
 
   // Toggle layer visibility
   const toggleLayerVisibility = useCallback((layerId: number) => {
@@ -462,6 +523,165 @@ export const Map = ({
     setLoadedLayers(prev => prev.filter(layer => layer.id !== layerId));
     uploadedLayers.current.delete(layerId.toString());
   }, []);
+
+  // Show layer attributes in attribute panel
+  const showLayerAttributes = useCallback(async (layerId: number) => {
+    const layer = loadedLayers.find(l => l.id === layerId);
+    if (!layer) return;
+
+    setAttributePanel(prev => ({
+      ...prev,
+      isOpen: true,
+      mode: 'layer',
+      selectedLayerId: layerId,
+      selectedFeature: null,
+      isLoading: true,
+      layerFeatures: null,
+    }));
+
+    try {
+      const geoJsonResponse = await shapefileApi.getLayerGeoJSON(layerId);
+      const geoJsonData = geoJsonResponse.data || geoJsonResponse;
+      
+      if (geoJsonData && geoJsonData.features) {
+        const features = geoJsonData.features.map((feature: any, index: number) => ({
+          ...feature.properties,
+          _featureId: feature.id || index,
+          _geometryType: feature.geometry?.type || 'Unknown',
+        }));
+        
+        setAttributePanel(prev => ({
+          ...prev,
+          layerFeatures: features,
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load layer attributes:', error);
+      setAttributePanel(prev => ({
+        ...prev,
+        isLoading: false,
+      }));
+    }
+  }, [loadedLayers]);
+
+  // Show feature attributes in attribute panel
+  const showFeatureAttributes = useCallback((layerId: number, layerName: string, feature: any) => {
+    const selectedFeature: SelectedFeature = {
+      layerId,
+      layerName,
+      featureId: feature.id || 'unknown',
+      attributes: feature.properties || {},
+      geometry: feature.geometry,
+    };
+
+    setAttributePanel({
+      isOpen: true,
+      mode: 'feature',
+      selectedFeature,
+      selectedLayerId: null,
+      layerFeatures: null,
+      isLoading: false,
+    });
+  }, []);
+
+  // Close attribute panel
+  const closeAttributePanel = useCallback(() => {
+    setAttributePanel(prev => ({
+      ...prev,
+      isOpen: false,
+      selectedFeature: null,
+      selectedLayerId: null,
+      layerFeatures: null,
+    }));
+  }, []);
+
+  // Open feature table for a layer
+  const openFeatureTable = useCallback(async (layerId: number, layerName: string) => {
+    setFeatureTable(prev => ({
+      ...prev,
+      isOpen: true,
+      layerId,
+      layerName,
+      isLoading: true,
+    }));
+
+    try {
+      // Get GeoJSON data for the layer
+      const geoJsonResponse = await shapefileApi.getLayerGeoJSON(layerId);
+      const geoJsonData = geoJsonResponse.data || geoJsonResponse;
+      
+      if (geoJsonData && geoJsonData.features) {
+        // Transform GeoJSON features to table format
+        const tableFeatures = geoJsonData.features.map((feature: any, index: number) => ({
+          _featureId: feature.id || index + 1,
+          _geometryType: feature.geometry?.type || 'Unknown',
+          ...feature.properties
+        }));
+
+        setFeatureTable(prev => ({
+          ...prev,
+          features: tableFeatures,
+          isLoading: false,
+        }));
+      } else {
+        setFeatureTable(prev => ({
+          ...prev,
+          features: [],
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load features for table:', error);
+      setFeatureTable(prev => ({
+        ...prev,
+        features: [],
+        isLoading: false,
+      }));
+    }
+  }, []);
+
+  // Close feature table
+  const closeFeatureTable = useCallback(() => {
+    setFeatureTable(prev => ({
+      ...prev,
+      isOpen: false,
+      layerId: null,
+      layerName: '',
+      features: [],
+      isLoading: false,
+    }));
+  }, []);
+
+  // Handle feature selection from table
+  const handleFeatureSelect = useCallback((feature: FeatureAttributes) => {
+    // Find the layer for this feature
+    const layer = loadedLayers.find(l => l.id === featureTable.layerId);
+    if (layer) {
+      // Show feature attributes in the attribute panel
+      const selectedFeature: SelectedFeature = {
+        layerId: layer.id,
+        layerName: layer.layer.name,
+        featureId: feature._featureId || 'unknown',
+        attributes: Object.fromEntries(
+          Object.entries(feature).filter(([key]) => !key.startsWith('_'))
+        ),
+        geometry: { type: feature._geometryType || 'Unknown' },
+      };
+
+      setAttributePanel({
+        isOpen: true,
+        mode: 'feature',
+        selectedFeature,
+        selectedLayerId: null,
+        layerFeatures: null,
+        isLoading: false,
+      });
+
+      // Close the feature table
+      closeFeatureTable();
+    }
+  }, [featureTable.layerId, loadedLayers, closeFeatureTable]);
 
   // Handle shapefile upload
   const handleShapefileUpload = useCallback(async (file: File) => {
@@ -707,8 +927,63 @@ export const Map = ({
       selectedFeatures: [],
     };
 
-    contextCallbackRef.current(context);
+    // Check if context has changed significantly to prevent unnecessary updates
+    const prevContext = previousContextRef.current;
+    const hasSignificantChange = !prevContext || 
+      prevContext.zoomLevel !== context.zoomLevel ||
+      Math.abs(prevContext.mapCenter[0] - context.mapCenter[0]) > 0.01 ||
+      Math.abs(prevContext.mapCenter[1] - context.mapCenter[1]) > 0.01 ||
+      features.length !== prevContext.features.length ||
+      JSON.stringify(features) !== JSON.stringify(prevContext.features);
+
+    if (hasSignificantChange) {
+      previousContextRef.current = context;
+      contextCallbackRef.current(context);
+    }
   }, []);
+
+  // Debounced version of updateGeospatialContext for frequent map changes
+  const debouncedUpdateContext = useCallback(
+    debounce(() => {
+      updateGeospatialContext();
+    }, 500), // Increased to 500ms debounce for better performance
+    [updateGeospatialContext]
+  );
+
+  // Throttled version for continuous map movements
+  const throttledUpdateContext = useCallback(
+    throttle(() => {
+      updateGeospatialContext();
+    }, 200), // Increased to 200ms throttle for better performance
+    [updateGeospatialContext]
+  );
+
+  // Simple debounce utility function
+  function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+  ): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  }
+
+  // Simple throttle utility function
+  function throttle<T extends (...args: any[]) => any>(
+    func: T,
+    limit: number
+  ): (...args: Parameters<T>) => void {
+    let inThrottle: boolean;
+    return (...args: Parameters<T>) => {
+      if (!inThrottle) {
+        func(...args);
+        inThrottle = true;
+        setTimeout(() => (inThrottle = false), limit);
+      }
+    };
+  }
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -767,10 +1042,22 @@ export const Map = ({
       updateGeospatialContext();
     };
 
-    map.current.on("moveend", handleMapChange);
-    map.current.on("zoomend", handleMapChange);
+    // Use throttled updates for continuous movements (zooming, panning)
+    const handleMapMove = () => {
+      throttledUpdateContext();
+    };
 
-    // Listen for Terra Draw changes
+    // Use debounced updates for final positions
+    const handleMapEnd = () => {
+      debouncedUpdateContext();
+    };
+
+    map.current.on("moveend", handleMapEnd);
+    map.current.on("zoomend", handleMapEnd);
+    map.current.on("move", handleMapMove);
+    map.current.on("zoom", handleMapMove);
+
+    // Listen for Terra Draw changes (use immediate updates for drawing)
     map.current.on("terra-draw.change", handleMapChange);
     map.current.on("terra-draw.finish", handleMapChange);
     map.current.on("terra-draw.delete", handleMapChange);
@@ -778,8 +1065,10 @@ export const Map = ({
     // Cleanup on unmount
     return () => {
       if (map.current) {
-        map.current.off("moveend", handleMapChange);
-        map.current.off("zoomend", handleMapChange);
+        map.current.off("moveend", handleMapEnd);
+        map.current.off("zoomend", handleMapEnd);
+        map.current.off("move", handleMapMove);
+        map.current.off("zoom", handleMapMove);
         map.current.off("terra-draw.change", handleMapChange);
         map.current.off("terra-draw.finish", handleMapChange);
         map.current.off("terra-draw.delete", handleMapChange);
@@ -872,6 +1161,13 @@ export const Map = ({
                       
                       {/* Controls */}
                       <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => openFeatureTable(loadedLayer.id, loadedLayer.layer.name)}
+                          className="p-1 rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors"
+                          title="Open feature table"
+                        >
+                          <Table className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => toggleLayerVisibility(loadedLayer.id)}
                           className={`p-1 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
@@ -966,6 +1262,163 @@ export const Map = ({
                 <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-1">{dragDropState.success}</p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Attribute Panel */}
+      {attributePanel.isOpen && (
+        <div className="absolute bottom-4 right-4 z-40 max-w-[600px] max-h-[500px]">
+          <div className="bg-card text-card-foreground rounded-lg shadow-lg border border-border overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-2">
+                {attributePanel.mode === 'feature' ? (
+                  <>
+                    <Info className="h-5 w-5 text-primary" />
+                    <div>
+                      <h3 className="font-semibold text-foreground">Feature Attributes</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {attributePanel.selectedFeature?.layerName} • ID: {attributePanel.selectedFeature?.featureId}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Table className="h-5 w-5 text-primary" />
+                    <div>
+                      <h3 className="font-semibold text-foreground">Attribute Table</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {loadedLayers.find(l => l.id === attributePanel.selectedLayerId)?.layer.name} • {attributePanel.layerFeatures?.length || 0} features
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={closeAttributePanel}
+                className="p-1 rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors"
+                title="Close attribute panel"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="max-h-[400px] overflow-auto">
+              {attributePanel.isLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                  <span className="ml-2 text-muted-foreground">Loading attributes...</span>
+                </div>
+              ) : attributePanel.mode === 'feature' && attributePanel.selectedFeature ? (
+                /* Feature Attributes View */
+                <div className="p-4">
+                  {Object.keys(attributePanel.selectedFeature.attributes).length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No attributes available for this feature.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Geometry Information */}
+                      <div className="p-3 bg-muted/30 rounded-lg">
+                        <h4 className="font-medium text-sm text-foreground mb-2">Geometry</h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Type:</span>
+                            <span className="ml-2 font-mono">{attributePanel.selectedFeature.geometry?.type || 'Unknown'}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Feature ID:</span>
+                            <span className="ml-2 font-mono">{attributePanel.selectedFeature.featureId}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Feature Attributes */}
+                      <div>
+                        <h4 className="font-medium text-sm text-foreground mb-2">Attributes</h4>
+                        <div className="space-y-2">
+                          {Object.entries(attributePanel.selectedFeature.attributes).map(([key, value]) => (
+                            <div key={key} className="flex flex-col gap-1 p-2 bg-muted/20 rounded">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide">{key}</span>
+                              <span className="text-sm text-foreground font-mono break-all">
+                                {value !== null && value !== undefined ? String(value) : '—'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : attributePanel.mode === 'layer' && attributePanel.layerFeatures ? (
+                /* Layer Attribute Table View */
+                <div className="p-4">
+                  {attributePanel.layerFeatures.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No features available in this layer.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th className="text-left p-2 font-medium text-muted-foreground bg-muted/30">ID</th>
+                            <th className="text-left p-2 font-medium text-muted-foreground bg-muted/30">Type</th>
+                            {attributePanel.layerFeatures.length > 0 && 
+                              Object.keys(attributePanel.layerFeatures[0])
+                                .filter(key => !key.startsWith('_'))
+                                .map(key => (
+                                  <th key={key} className="text-left p-2 font-medium text-muted-foreground bg-muted/30 min-w-[100px]">
+                                    {key}
+                                  </th>
+                                ))
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {attributePanel.layerFeatures.slice(0, 100).map((feature, index) => (
+                            <tr key={index} className="border-b border-border/50 hover:bg-muted/20">
+                              <td className="p-2 font-mono text-xs">{feature._featureId}</td>
+                              <td className="p-2 text-xs">{feature._geometryType}</td>
+                              {Object.entries(feature)
+                                .filter(([key]) => !key.startsWith('_'))
+                                .map(([key, value]) => (
+                                  <td key={key} className="p-2 text-xs font-mono max-w-[150px] truncate" title={String(value)}>
+                                    {value !== null && value !== undefined ? String(value) : '—'}
+                                  </td>
+                                ))
+                              }
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {attributePanel.layerFeatures.length > 100 && (
+                        <div className="p-2 text-xs text-muted-foreground text-center border-t border-border/50">
+                          Showing first 100 of {attributePanel.layerFeatures.length} features
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-4">
+                  <p className="text-muted-foreground text-sm">No data available.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feature Table */}
+      {featureTable.isOpen && (
+        <div className="absolute inset-4 z-40 flex items-start justify-start">
+          <div className="w-full max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] lg:max-w-[800px] lg:max-h-[calc(100%-2rem)]">
+            <FeatureTable
+              features={featureTable.features}
+              layerName={featureTable.layerName}
+              onFeatureSelect={handleFeatureSelect}
+              onClose={closeFeatureTable}
+              isLoading={featureTable.isLoading}
+            />
           </div>
         </div>
       )}
