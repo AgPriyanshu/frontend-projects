@@ -1,13 +1,18 @@
-import { HomeCard } from "@/components/home-card";
-import { Map } from "lucide-react";
+import { Map } from './map';
+import type { GeospatialContext } from '@/features/ai-chat/types';
 
-export const MapCard = () => {
+interface MapCardProps {
+  onGeospatialContextChange?: (context: GeospatialContext) => void;
+}
+
+export function MapCard({ onGeospatialContextChange }: MapCardProps) {
   return (
-    <HomeCard
-      to="/map"
-      icon={<Map className="text-primary" size={24} />}
-      title="Interactive Map"
-      description="Explore and draw on an interactive map"
-    />
+    <div className="w-full h-[600px] border border-border rounded-lg overflow-hidden shadow-lg bg-card">
+      <Map 
+        center={[78.9629, 20.5937]} 
+        zoom={4}
+        onGeospatialContextChange={onGeospatialContextChange}
+      />
+    </div>
   );
-};
+}

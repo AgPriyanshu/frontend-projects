@@ -460,3 +460,211 @@ export const aiChatApi = {
     }
   },
 };
+
+// Shapefile Upload API
+export interface ShapefileLayer {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  feature_count: number;
+  file_name: string;
+  file_size: number;
+  geometry_type: string;
+  srid: number;
+}
+
+export interface ShapefileUploadResponse {
+  success: boolean;
+  message: string;
+  layer?: ShapefileLayer;
+  errors?: string[];
+  warning?: string; // For partial success scenarios
+  error?: string; // For failure scenarios
+  details?: string; // For detailed error descriptions
+  processing_stats?: {
+    features_created: number;
+    attributes_created: number;
+    errors: string[];
+    field_info: Record<string, any>;
+  };
+}
+
+export interface ShapefilePreviewResponse {
+  success: boolean;
+  preview?: {
+    layer_name: string;
+    geometry_type: string;
+    feature_count: number;
+    srid: number;
+    attributes: {
+      [key: string]: {
+        data_type: string;
+        sample_values: any[];
+      };
+    };
+    first_features: any[];
+  };
+  errors?: string[];
+}
+
+export const shapefileApi = {
+  // Upload a shapefile
+  uploadShapefile: async (
+    file: File,
+    layerName?: string,
+    description?: string,
+    onProgress?: (progress: number) => void
+  ): Promise<ShapefileUploadResponse> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (layerName) formData.append("layer_name", layerName);
+      if (description) formData.append("description", description);
+
+      const response = await api.post("/map/layers/upload/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            onProgress(progress);
+          }
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.message || "Failed to upload shapefile",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Preview a shapefile before upload
+  previewShapefile: async (file: File): Promise<ShapefilePreviewResponse> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await api.post("/map/layers/preview/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.message || "Failed to preview shapefile",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get all layers
+  getLayers: async (): Promise<ShapefileLayer[]> => {
+    try {
+      const response = await api.get("/map/layers/");
+      // Always return the array of layers, regardless of backend response shape
+      return response.data.data || response.data.results || response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch layers",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get a specific layer
+  getLayer: async (layerId: number): Promise<ShapefileLayer> => {
+    try {
+      const response = await api.get(`/map/layers/${layerId}/`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch layer",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Delete a layer
+  deleteLayer: async (layerId: number): Promise<void> => {
+    try {
+      await api.delete(`/map/layers/${layerId}/`);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to delete layer",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get layer as GeoJSON
+  getLayerGeoJSON: async (layerId: number): Promise<any> => {
+    try {
+      const response = await api.get(`/map/layers/${layerId}/geojson/`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch layer GeoJSON",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get layer features
+  getLayerFeatures: async (layerId: number): Promise<any[]> => {
+    try {
+      const response = await api.get(`/map/layers/${layerId}/features/`);
+      return response.data.results || response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch layer features",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get layer attributes summary
+  getLayerAttributesSummary: async (layerId: number): Promise<any> => {
+    try {
+      const response = await api.get(`/map/layers/${layerId}/attributes/summary/`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch layer attributes",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+};

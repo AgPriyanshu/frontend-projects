@@ -1,15 +1,20 @@
 .map {
-  border-radius: 1rem;
-  background: hsl(0, 0%, 2%);
+  border-radius: var(--radius-lg);
+  background: hsl(var(--card));
+  /* Ensure the map container can receive drag events */
+  position: relative;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
 }
 
-.map-base-map {
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #000;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.25rem;
+/* Ensure MapLibre canvas doesn't block drag events */
+.map canvas {
+  pointer-events: auto;
 }
+
+/* Allow drag events on the map container */
+.map:not(.dragging) {
+  pointer-events: auto;
+}
+
+
