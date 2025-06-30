@@ -69,13 +69,13 @@ export function AnalysisTools({
   onStreamingChange,
 }: AnalysisToolsProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {/* Analysis Type Selection */}
       <div>
         <div className="text-xs font-medium text-muted-foreground mb-2">
           Analysis Type
         </div>
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
           {analysisTypes.map((type) => {
             const Icon = type.icon;
             const isSelected = selectedType === type.id;
@@ -86,7 +86,7 @@ export function AnalysisTools({
                 variant={isSelected ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onTypeChange(type.id)}
-                className={`h-auto p-2 flex flex-col items-center gap-1 ${
+                className={`h-auto p-1.5 sm:p-2 flex flex-col items-center gap-1 text-xs ${
                   isSelected ? "" : "hover:bg-muted"
                 }`}
                 title={type.description}
@@ -96,7 +96,7 @@ export function AnalysisTools({
                     isSelected ? "text-primary-foreground" : type.color
                   }`}
                 />
-                <span className="text-xs">{type.label}</span>
+                <span className="text-[10px] sm:text-xs leading-tight">{type.label}</span>
               </Button>
             );
           })}
@@ -115,12 +115,13 @@ export function AnalysisTools({
           className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1"
         >
           <Zap className="h-3 w-3" />
-          Stream responses
+          <span className="hidden sm:inline">Stream responses</span>
+          <span className="sm:hidden">Stream</span>
         </label>
       </div>
 
-      {/* Quick Analysis Prompts */}
-      <div>
+      {/* Quick Analysis Prompts - Hidden on mobile to save space */}
+      <div className="hidden sm:block">
         <div className="text-xs font-medium text-muted-foreground mb-2">
           Quick Prompts
         </div>

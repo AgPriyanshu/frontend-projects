@@ -25,18 +25,18 @@ export function ChatButton({ onToggle, className }: ChatButtonProps) {
   return (
     <Button
       onClick={handleToggle}
-      className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-40 ${className}`}
+      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-40 ${className}`}
       size="lg"
       aria-label="Toggle AI Chat"
     >
       <div className="relative">
         {isOpen ? (
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
           <>
-            <Bot className="h-6 w-6" />
+            <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
             {hasUnreadMessages && (
-              <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse" />
+              <div className="absolute -top-1 -right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse" />
             )}
           </>
         )}

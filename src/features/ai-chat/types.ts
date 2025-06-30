@@ -36,7 +36,7 @@ export interface ChatMessage {
       type: "heatmap" | "cluster" | "route" | "buffer" | "polygon";
       data: any;
       style?: any;
-    }>;
+    } | GeospatialVisualization>;
     dataInsights?: {
       summary: string;
       statistics: Record<string, any>;
@@ -143,4 +143,82 @@ export interface CreateSessionRequest {
 export interface SendMessageRequest {
   message: string;
   stream?: boolean;
+}
+
+export interface GeospatialVisualization {
+  type: "map_visualization";
+  layer_id: number;
+  layer_name: string;
+  style_type: "choropleth" | "categorical" | "graduated" | "simple";
+  color_scheme: string;
+  geojson: GeoJSONData;
+  feature_count: number;
+  style_field?: string;
+  field_stats?: AttributeStatistics;
+  breaks?: number;
+  break_values?: number[];
+  highlighted_features?: number[];
+}
+
+export interface GeoJSONData {
+  type: "FeatureCollection";
+  features: GeoJSONFeature[];
+}
+
+export interface GeoJSONFeature {
+  type: "Feature";
+  id: number;
+  geometry: {
+    type: string;
+    coordinates: any;
+  };
+  properties: {
+    [key: string]: any;
+  };
+}
+
+export interface AttributeStatistics {
+  data_type: string;
+  count: number;
+  attribute_key: string;
+  min?: number;
+  max?: number;
+  avg?: number;
+  sum?: number;
+  std?: number;
+  median?: number;
+  q1?: number;
+  q3?: number;
+  percentile_90?: number;
+  percentile_10?: number;
+  unique_values?: string[];
+  unique_count?: number;
+  frequency_distribution?: { [key: string]: number };
+  most_common?: [string, number];
+  least_common?: [string, number];
+  true_count?: number;
+  false_count?: number;
+  true_percentage?: number;
+}
+
+export interface LayerInfo {
+  layer_id: number;
+  layer_name: string;
+  description: string;
+  created_at: string;
+  feature_count: number;
+  attributes: { [key: string]: AttributeInfo };
+  spatial_extent?: {
+    xmin: number;
+    ymin: number;
+    xmax: number;
+    ymax: number;
+  };
+  sample_features?: any[];
+}
+
+export interface AttributeInfo {
+  data_type: string;
+  count: number;
+  sample_values: any[];
 }
