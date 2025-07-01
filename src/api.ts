@@ -46,7 +46,7 @@ export class ApiError extends Error {
 export const todoApi = {
   getTasks: async (): Promise<Task[]> => {
     try {
-      const response = await api.get("/");
+      const response = await api.get("/tasks/");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -61,7 +61,10 @@ export const todoApi = {
 
   createTask: async (description: string): Promise<Task> => {
     try {
-      const response = await api.post("/", { description, completed: false });
+      const response = await api.post("/tasks/", {
+        description,
+        completed: false,
+      });
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -76,7 +79,7 @@ export const todoApi = {
 
   updateTask: async (id: string, data: Partial<Task>): Promise<Task> => {
     try {
-      const response = await api.patch(`/${id}/`, data);
+      const response = await api.patch(`/tasks/${id}/`, data);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -91,7 +94,7 @@ export const todoApi = {
 
   deleteTask: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/${id}/`);
+      await api.delete(`/tasks/${id}/`);
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
@@ -131,50 +134,6 @@ export interface ChatMessage {
   };
 }
 
-export interface GeospatialAnalysisRequest {
-  query: string;
-  features?: any[]; // GeoJSON features from map drawings
-  bounds?: [number, number, number, number]; // Map bounds [west, south, east, north]
-  analysisType?:
-    | "spatial"
-    | "statistical"
-    | "pattern"
-    | "route"
-    | "buffer"
-    | "intersection";
-  context?: string; // Additional context about the map/data
-}
-
-export interface GeospatialAnalysisResponse {
-  analysis: string;
-  visualizations?: {
-    type: "heatmap" | "cluster" | "route" | "buffer" | "polygon";
-    data: any;
-    style?: any;
-  }[];
-  suggestions?: string[];
-  dataInsights?: {
-    summary: string;
-    statistics: Record<string, any>;
-  };
-}
-
-export interface MCPRequest {
-  model: string;
-  messages: ChatMessage[];
-  tools?: {
-    name: string;
-    description: string;
-    parameters: any;
-  }[];
-  geospatialContext?: {
-    features: any[];
-    bounds: [number, number, number, number];
-    mapCenter: [number, number];
-    zoomLevel: number;
-  };
-}
-
 export interface ChatSession {
   id: string;
   title: string;
@@ -184,11 +143,11 @@ export interface ChatSession {
 }
 
 export const aiChatApi = {
-  // Create a new chat session
+  // Create a new chat session - using existing backend endpoint
   createChatSession: async (title?: string): Promise<ChatSession> => {
     try {
-      const response = await api.post("/ai-chat/sessions/", {
-        title: title || "New Geospatial Analysis",
+      const response = await api.post("/ai-chat/api/sessions/", {
+        title: title || "New Chat Session",
       });
       return {
         ...response.data,
@@ -210,10 +169,10 @@ export const aiChatApi = {
     }
   },
 
-  // Get all chat sessions
+  // Get all chat sessions - using existing backend endpoint
   getChatSessions: async (): Promise<ChatSession[]> => {
     try {
-      const response = await api.get("/ai-chat/sessions/");
+      const response = await api.get("/ai-chat/api/sessions/");
       return response.data.map((session: any) => ({
         ...session,
         createdAt: new Date(session.createdAt),
@@ -234,10 +193,10 @@ export const aiChatApi = {
     }
   },
 
-  // Get a specific chat session
+  // Get a specific chat session - using existing backend endpoint
   getChatSession: async (sessionId: string): Promise<ChatSession> => {
     try {
-      const response = await api.get(`/ai-chat/sessions/${sessionId}/`);
+      const response = await api.get(`/ai-chat/api/sessions/${sessionId}/`);
       return {
         ...response.data,
         createdAt: new Date(response.data.createdAt),
@@ -258,89 +217,21 @@ export const aiChatApi = {
     }
   },
 
-  // Send chat message with geospatial context
-  sendMessage: async (
-    request: GeospatialAnalysisRequest
-  ): Promise<GeospatialAnalysisResponse> => {
+  // Send message to chat session - using existing backend endpoint
+  sendMessage: async (sessionId: string, message: string): Promise<any> => {
     try {
-      const response = await api.post("/ai/chat/geospatial", request);
-      return response.data;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        throw new ApiError(
-          error.response?.data?.detail ||
-            "Failed to process geospatial analysis",
-          error.response?.status
-        );
-      }
-      throw error;
-    }
-  },
-
-  // Stream chat responses
-  streamMessage: async function* (
-    request: GeospatialAnalysisRequest
-  ): AsyncGenerator<string, void, unknown> {
-    try {
-      const response = await fetch(
-        `${api.defaults.baseURL}/ai/chat/geospatial/stream`,
+      const response = await api.post(
+        `/ai-chat/api/sessions/${sessionId}/send_message/`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(request),
+          message,
+          stream: false,
         }
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error("No response body reader available");
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") return;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.content) {
-                yield parsed.content;
-              }
-            } catch (e) {
-              // Skip invalid JSON
-            }
-          }
-        }
-      }
-    } catch (error) {
-      throw new ApiError("Failed to stream chat response");
-    }
-  },
-
-  // MCP (Model Context Protocol) integration
-  sendMCPRequest: async (request: MCPRequest): Promise<ChatMessage> => {
-    try {
-      const response = await api.post("/ai/mcp/chat", request);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
-          error.response?.data?.detail || "Failed to process MCP request",
+          error.response?.data?.detail || "Failed to send message",
           error.response?.status
         );
       }
@@ -348,59 +239,20 @@ export const aiChatApi = {
     }
   },
 
-  // Get available geospatial analysis tools
-  getAvailableTools: async (): Promise<
-    { name: string; description: string; parameters: any }[]
-  > => {
+  // Get chat messages - using existing backend endpoint
+  getMessages: async (sessionId: string): Promise<ChatMessage[]> => {
     try {
-      const response = await api.get("/ai/tools/geospatial");
-      return response.data;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        throw new ApiError(
-          error.response?.data?.detail || "Failed to fetch available tools",
-          error.response?.status
-        );
-      }
-      throw error;
-    }
-  },
-
-  // Load geospatial datasets
-  loadDataset: async (
-    datasetId: string,
-    bounds?: [number, number, number, number]
-  ): Promise<any> => {
-    try {
-      const response = await api.get(`/ai/datasets/${datasetId}`, {
-        params: bounds ? { bounds: bounds.join(",") } : {},
-      });
-      return response.data;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        throw new ApiError(
-          error.response?.data?.detail || "Failed to load dataset",
-          error.response?.status
-        );
-      }
-      throw error;
-    }
-  },
-
-  // Get chat history
-  getChatHistory: async (sessionId?: string): Promise<ChatMessage[]> => {
-    try {
-      const response = await api.get("/ai/chat/history", {
-        params: sessionId ? { sessionId } : {},
-      });
-      return response.data.map((msg: any) => ({
+      const response = await api.get(
+        `/ai-chat/api/sessions/${sessionId}/messages/`
+      );
+      return response.data.messages.map((msg: any) => ({
         ...msg,
         timestamp: new Date(msg.timestamp),
       }));
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
-          error.response?.data?.detail || "Failed to fetch chat history",
+          error.response?.data?.detail || "Failed to fetch messages",
           error.response?.status
         );
       }
@@ -408,10 +260,10 @@ export const aiChatApi = {
     }
   },
 
-  // Delete a chat session
+  // Delete a chat session - using existing backend endpoint
   deleteChatSession: async (sessionId: string): Promise<void> => {
     try {
-      await api.delete(`/ai-chat/sessions/${sessionId}/`);
+      await api.delete(`/ai-chat/api/sessions/${sessionId}/`);
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
@@ -423,15 +275,15 @@ export const aiChatApi = {
     }
   },
 
-  // Get available geospatial datasets
-  getGeospatialDatasets: async (): Promise<any[]> => {
+  // Get available models - using existing backend endpoint
+  getModels: async (): Promise<any[]> => {
     try {
-      const response = await api.get("/ai-chat/datasets/");
+      const response = await api.get("/ai-chat/api/models/");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
-          error.response?.data?.detail || "Failed to fetch datasets",
+          error.response?.data?.detail || "Failed to fetch models",
           error.response?.status
         );
       }
@@ -439,20 +291,31 @@ export const aiChatApi = {
     }
   },
 
-  // Query geospatial data
-  queryGeospatialData: async (query: {
-    dataset?: string;
-    bounds?: [number, number, number, number];
-    filters?: Record<string, any>;
-    limit?: number;
-  }): Promise<any> => {
+  // Sync models - using existing backend endpoint
+  syncModels: async (): Promise<any> => {
     try {
-      const response = await api.post("/ai-chat/query-data/", query);
+      const response = await api.post("/ai-chat/api/models/sync_models/");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
-          error.response?.data?.detail || "Failed to query data",
+          error.response?.data?.detail || "Failed to sync models",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Health check - using existing backend endpoint
+  checkHealth: async (): Promise<any> => {
+    try {
+      const response = await api.get("/ai-chat/api/health/llm_server/");
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to check health",
           error.response?.status
         );
       }
@@ -461,7 +324,7 @@ export const aiChatApi = {
   },
 };
 
-// Shapefile Upload API
+// Shapefile Upload API - using existing backend endpoints
 export interface ShapefileLayer {
   id: number;
   name: string;
@@ -479,9 +342,9 @@ export interface ShapefileUploadResponse {
   message: string;
   layer?: ShapefileLayer;
   errors?: string[];
-  warning?: string; // For partial success scenarios
-  error?: string; // For failure scenarios
-  details?: string; // For detailed error descriptions
+  warning?: string;
+  error?: string;
+  details?: string;
   processing_stats?: {
     features_created: number;
     attributes_created: number;
@@ -509,7 +372,7 @@ export interface ShapefilePreviewResponse {
 }
 
 export const shapefileApi = {
-  // Upload a shapefile
+  // Upload a shapefile - using existing backend endpoint
   uploadShapefile: async (
     file: File,
     layerName?: string,
@@ -548,7 +411,7 @@ export const shapefileApi = {
     }
   },
 
-  // Preview a shapefile before upload
+  // Preview a shapefile before upload - using existing backend endpoint
   previewShapefile: async (file: File): Promise<ShapefilePreviewResponse> => {
     try {
       const formData = new FormData();
@@ -572,11 +435,10 @@ export const shapefileApi = {
     }
   },
 
-  // Get all layers
+  // Get all layers - using existing backend endpoint
   getLayers: async (): Promise<ShapefileLayer[]> => {
     try {
       const response = await api.get("/map/layers/");
-      // Always return the array of layers, regardless of backend response shape
       return response.data.data || response.data.results || response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -589,7 +451,7 @@ export const shapefileApi = {
     }
   },
 
-  // Get a specific layer
+  // Get a specific layer - using existing backend endpoint
   getLayer: async (layerId: number): Promise<ShapefileLayer> => {
     try {
       const response = await api.get(`/map/layers/${layerId}/`);
@@ -605,7 +467,7 @@ export const shapefileApi = {
     }
   },
 
-  // Delete a layer
+  // Delete a layer - using existing backend endpoint
   deleteLayer: async (layerId: number): Promise<void> => {
     try {
       await api.delete(`/map/layers/${layerId}/`);
@@ -620,7 +482,7 @@ export const shapefileApi = {
     }
   },
 
-  // Get layer as GeoJSON
+  // Get layer as GeoJSON - using existing backend endpoint
   getLayerGeoJSON: async (layerId: number): Promise<any> => {
     try {
       const response = await api.get(`/map/layers/${layerId}/geojson/`);
@@ -636,11 +498,11 @@ export const shapefileApi = {
     }
   },
 
-  // Get layer features
+  // Get layer features - using existing backend endpoint
   getLayerFeatures: async (layerId: number): Promise<any[]> => {
     try {
       const response = await api.get(`/map/layers/${layerId}/features/`);
-      return response.data.results || response.data;
+      return response.data.features || response.data.results || response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
@@ -652,15 +514,59 @@ export const shapefileApi = {
     }
   },
 
-  // Get layer attributes summary
+  // Get layer attributes summary - using existing backend endpoint
   getLayerAttributesSummary: async (layerId: number): Promise<any> => {
     try {
-      const response = await api.get(`/map/layers/${layerId}/attributes/summary/`);
+      const response = await api.get(
+        `/map/layers/${layerId}/attributes/summary/`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new ApiError(
           error.response?.data?.detail || "Failed to fetch layer attributes",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Get attribute statistics - using existing backend endpoint
+  getAttributeStats: async (
+    layerId: number,
+    attributeKey: string
+  ): Promise<any> => {
+    try {
+      const response = await api.get(
+        `/map/layers/${layerId}/attributes/${attributeKey}/stats/`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to fetch attribute stats",
+          error.response?.status
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Filter features - using existing backend endpoint
+  filterFeatures: async (layerId: number, filters: any[]): Promise<any> => {
+    try {
+      const response = await api.post(
+        `/map/layers/${layerId}/features/filter/`,
+        {
+          filters,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new ApiError(
+          error.response?.data?.detail || "Failed to filter features",
           error.response?.status
         );
       }
