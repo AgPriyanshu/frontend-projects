@@ -5,8 +5,8 @@ import { useState } from "react";
 import DropZone from "./drop-zone";
 import ImagePreview from "./image-preview";
 import PredictionResults from "./prediction-results";
-import type { Prediction, APIResponse } from "./types";
-import { deviceClassifierApi } from "@/api";
+import type { Prediction } from "./types";
+import { deviceClassifierApi } from "@/api/device-classifier";
 
 function GadgetClassifier() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);

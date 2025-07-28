@@ -22,7 +22,7 @@ export const App = ({ children }: AppProps) => {
             Apps
           </Link>
           <div className="flex items-center gap-4">
-            <Navigation />
+            {/* <Navigation /> */}
             <ThemeToggle />
           </div>
         </div>

@@ -1,11 +1,13 @@
+import { todoApi } from "@/api";
+import type { Task } from "@/api/api";
+import { AxiosError } from "axios";
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
-  useEffect,
 } from "react";
-import { todoApi, type Task, ApiError } from "../../api";
 
 interface TodoContextType {
   todos: Task[];
@@ -34,7 +36,7 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
       const tasks = await todoApi.getTasks();
       setTodos(tasks);
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof AxiosError) {
         setError(err.message);
       } else {
         setError("An unexpected error occurred");
@@ -51,7 +53,7 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
       const newTask = await todoApi.createTask(text);
       setTodos((prev) => [...prev, newTask]);
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof AxiosError) {
         setError(err.message);
       } else {
         setError("Failed to add todo");
@@ -73,7 +75,7 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
         prev.map((todo) => (todo.id === id ? updatedTask : todo))
       );
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof AxiosError) {
         setError(err.message);
       } else {
         setError("Failed to update todo");
@@ -88,7 +90,7 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
       await todoApi.deleteTask(id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof AxiosError) {
         setError(err.message);
       } else {
         setError("Failed to delete todo");

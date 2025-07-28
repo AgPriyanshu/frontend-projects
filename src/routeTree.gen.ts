@@ -8,150 +8,124 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TodoListRouteImport } from './routes/todo-list'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as GadgetClassifierRouteImport } from './routes/gadget-classifier'
+import { Route as IndexRouteImport } from './routes/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as TodoListImport } from './routes/todo-list'
-import { Route as MapImport } from './routes/map'
-import { Route as GadgetClassifierImport } from './routes/gadget-classifier'
-import { Route as IndexImport } from './routes/index'
-
-// Create/Update Routes
-
-const TodoListRoute = TodoListImport.update({
+const TodoListRoute = TodoListRouteImport.update({
   id: '/todo-list',
   path: '/todo-list',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const MapRoute = MapImport.update({
+const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const GadgetClassifierRoute = GadgetClassifierImport.update({
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GadgetClassifierRoute = GadgetClassifierRouteImport.update({
   id: '/gadget-classifier',
   path: '/gadget-classifier',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
+  '/login': typeof LoginRoute
+  '/map': typeof MapRoute
+  '/todo-list': typeof TodoListRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
+  '/login': typeof LoginRoute
+  '/map': typeof MapRoute
+  '/todo-list': typeof TodoListRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/gadget-classifier': typeof GadgetClassifierRoute
+  '/login': typeof LoginRoute
+  '/map': typeof MapRoute
+  '/todo-list': typeof TodoListRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/gadget-classifier' | '/login' | '/map' | '/todo-list'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/gadget-classifier' | '/login' | '/map' | '/todo-list'
+  id: '__root__' | '/' | '/gadget-classifier' | '/login' | '/map' | '/todo-list'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  GadgetClassifierRoute: typeof GadgetClassifierRoute
+  LoginRoute: typeof LoginRoute
+  MapRoute: typeof MapRoute
+  TodoListRoute: typeof TodoListRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/gadget-classifier': {
-      id: '/gadget-classifier'
-      path: '/gadget-classifier'
-      fullPath: '/gadget-classifier'
-      preLoaderRoute: typeof GadgetClassifierImport
-      parentRoute: typeof rootRoute
+    '/todo-list': {
+      id: '/todo-list'
+      path: '/todo-list'
+      fullPath: '/todo-list'
+      preLoaderRoute: typeof TodoListRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/map': {
       id: '/map'
       path: '/map'
       fullPath: '/map'
-      preLoaderRoute: typeof MapImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/todo-list': {
-      id: '/todo-list'
-      path: '/todo-list'
-      fullPath: '/todo-list'
-      preLoaderRoute: typeof TodoListImport
-      parentRoute: typeof rootRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gadget-classifier': {
+      id: '/gadget-classifier'
+      path: '/gadget-classifier'
+      fullPath: '/gadget-classifier'
+      preLoaderRoute: typeof GadgetClassifierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
-}
-
-// Create and export the route tree
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/gadget-classifier': typeof GadgetClassifierRoute
-  '/map': typeof MapRoute
-  '/todo-list': typeof TodoListRoute
-}
-
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/gadget-classifier': typeof GadgetClassifierRoute
-  '/map': typeof MapRoute
-  '/todo-list': typeof TodoListRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/gadget-classifier': typeof GadgetClassifierRoute
-  '/map': typeof MapRoute
-  '/todo-list': typeof TodoListRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gadget-classifier' | '/map' | '/todo-list'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gadget-classifier' | '/map' | '/todo-list'
-  id: '__root__' | '/' | '/gadget-classifier' | '/map' | '/todo-list'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  GadgetClassifierRoute: typeof GadgetClassifierRoute
-  MapRoute: typeof MapRoute
-  TodoListRoute: typeof TodoListRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GadgetClassifierRoute: GadgetClassifierRoute,
+  LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   TodoListRoute: TodoListRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/gadget-classifier",
-        "/map",
-        "/todo-list"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/gadget-classifier": {
-      "filePath": "gadget-classifier.tsx"
-    },
-    "/map": {
-      "filePath": "map.tsx"
-    },
-    "/todo-list": {
-      "filePath": "todo-list.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
