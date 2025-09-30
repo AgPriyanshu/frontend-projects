@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TodoCard } from "@/features/todo/todo-card";
-import { MapCard } from "@/features/map/map-card";
+import { MapCard } from "@/features/web-gis/map-card";
 import { GadgetClassifierCard } from "@/features/device-classifier";
 
 export const Route = createFileRoute("/")({
