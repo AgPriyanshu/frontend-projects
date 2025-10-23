@@ -136,14 +136,14 @@ export const Map = observer(
                 <div className="text-muted-foreground">
                   Layers:{" "}
                   <span className="text-foreground">
-                    {workspaceManager.dataManager.layerCount}
+                    {workspaceManager.stateManager.layerCount}
                   </span>{" "}
-                  ({workspaceManager.dataManager.visibleLayerCount} visible)
+                  ({workspaceManager.stateManager.visibleLayerCount} visible)
                 </div>
                 <div className="text-muted-foreground">
                   Sources:{" "}
                   <span className="text-foreground">
-                    {workspaceManager.dataManager.sourceCount}
+                    {workspaceManager.stateManager.sourceCount}
                   </span>
                 </div>
               </div>

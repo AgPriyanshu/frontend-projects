@@ -1,15 +1,3 @@
-/**
- * Core type definitions for WebGIS state management
- */
-
-import type {
-  GeoJSONSourceSpecification,
-  RasterSourceSpecification,
-  VectorSourceSpecification,
-} from "maplibre-gl";
-
-// ===== Source Types =====
-
 export type SourceType =
   | "geojson"
   | "vector"

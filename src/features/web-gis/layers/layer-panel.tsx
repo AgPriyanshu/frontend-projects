@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const LayerPanel = observer(() => {
-  const { dataManager: data } = workspaceManager;
+  const { stateManager: data } = workspaceManager;
 
   const handleToggleVisibility = (layerId: string) => {
     data.toggleLayerVisibility(layerId);

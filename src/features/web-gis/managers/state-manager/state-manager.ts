@@ -9,17 +9,16 @@
  */
 
 import { makeAutoObservable } from "mobx";
-import type { MapSource, MapLayer } from "./types";
+import type { MapSource, MapLayer } from "../types";
+import type { WorkspaceState } from "./types";
 
-export class DataManager {
-  // Sources: WHERE data comes from
-  sources = new Map<string, MapSource>();
-
-  // Layers: HOW to visualize the data
-  layers = new Map<string, MapLayer>();
-
-  // Layer rendering order (bottom to top)
-  layerOrder: string[] = [];
+export class StateManager {
+  state: WorkspaceState = {
+    map: {
+      center: [0.0, 0.0],
+      zoom: 22,
+    },
+  };
 
   constructor() {
     makeAutoObservable(this);

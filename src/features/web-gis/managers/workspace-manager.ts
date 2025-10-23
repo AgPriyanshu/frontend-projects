@@ -20,12 +20,12 @@ import type {
   LngLatLike,
   LngLatBoundsLike,
 } from "maplibre-gl";
-import { DataManager } from "./data-manager";
+import { StateManager } from "./state-manager/state-manager";
 import { ViewportManager } from "./viewport-store";
 
 export class WorkspaceManager {
   // ===== Sub-stores =====
-  dataManager = new DataManager();
+  stateManager = new StateManager();
   viewportManager = new ViewportManager();
 
   // ===== Map Instance =====
@@ -164,25 +164,25 @@ export class WorkspaceManager {
       if (!this.mapInstance || !this.isMapReady) return;
 
       // 1. Sync sources to map FIRST
-      this.dataManager.sources.forEach((source, sourceId) => {
-        if (!this.mapInstance!.getSource(sourceId)) {
-          try {
-            this.mapInstance!.addSource(sourceId, {
-              type: source.type,
-              data: source.data,
-              // url: source.url,
-              // tiles: source.tiles,
-              // attribution: source.attribution,
-              // bounds: source.bounds,
-              // minzoom: source.minzoom,
-              // maxzoom: source.maxzoom,
-              // tileSize: source.tileSize,
-            } as any);
-          } catch (error) {
-            console.error(`Failed to add source ${sourceId}:`, error);
-          }
-        }
-      });
+      // this.dataManager.sources.forEach((source, sourceId) => {
+      //   if (!this.mapInstance!.getSource(sourceId)) {
+      //     try {
+      //       this.mapInstance!.addSource(sourceId, {
+      //         type: source.type,
+      //         data: source.data,
+      //         // url: source.url,
+      //         // tiles: source.tiles,
+      //         // attribution: source.attribution,
+      //         // bounds: source.bounds,
+      //         // minzoom: source.minzoom,
+      //         // maxzoom: source.maxzoom,
+      //         // tileSize: source.tileSize,
+      //       } as any);
+      //     } catch (error) {
+      //       console.error(`Failed to add source ${sourceId}:`, error);
+      //     }
+      //   }
+      // });
 
       // 2. Sync layers to map AFTER sources
       const mapLayerIds = new Set(
@@ -190,47 +190,47 @@ export class WorkspaceManager {
       );
 
       // Add new layers from store in correct order
-      this.dataManager.layerOrder.forEach((layerId) => {
-        const layer = this.dataManager.layers.get(layerId);
-        if (!layer || mapLayerIds.has(layerId)) return;
+      // this.dataManager.layerOrder.forEach((layerId) => {
+      //   const layer = this.dataManager.layers.get(layerId);
+      //   if (!layer || mapLayerIds.has(layerId)) return;
 
-        // Check if source exists on map before adding layer
-        if (!this.mapInstance!.getSource(layer.sourceId)) {
-          console.warn(
-            `Skipping layer "${layerId}": source "${layer.sourceId}" not yet available on map`
-          );
-          return;
-        }
+      //   // Check if source exists on map before adding layer
+      //   if (!this.mapInstance!.getSource(layer.sourceId)) {
+      //     console.warn(
+      //       `Skipping layer "${layerId}": source "${layer.sourceId}" not yet available on map`
+      //     );
+      //     return;
+      //   }
 
-        try {
-          const layerConfig: any = {
-            id: layer.id,
-            source: layer.sourceId,
-            type: layer.type,
-            paint: layer.paint,
-            layout: {
-              ...layer.layout,
-              visibility: layer.visible ? "visible" : "none",
-            },
-          };
+      //   try {
+      //     const layerConfig: any = {
+      //       id: layer.id,
+      //       source: layer.sourceId,
+      //       type: layer.type,
+      //       paint: layer.paint,
+      //       layout: {
+      //         ...layer.layout,
+      //         visibility: layer.visible ? "visible" : "none",
+      //       },
+      //     };
 
-          // Only add optional properties if they are defined
-          if (layer.sourceLayer)
-            layerConfig["source-layer"] = layer.sourceLayer;
-          if (layer.minZoom !== undefined) layerConfig.minzoom = layer.minZoom;
-          if (layer.maxZoom !== undefined) layerConfig.maxzoom = layer.maxZoom;
-          if (layer.filter) layerConfig.filter = layer.filter;
-          if (layer.metadata) layerConfig.metadata = layer.metadata;
+      //     // Only add optional properties if they are defined
+      //     if (layer.sourceLayer)
+      //       layerConfig["source-layer"] = layer.sourceLayer;
+      //     if (layer.minZoom !== undefined) layerConfig.minzoom = layer.minZoom;
+      //     if (layer.maxZoom !== undefined) layerConfig.maxzoom = layer.maxZoom;
+      //     if (layer.filter) layerConfig.filter = layer.filter;
+      //     if (layer.metadata) layerConfig.metadata = layer.metadata;
 
-          this.mapInstance!.addLayer(layerConfig);
-        } catch (error) {
-          console.error(`Failed to add layer ${layerId}:`, error);
-        }
-      });
+      //     this.mapInstance!.addLayer(layerConfig);
+      //   } catch (error) {
+      //     console.error(`Failed to add layer ${layerId}:`, error);
+      //   }
+      // });
 
       // Remove layers that are no longer in store
       mapLayerIds.forEach((mapLayerId) => {
-        if (!this.dataManager.layers.has(mapLayerId)) {
+        if (!this.stateManager.layers.has(mapLayerId)) {
           try {
             this.mapInstance!.removeLayer(mapLayerId);
           } catch (error) {
@@ -243,91 +243,91 @@ export class WorkspaceManager {
     this.disposers.push(sourcesAndLayersDisposer);
 
     // Sync layer visibility changes
-    const visibilityDisposer = reaction(
-      () =>
-        this.dataManager
-          .getVisibleLayers()
-          .map((layer) => ({ id: layer.id, visible: layer.visible })),
-      () => {
-        console.log("Syncing store to map for layer visibility...");
-        if (!this.mapInstance || !this.isMapReady) return;
+    // const visibilityDisposer = reaction(
+    //   () =>
+    //     this.stateManager
+    //       .getVisibleLayers()
+    //       .map((layer) => ({ id: layer.id, visible: layer.visible })),
+    //   () => {
+    //     console.log("Syncing store to map for layer visibility...");
+    //     if (!this.mapInstance || !this.isMapReady) return;
 
-        this.dataManager.layers.forEach((layer, layerId) => {
-          if (this.mapInstance!.getLayer(layerId)) {
-            try {
-              const visibility = layer.visible ? "visible" : "none";
-              this.mapInstance!.setLayoutProperty(
-                layerId,
-                "visibility",
-                visibility
-              );
-            } catch (error) {
-              console.error(
-                `Failed to update visibility for layer ${layerId}:`,
-                error
-              );
-            }
-          }
-        });
-      }
-    );
-    this.disposers.push(visibilityDisposer);
+    //     this.stateManager.layers.forEach((layer, layerId) => {
+    //       if (this.mapInstance!.getLayer(layerId)) {
+    //         try {
+    //           const visibility = layer.visible ? "visible" : "none";
+    //           this.mapInstance!.setLayoutProperty(
+    //             layerId,
+    //             "visibility",
+    //             visibility
+    //           );
+    //         } catch (error) {
+    //           console.error(
+    //             `Failed to update visibility for layer ${layerId}:`,
+    //             error
+    //           );
+    //         }
+    //       }
+    //     });
+    //   }
+    // );
+    // this.disposers.push(visibilityDisposer);
 
-    const opacityDisposer = reaction(
-      () =>
-        Array.from(this.dataManager.layers.values()).map((layer) => ({
-          id: layer.id,
-          opacity: layer.opacity,
-          type: layer.type,
-        })),
-      (layers) => {
-        console.log("Syncing store to map for layer opacity...");
-        if (!this.mapInstance || !this.isMapReady) return;
+    // const opacityDisposer = reaction(
+    //   () =>
+    //     Array.from(this.stateManager.layers.values()).map((layer) => ({
+    //       id: layer.id,
+    //       opacity: layer.opacity,
+    //       type: layer.type,
+    //     })),
+    //   (layers) => {
+    //     console.log("Syncing store to map for layer opacity...");
+    //     if (!this.mapInstance || !this.isMapReady) return;
 
-        layers.forEach((layer) => {
-          if (this.mapInstance!.getLayer(layer.id)) {
-            try {
-              const opacityProp = this.getOpacityProperty(layer.type);
-              if (opacityProp) {
-                this.mapInstance!.setPaintProperty(
-                  layer.id,
-                  opacityProp,
-                  layer.opacity
-                );
-              }
-            } catch (error) {
-              console.error(
-                `Failed to update opacity for layer ${layer.id}:`,
-                error
-              );
-            }
-          }
-        });
-      }
-    );
-    this.disposers.push(opacityDisposer);
+    //     layers.forEach((layer) => {
+    //       if (this.mapInstance!.getLayer(layer.id)) {
+    //         try {
+    //           const opacityProp = this.getOpacityProperty(layer.type);
+    //           if (opacityProp) {
+    //             this.mapInstance!.setPaintProperty(
+    //               layer.id,
+    //               opacityProp,
+    //               layer.opacity
+    //             );
+    //           }
+    //         } catch (error) {
+    //           console.error(
+    //             `Failed to update opacity for layer ${layer.id}:`,
+    //             error
+    //           );
+    //         }
+    //       }
+    //     });
+    //   }
+    // );
+    // this.disposers.push(opacityDisposer);
 
     // Sync GeoJSON source data updates
-    const dataUpdatesDisposer = autorun(() => {
-      if (!this.mapInstance || !this.isMapReady) return;
+    // const dataUpdatesDisposer = autorun(() => {
+    //   if (!this.mapInstance || !this.isMapReady) return;
 
-      this.dataManager.sources.forEach((source, sourceId) => {
-        if (source.type === "geojson" && source.data) {
-          const mapSource = this.mapInstance!.getSource(sourceId);
-          if (mapSource && mapSource.type === "geojson") {
-            try {
-              (mapSource as any).setData(source.data);
-            } catch (error) {
-              console.error(
-                `Failed to update data for source ${sourceId}:`,
-                error
-              );
-            }
-          }
-        }
-      });
-    });
-    this.disposers.push(dataUpdatesDisposer);
+    //   this.stateManager.sources.forEach((source, sourceId) => {
+    //     if (source.type === "geojson" && source.data) {
+    //       const mapSource = this.mapInstance!.getSource(sourceId);
+    //       if (mapSource && mapSource.type === "geojson") {
+    //         try {
+    //           (mapSource as any).setData(source.data);
+    //         } catch (error) {
+    //           console.error(
+    //             `Failed to update data for source ${sourceId}:`,
+    //             error
+    //           );
+    //         }
+    //       }
+    //     }
+    //   });
+    // });
+    // this.disposers.push(dataUpdatesDisposer);
   }
 
   /**
@@ -357,8 +357,8 @@ export class WorkspaceManager {
     if (style.sources) {
       Object.entries(style.sources).forEach(([sourceId, sourceConfig]) => {
         console.log({ sourceId, sourceConfig });
-        if (!this.dataManager.sources.has(sourceId)) {
-          this.dataManager.addSource({
+        if (!this.stateManager.sources.has(sourceId)) {
+          this.stateManager.addSource({
             id: sourceId,
             type: sourceConfig.type as any,
             data: (sourceConfig as any).data,
@@ -377,8 +377,8 @@ export class WorkspaceManager {
     // Import layers
     if (style.layers) {
       style.layers.forEach((layer: any) => {
-        if (!this.dataManager.layers.has(layer.id) && layer.source) {
-          this.dataManager.addLayer({
+        if (!this.stateManager.layers.has(layer.id) && layer.source) {
+          this.stateManager.addLayer({
             id: layer.id,
             sourceId: layer.source || "",
             type: layer.type,
@@ -400,7 +400,7 @@ export class WorkspaceManager {
     }
 
     console.log(
-      `📥 Imported ${this.dataManager.sourceCount} sources and ${this.dataManager.layerCount} layers from base style`
+      `📥 Imported ${this.stateManager.sourceCount} sources and ${this.stateManager.layerCount} layers from base style`
     );
   }
   // ===== Convenience Methods =====
@@ -465,7 +465,7 @@ export class WorkspaceManager {
    */
   resetMap() {
     this.viewportManager.reset();
-    this.dataManager.clear();
+    this.stateManager.clear();
     this.error = null;
   }
 
@@ -485,7 +485,7 @@ export class WorkspaceManager {
    */
   dispose() {
     this.clearMapInstance();
-    this.dataManager.clear();
+    this.stateManager.clear();
     this.viewportManager.reset();
   }
 }

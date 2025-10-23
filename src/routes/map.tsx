@@ -15,7 +15,7 @@ function MapPage() {
     const disposer = reaction(
       () => workspaceManager.isMapReady,
       (isReady) => {
-        if (isReady && workspaceManager.dataManager.layerCount === 0) {
+        if (isReady && workspaceManager.stateManager.layerCount === 0) {
           // Only load if no layers exist
           setTimeout(() => {
             // loadDemoLayers();

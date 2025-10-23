@@ -249,8 +249,8 @@ export function loadDemoLayers() {
 
   // Add all layers to the map store
   try {
-    workspaceManager.dataManager.addSourceWithLayer(indiaSource, indiaLayer);
-    workspaceManager.dataManager.addLayer(indiaOutlineLayer);
+    workspaceManager.stateManager.addSourceWithLayer(indiaSource, indiaLayer);
+    workspaceManager.stateManager.addLayer(indiaOutlineLayer);
     // workspaceManager.data.addSourceWithLayer(citiesSource, citiesLayer);
     // workspaceManager.data.addLayer(cityLabelsLayer);
 
@@ -264,5 +264,5 @@ export function loadDemoLayers() {
  * Clear all demo layers
  */
 export function clearDemoLayers() {
-  workspaceManager.dataManager.clear();
+  workspaceManager.stateManager.clear();
 }
