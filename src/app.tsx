@@ -1,7 +1,6 @@
 import "./app.css";
 import { ThemeToggle } from "./components/theme-toggle";
 import { type ReactNode } from "react";
-import { Navigation } from "./components/navigation";
 import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 
@@ -28,7 +27,7 @@ export const App = ({ children }: AppProps) => {
         </div>
       </header>
       <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="h-full flex flex-col">{children}</div>
+        <div className="pages h-full flex flex-col">{children}</div>
       </main>
     </div>
   );

@@ -4,7 +4,11 @@ import { MapCard } from "@/features/web-gis/map-card";
 import { GadgetClassifierCard } from "@/features/device-classifier";
 
 export const Route = createFileRoute("/")({
-  component: () => (
+  component: HomePage,
+});
+
+function HomePage() {
+  return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center">
       <div className="w-full max-w-6xl">
         <h1 className="text-3xl font-bold text-center mb-8">
@@ -17,5 +21,5 @@ export const Route = createFileRoute("/")({
         </div>
       </div>
     </div>
-  ),
-});
+  );
+}

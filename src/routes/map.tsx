@@ -1,4 +1,3 @@
-import { loadDemoLayers } from "@/features/web-gis/demo-data";
 import { LayerPanel } from "@/features/web-gis/layers/layer-panel";
 import { workspaceManager } from "@/features/web-gis/managers";
 import { Map } from "@/features/web-gis/map";
