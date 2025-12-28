@@ -143,7 +143,7 @@ export class ViewportManager {
   /**
    * Pan by a delta (in pixels, handled by map instance)
    */
-  panBy(dx: number, dy: number) {
+  panBy(_dx: number, _dy: number) {
     // This will be handled by the map instance
     // Store just tracks the result via setCenter
   }

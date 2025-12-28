@@ -1,4 +1,5 @@
 import type { APIResponse } from "@/features/device-classifier/types";
+import { api } from "./api";
 
 export const deviceClassifierApi = {
   classifyImage: async (image: File): Promise<APIResponse> => {
@@ -9,6 +10,6 @@ export const deviceClassifierApi = {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data;
+    return response;
   },
 };

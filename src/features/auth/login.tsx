@@ -35,8 +35,9 @@ export const Login = () => {
   // Handlers.
   const onSubmitHandler = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const email = event.target["email"]?.value;
-    const password = event.target["password"].value;
+    const form = event.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)?.value;
 
     if (!isUndefined(email) && !isUndefined(password)) {
       sendLoginRequest({ username: email, password });

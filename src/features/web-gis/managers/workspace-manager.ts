@@ -243,91 +243,91 @@ export class WorkspaceManager {
     this.disposers.push(sourcesAndLayersDisposer);
 
     // Sync layer visibility changes
-    // const visibilityDisposer = reaction(
-    //   () =>
-    //     this.stateManager
-    //       .getVisibleLayers()
-    //       .map((layer) => ({ id: layer.id, visible: layer.visible })),
-    //   () => {
-    //     console.log("Syncing store to map for layer visibility...");
-    //     if (!this.mapInstance || !this.isMapReady) return;
+    const visibilityDisposer = reaction(
+      () =>
+        this.stateManager
+          .getVisibleLayers()
+          .map((layer) => ({ id: layer.id, visible: layer.visible })),
+      () => {
+        console.log("Syncing store to map for layer visibility...");
+        if (!this.mapInstance || !this.isMapReady) return;
 
-    //     this.stateManager.layers.forEach((layer, layerId) => {
-    //       if (this.mapInstance!.getLayer(layerId)) {
-    //         try {
-    //           const visibility = layer.visible ? "visible" : "none";
-    //           this.mapInstance!.setLayoutProperty(
-    //             layerId,
-    //             "visibility",
-    //             visibility
-    //           );
-    //         } catch (error) {
-    //           console.error(
-    //             `Failed to update visibility for layer ${layerId}:`,
-    //             error
-    //           );
-    //         }
-    //       }
-    //     });
-    //   }
-    // );
-    // this.disposers.push(visibilityDisposer);
+        this.stateManager.layers.forEach((layer, layerId) => {
+          if (this.mapInstance!.getLayer(layerId)) {
+            try {
+              const visibility = layer.visible ? "visible" : "none";
+              this.mapInstance!.setLayoutProperty(
+                layerId,
+                "visibility",
+                visibility
+              );
+            } catch (error) {
+              console.error(
+                `Failed to update visibility for layer ${layerId}:`,
+                error
+              );
+            }
+          }
+        });
+      }
+    );
+    this.disposers.push(visibilityDisposer);
 
-    // const opacityDisposer = reaction(
-    //   () =>
-    //     Array.from(this.stateManager.layers.values()).map((layer) => ({
-    //       id: layer.id,
-    //       opacity: layer.opacity,
-    //       type: layer.type,
-    //     })),
-    //   (layers) => {
-    //     console.log("Syncing store to map for layer opacity...");
-    //     if (!this.mapInstance || !this.isMapReady) return;
+    const opacityDisposer = reaction(
+      () =>
+        Array.from(this.stateManager.layers.values()).map((layer) => ({
+          id: layer.id,
+          opacity: layer.opacity,
+          type: layer.type,
+        })),
+      (layers: Array<{ id: string; opacity: number; type: string }>) => {
+        console.log("Syncing store to map for layer opacity...");
+        if (!this.mapInstance || !this.isMapReady) return;
 
-    //     layers.forEach((layer) => {
-    //       if (this.mapInstance!.getLayer(layer.id)) {
-    //         try {
-    //           const opacityProp = this.getOpacityProperty(layer.type);
-    //           if (opacityProp) {
-    //             this.mapInstance!.setPaintProperty(
-    //               layer.id,
-    //               opacityProp,
-    //               layer.opacity
-    //             );
-    //           }
-    //         } catch (error) {
-    //           console.error(
-    //             `Failed to update opacity for layer ${layer.id}:`,
-    //             error
-    //           );
-    //         }
-    //       }
-    //     });
-    //   }
-    // );
-    // this.disposers.push(opacityDisposer);
+        layers.forEach((layer: { id: string; opacity: number; type: string }) => {
+          if (this.mapInstance!.getLayer(layer.id)) {
+            try {
+              const opacityProp = this.getOpacityProperty(layer.type);
+              if (opacityProp) {
+                this.mapInstance!.setPaintProperty(
+                  layer.id,
+                  opacityProp,
+                  layer.opacity
+                );
+              }
+            } catch (error) {
+              console.error(
+                `Failed to update opacity for layer ${layer.id}:`,
+                error
+              );
+            }
+          }
+        });
+      }
+    );
+    this.disposers.push(opacityDisposer);
 
     // Sync GeoJSON source data updates
-    // const dataUpdatesDisposer = autorun(() => {
-    //   if (!this.mapInstance || !this.isMapReady) return;
+    const dataUpdatesDisposer = autorun(() => {
+      if (!this.mapInstance || !this.isMapReady) return;
 
-    //   this.stateManager.sources.forEach((source, sourceId) => {
-    //     if (source.type === "geojson" && source.data) {
-    //       const mapSource = this.mapInstance!.getSource(sourceId);
-    //       if (mapSource && mapSource.type === "geojson") {
-    //         try {
-    //           (mapSource as any).setData(source.data);
-    //         } catch (error) {
-    //           console.error(
-    //             `Failed to update data for source ${sourceId}:`,
-    //             error
-    //           );
-    //         }
-    //       }
-    //     }
-    //   });
-    // });
-    // this.disposers.push(dataUpdatesDisposer);
+      this.stateManager.sources.forEach((source, sourceId) => {
+        if (source.type === "geojson" && source.data) {
+          const mapSource = this.mapInstance!.getSource(sourceId);
+          if (mapSource && mapSource.type === "geojson") {
+            try {
+              (mapSource as any).setData(source.data);
+            } catch (error) {
+              console.error(
+                `Failed to update data for source ${sourceId}:`,
+                error
+              );
+            }
+          }
+        }
+      });
+    });
+    this.disposers.push(dataUpdatesDisposer);
   }
 
   /**

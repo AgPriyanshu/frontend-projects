@@ -13,10 +13,25 @@ import type { MapSource, MapLayer } from "../types";
 import type { WorkspaceState } from "./types";
 
 export class StateManager {
+  // Data collections
+  sources: Map<string, MapSource> = new Map();
+  layers: Map<string, MapLayer> = new Map();
+  layerOrder: string[] = [];
+
   state: WorkspaceState = {
+    project: null,
+    sites: null,
+    iterations: null,
     map: {
       center: [0.0, 0.0],
       zoom: 22,
+      bearing: 0,
+      pitch: 0,
+      bounds: [0, 0, 0, 0],
+      minZoom: 0,
+      maxZoom: 22,
+      projection: "mercator",
+      layers: [],
     },
   };
 

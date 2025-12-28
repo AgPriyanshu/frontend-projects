@@ -1,5 +1,3 @@
-import type { ApiResponse } from "../types";
-
 // Responses.
 export type LoginResponseData = { token: string };
 
