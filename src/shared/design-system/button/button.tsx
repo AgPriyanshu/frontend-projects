@@ -5,6 +5,10 @@ import {
 
 type ButtonProps = ChakraButtonProps;
 
-export const Button: React.FC<ButtonProps> = ({ children }) => {
-  return <ChakraButton className="fp-btn">{children}</ChakraButton>;
+export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
+  return (
+    <ChakraButton className="fp-btn" {...rest}>
+      {children}
+    </ChakraButton>
+  );
 };
