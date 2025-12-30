@@ -1,12 +1,12 @@
-import { Button } from "@chakra-ui/react";
-import "./App.css";
+import { Button, Container, Text, VStack } from "@chakra-ui/react";
 
-function App() {
+export const App = () => {
   return (
-    <>
-      Hello World Chakra UI Installed <Button>Test</Button>
-    </>
+    <Container minH="100vh" centerContent>
+      <VStack flex="1" justify="center" gap="4">
+        <Text fontSize="lg">Welcome to the World of Apps</Text>
+        <Button>Test</Button>
+      </VStack>
+    </Container>
   );
-}
-
-export default App;
+};
