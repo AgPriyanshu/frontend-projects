@@ -31,6 +31,7 @@ export default tseslint.config(
       "func-style": ["error", "expression", { allowArrowFunctions: true }],
       // Prefer arrow callbacks
       "prefer-arrow-callback": ["error", { allowNamedFunctions: false }],
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   storybook.configs["flat/recommended"],
