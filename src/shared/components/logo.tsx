@@ -7,7 +7,7 @@ export const WorldOfAppsLogo = () => {
   return (
     <VStack
       cursor="pointer"
-      mt={"4rem"}
+      pt={"4rem"}
       gap={"0.5rem"}
       onClick={() => navigate("/")}
     >

@@ -1,8 +1,8 @@
 import {
+  AbsoluteCenter,
   Box,
   Button,
   Card,
-  Center,
   Field,
   Fieldset,
   Input,
@@ -12,8 +12,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { MdEmail, MdLock } from "react-icons/md";
-import { loginSchema, type LoginFormData } from "./schema";
 import { WorldOfAppsLogo } from "shared/components";
+import { loginSchema, type LoginFormData } from "./schema";
 
 export const LoginPage = () => {
   const {
@@ -29,9 +29,9 @@ export const LoginPage = () => {
   };
 
   return (
-    <Box w={"full"} h={"full"}>
+    <Box w={"100vw"} h={"100vh"} position="relative" bg="black">
       <WorldOfAppsLogo />
-      <Center>
+      <AbsoluteCenter>
         <Card.Root
           border={"1px solid blackAplha.400"}
           borderRadius={"lg"}
@@ -91,7 +91,7 @@ export const LoginPage = () => {
             </Fieldset.Root>
           </form>
         </Card.Root>
-      </Center>
+      </AbsoluteCenter>
     </Box>
   );
 };
