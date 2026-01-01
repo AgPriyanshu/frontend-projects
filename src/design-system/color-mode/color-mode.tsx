@@ -42,7 +42,7 @@ export const ColorModeIcon = () => {
 export const ColorModeButton = React.forwardRef<
   HTMLButtonElement,
   ColorModeButtonProps
->(function ColorModeButton(props, ref) {
+>((props, ref) => {
   const { toggleColorMode } = useColorMode();
 
   return (
@@ -68,7 +68,7 @@ export const ColorModeButton = React.forwardRef<
 });
 
 export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
-  function LightMode(props, ref) {
+  (props, ref) => {
     return (
       <Span
         color="fg"
@@ -84,7 +84,7 @@ export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
 );
 
 export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
-  function DarkMode(props, ref) {
+  (props, ref) => {
     return (
       <Span
         color="fg"

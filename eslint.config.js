@@ -6,6 +6,7 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import prettierConfig from "eslint-config-prettier";
 
 export default tseslint.config(
   { ignores: ["dist"] },
@@ -26,13 +27,12 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "at-rule-no-unknown": [
-        true,
-        {
-          ignoreAtRules: ["tailwind", "apply", "layer", "screen"],
-        },
-      ],
+      // Enforce arrow functions only
+      "func-style": ["error", "expression", { allowArrowFunctions: true }],
+      // Prefer arrow callbacks
+      "prefer-arrow-callback": ["error", { allowNamedFunctions: false }],
     },
   },
-  storybook.configs["flat/recommended"]
+  storybook.configs["flat/recommended"],
+  prettierConfig
 );

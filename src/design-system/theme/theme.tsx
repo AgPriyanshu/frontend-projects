@@ -27,10 +27,12 @@ const config = defineConfig({
 
 const system = createSystem(defaultConfig, config);
 
-export function ThemeProvider(props: ColorModeProviderProps) {
+export const ThemeProvider = (props: ColorModeProviderProps) => {
   return (
     <ChakraProvider value={system}>
       <ColorModeProvider {...props} />
     </ChakraProvider>
   );
 }
+
+export default system;

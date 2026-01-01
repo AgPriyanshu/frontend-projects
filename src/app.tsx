@@ -16,6 +16,5 @@ export const App = () => {
       </Box>
       <Outlet />
     </VStack>
-    // </Container>
   );
 };
