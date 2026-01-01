@@ -25,10 +25,7 @@ export const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log("Form submitted:", data);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // TODO: Implement actual login logic here
+    console.log(data);
   };
 
   return (
@@ -59,7 +56,7 @@ export const LoginPage = () => {
                       {...register("email")}
                       type="email"
                       size="sm"
-                      placeholder="you@example.com"
+                      placeholder="Enter your email"
                     />
                   </InputGroup>
                   {errors.email && (
@@ -84,6 +81,7 @@ export const LoginPage = () => {
               </Fieldset.Content>
               <Button
                 type="submit"
+                color={"neutral.0"}
                 bg="brand.500"
                 borderRadius={"lg"}
                 loading={isSubmitting}
