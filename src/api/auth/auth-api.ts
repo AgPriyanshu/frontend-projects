@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import api from "../api";
-import { setTokens } from "../token";
+import { setTokens } from "../../shared/local-storage/token";
 import { queryClient } from "../query-client";
 import type { LoginCredentials, LoginResponse } from "./types";
 import { toCamelCase, type SnakeToCamelCase } from "shared/utils";

@@ -7,12 +7,13 @@ import {
   Fieldset,
   Input,
   InputGroup,
-  Stack,
+  VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { MdEmail, MdLock } from "react-icons/md";
 import { loginSchema, type LoginFormData } from "./schema";
+import { WorldOfAppsLogo } from "shared/components";
 
 export const LoginPage = () => {
   const {
@@ -32,21 +33,24 @@ export const LoginPage = () => {
 
   return (
     <Box w={"full"} h={"full"}>
-      <Center h="full">
+      <WorldOfAppsLogo />
+      <Center>
         <Card.Root
           border={"1px solid blackAplha.400"}
           borderRadius={"lg"}
           padding={"5"}
-          mb={"10rem"}
+          mt={"8rem"}
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <Fieldset.Root size="lg" maxW="md">
-              <Stack>
-                <Fieldset.Legend>Welcome Back</Fieldset.Legend>
+              <VStack gap={"4"}>
+                <Fieldset.Legend textAlign={"center"} fontSize={"xl"}>
+                  Welcome Back
+                </Fieldset.Legend>
                 <Fieldset.HelperText>
                   Enter your credentials to access the workspace
                 </Fieldset.HelperText>
-              </Stack>
+              </VStack>
               <Fieldset.Content>
                 <Field.Root invalid={!!errors.email}>
                   <Field.Label>Email</Field.Label>
@@ -83,7 +87,6 @@ export const LoginPage = () => {
                 bg="brand.500"
                 borderRadius={"lg"}
                 loading={isSubmitting}
-                width="full"
               >
                 Sign In
               </Button>

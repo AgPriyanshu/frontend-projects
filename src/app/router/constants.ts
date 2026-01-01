@@ -1,4 +1,6 @@
 export const RoutePath = {
+  Home: "/",
+  Todo: "/todo",
   Login: "/login",
 } as const;
 

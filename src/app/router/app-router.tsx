@@ -1,14 +1,26 @@
 import { Route, Routes } from "react-router";
 import { App } from "src/app";
-import { LoginPage } from "src/features";
+import { HomePage, LoginPage, TodoPage } from "src/features";
+import { ProtectedRoute } from "./protected-route";
+import { RoutePath } from "./constants";
 
 export const AppRouter = () => {
   return (
     <Routes>
-      <Route element={<App />}>
-        {/* <Route index element={<Home />} /> */}
-        <Route path="/login" element={<LoginPage />} />
+      {/* Protected routes - all children require authentication */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <App />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<HomePage />} />
+        <Route path={RoutePath.Todo} element={<TodoPage />} />
       </Route>
+
+      {/* Public routes - no authentication required */}
+      <Route path={RoutePath.Login} element={<LoginPage />} />
     </Routes>
   );
 };

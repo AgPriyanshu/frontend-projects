@@ -1,11 +1,7 @@
-/**
- * Token storage utilities for managing access and refresh tokens
- */
+import { LocalStorageManager } from "./local-storage-manager";
 
-import { LocalStorageManager } from 'shared/local-storage';
-
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
+const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
 
 /**
  * Get the access token from localStorage
@@ -36,5 +32,3 @@ export const clearTokens = (): void => {
   LocalStorageManager.removeItem(ACCESS_TOKEN_KEY);
   LocalStorageManager.removeItem(REFRESH_TOKEN_KEY);
 };
-
-

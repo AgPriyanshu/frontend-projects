@@ -6,10 +6,6 @@ interface QueryProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * React Query provider component
- * Wraps the app with QueryClientProvider and includes DevTools in development
- */
 export const QueryProvider = ({ children }: QueryProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
