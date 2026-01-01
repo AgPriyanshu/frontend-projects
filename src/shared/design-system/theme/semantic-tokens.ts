@@ -1,24 +1,22 @@
 export const semanticTokens = {
   colors: {
-    bg: {
-      default: "neutral.900",
-      _dark: "neutral.900",
+    primary: {
+      value: {
+        _light: "{colors.brand.500}",
+        _dark: "{colors.brand.400}",
+      },
     },
-    surface: {
-      default: "#121826",
-      _dark: "#121826",
+    primaryHover: {
+      value: {
+        _light: "{colors.brand.600}",
+        _dark: "{colors.brand.500}",
+      },
     },
-    textPrimary: {
-      default: "white",
-      _dark: "white",
-    },
-    textSecondary: {
-      default: "neutral.400",
-      _dark: "neutral.400",
-    },
-    border: {
-      default: "#2A324A",
-      _dark: "#2A324A",
+    onPrimary: {
+      value: {
+        _light: "{colors.neutral.0}",
+        _dark: "{colors.neutral.0}",
+      },
     },
   },
 };

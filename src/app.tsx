@@ -1,12 +1,21 @@
-import { Button, Container, Text, VStack } from "@chakra-ui/react";
+import { Box, Center, Flex, Heading, Spacer, VStack } from "@chakra-ui/react";
+import { TbWorldBolt } from "react-icons/tb";
+import { Outlet } from "react-router";
 
 export const App = () => {
   return (
-    <Container minH="100vh" centerContent>
-      <VStack flex="1" justify="center" gap="4">
-        <Text fontSize="lg">Welcome to the World of Apps</Text>
-        <Button>Test</Button>
-      </VStack>
-    </Container>
+    <VStack h={"100vh"}>
+      <Box h="10rem" w="full">
+        <Center h="full" alignItems={"center"}>
+          <Flex>
+            <Heading size={"3xl"}>World of Apps</Heading>
+            <Spacer w="2" />
+            <TbWorldBolt size={32} />
+          </Flex>
+        </Center>
+      </Box>
+      <Outlet />
+    </VStack>
+    // </Container>
   );
 };
