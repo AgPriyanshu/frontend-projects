@@ -1,5 +1,14 @@
-// Responses.
-export type LoginResponseData = { token: string };
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
 
-// Payloads.
-export type LoginPayload = { username: string; password: string };
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
+}

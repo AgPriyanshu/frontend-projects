@@ -1,2 +1,1 @@
-export * from "./login-api";
-export * from "./types";
+export * from './auth-api';
