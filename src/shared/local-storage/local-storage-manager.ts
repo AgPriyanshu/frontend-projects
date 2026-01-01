@@ -11,7 +11,7 @@ export class LocalStorageManager {
     try {
       const item = localStorage.getItem(key);
       if (item === null) return null;
-      
+
       // Try to parse as JSON, if it fails return as string
       try {
         return JSON.parse(item) as T;
@@ -29,7 +29,8 @@ export class LocalStorageManager {
    */
   static setItem<T>(key: string, value: T): void {
     try {
-      const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      const stringValue =
+        typeof value === "string" ? value : JSON.stringify(value);
       localStorage.setItem(key, stringValue);
     } catch (error) {
       console.error(`Error setting item in localStorage: ${key}`, error);
@@ -54,7 +55,7 @@ export class LocalStorageManager {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('Error clearing localStorage', error);
+      console.error("Error clearing localStorage", error);
     }
   }
 
@@ -72,7 +73,7 @@ export class LocalStorageManager {
     try {
       return Object.keys(localStorage);
     } catch (error) {
-      console.error('Error getting all keys from localStorage', error);
+      console.error("Error getting all keys from localStorage", error);
       return [];
     }
   }

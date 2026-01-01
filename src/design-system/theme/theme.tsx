@@ -33,6 +33,6 @@ export const ThemeProvider = (props: ColorModeProviderProps) => {
       <ColorModeProvider {...props} />
     </ChakraProvider>
   );
-}
+};
 
 export default system;

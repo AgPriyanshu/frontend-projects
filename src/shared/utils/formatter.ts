@@ -1,4 +1,4 @@
-import { camelCase, isArray,  isObject, transform } from "lodash";
+import { camelCase, isArray, isObject, transform } from "lodash";
 
 /**
  * Recursively converts all keys in an object from snake_case to camelCase
@@ -12,7 +12,7 @@ export const toCamelCase = <T = any>(obj: any): T => {
     return obj;
   }
 
-if (isArray(obj)) {
+  if (isArray(obj)) {
     return obj.map((item) => toCamelCase(item)) as T;
   }
 
