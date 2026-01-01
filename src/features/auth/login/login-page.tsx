@@ -36,7 +36,6 @@ export const LoginPage = () => {
           border={"1px solid blackAplha.400"}
           borderRadius={"lg"}
           padding={"5"}
-          mt={"8rem"}
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <Fieldset.Root size="lg" maxW="md">
