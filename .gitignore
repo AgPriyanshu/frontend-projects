@@ -23,3 +23,5 @@ s.idea
 
 *storybook.log
 storybook-static
+
+.env
