@@ -1,9 +1,10 @@
 import axios, { AxiosError } from "axios";
 import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
-import { getAccessToken } from "../shared/local-storage/token";
+import { getAccessToken } from "shared/local-storage/token";
+import { EnvVariable } from "app/config/env-variables";
 
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  baseURL: EnvVariable.API_BASE_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

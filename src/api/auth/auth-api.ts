@@ -11,7 +11,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       const response = await api.post<LoginResponse>(
-        "/auth/login",
+        "/auth/login/",
         credentials
       );
       // Convert snake_case response from server to camelCase

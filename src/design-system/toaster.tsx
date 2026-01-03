@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Toaster as ChakraToaster,
   Portal,
@@ -7,8 +9,8 @@ import {
   createToaster,
 } from "@chakra-ui/react";
 
-const toaster = createToaster({
-  placement: "bottom-end",
+export const toaster = createToaster({
+  placement: "bottom",
   pauseOnPageIdle: true,
 });
 

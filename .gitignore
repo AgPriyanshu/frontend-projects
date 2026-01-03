@@ -24,4 +24,5 @@ s.idea
 *storybook.log
 storybook-static
 
-.env
+# local Files.
+*.local

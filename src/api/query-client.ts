@@ -14,14 +14,14 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 10,
 
       // Custom retry logic that handles token refresh on 401
-      retry: (failureCount, error: any) => {
+      retry: (_, error: any) => {
         // If it's a 401 error, attempt token refresh
         if (error?.response?.status === 401) {
           return true; // Retry after token refresh
         }
 
         // For other errors, retry with exponential backoff
-        return failureCount < 3;
+        return false;
       },
 
       // Custom retry delay with exponential backoff
@@ -42,8 +42,8 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: true,
     },
     mutations: {
-      // Retry failed mutations once
-      retry: 1,
+      // Don't retry mutations by default (login, signup, etc. shouldn't auto-retry)
+      retry: false,
     },
   },
 });

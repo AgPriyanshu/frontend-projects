@@ -10,12 +10,19 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toaster } from "design-system/toaster";
 import { useForm } from "react-hook-form";
 import { MdEmail, MdLock } from "react-icons/md";
+import { useNavigate } from "react-router";
 import { WorldOfAppsLogo } from "shared/components";
+import { useLogin } from "src/api/auth";
 import { loginSchema, type LoginFormData } from "./schema";
 
 export const LoginPage = () => {
+  // APIs.
+  const { mutate: login } = useLogin();
+
+  // Hooks.
   const {
     register,
     handleSubmit,
@@ -23,9 +30,24 @@ export const LoginPage = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+  const navigate = useNavigate();
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log(data);
+    login(
+      { username: data.email, password: data.password },
+      {
+        onError: () => {
+          toaster.create({
+            description: "Invalid Credentials. Please try again",
+            type: "error",
+          });
+        },
+        onSuccess: () => {
+          toaster.create({ description: "Login successfull", type: "success" });
+          navigate("/");
+        },
+      }
+    );
   };
 
   return (
@@ -93,4 +115,4 @@ export const LoginPage = () => {
       </AbsoluteCenter>
     </Box>
   );
-};
+};;;

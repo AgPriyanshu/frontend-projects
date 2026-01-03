@@ -8,9 +8,9 @@ RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 WORKDIR /app
 
-# Build argument for API URL (public backend URL)
-ARG VITE_API_URL=https://api.worldofapps.bar
-ENV VITE_API_URL=${VITE_API_URL}
+# Accept NODE_ENV from CI/CD (defaults to production)
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -21,8 +21,8 @@ RUN pnpm install --frozen-lockfile
 # Copy source files
 COPY . .
 
-# Build the application
-RUN pnpm build
+# Build the application in production mode
+RUN pnpm build --mode production
 
 # Production stage
 FROM nginx:alpine AS production

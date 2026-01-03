@@ -1,4 +1,5 @@
 import { AppRouter } from "app/router";
+import { Toaster } from "design-system/toaster";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
@@ -10,6 +11,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <QueryProvider>
         <ThemeProvider>
+          <Toaster />
           <AppRouter />
         </ThemeProvider>
       </QueryProvider>

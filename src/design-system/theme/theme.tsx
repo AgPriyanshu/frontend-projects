@@ -9,9 +9,6 @@ import { colors } from "./colors";
 
 const config = defineConfig({
   globalCss: {
-    "*": {
-      boxSizing: "content-box",
-    },
     body: {
       margin: 0,
       padding: 0,

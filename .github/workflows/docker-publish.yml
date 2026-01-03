@@ -38,6 +38,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            NODE_ENV=production
           tags: |
              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
              ${{ steps.meta.outputs.tags }}
