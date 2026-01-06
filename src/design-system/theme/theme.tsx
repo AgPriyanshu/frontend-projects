@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "../color-mode";
 import { colors } from "./colors";
+import { semanticTokens } from "./semantic-tokens";
 
 const config = defineConfig({
   globalCss: {
@@ -19,6 +20,7 @@ const config = defineConfig({
     tokens: {
       colors,
     },
+    semanticTokens: semanticTokens,
   },
 });
 

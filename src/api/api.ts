@@ -15,7 +15,10 @@ api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getAccessToken();
 
-    if (token && config.headers) {
+    // Skip adding token for login endpoint
+    const isLoginEndpoint = config.url?.includes("/auth/login");
+
+    if (token && config.headers && !isLoginEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
