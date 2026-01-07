@@ -1,10 +1,4 @@
-import {
-  Box,
-  Card,
-  Heading,
-  Icon,
-  VStack
-} from "@chakra-ui/react";
+import { Box, Card, Heading, Icon, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import type { AppCard } from "./types";
 
@@ -34,9 +28,9 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
       <Card.Body padding={6}>
         <VStack align="center" gap={4} height="full">
           <Box p={4} borderRadius="lg">
-            <Icon as={app.icon} boxSize={8} color={"white"} />
+            <Icon as={app.icon} boxSize={8} color="icon" />
           </Box>
-          
+
           <VStack align="center" gap={3} width="full">
             <Heading size="md">{app.title}</Heading>
           </VStack>

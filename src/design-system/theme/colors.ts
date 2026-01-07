@@ -23,8 +23,8 @@ export const colors = {
     600: { value: "#4B5563" },
     700: { value: "#374151" },
     800: { value: "#1F2937" },
-    850: { value: "#1A2236" }, // elevated surfaces
-    900: { value: "#121826" }, // cards / surfaces
-    950: { value: "#0B0F1A" }, // app background
+    850: { value: "#171717" }, // elevated surfaces - true neutral
+    900: { value: "#0F0F0F" }, // cards / surfaces - true neutral
+    950: { value: "#050505" }, // app background - near black
   },
 };

@@ -53,7 +53,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <Box w={"100vw"} h={"100vh"} position="relative" bg="black">
+    <Box w={"100vw"} h={"100vh"} position="relative">
       <WorldOfAppsLogo />
       <AbsoluteCenter>
         <Card.Root
@@ -104,8 +104,8 @@ export const LoginPage = () => {
               </Fieldset.Content>
               <Button
                 type="submit"
-                color={"neutral.0"}
-                bg="brand.500"
+                color="onPrimary"
+                bg="primary"
                 borderRadius={"lg"}
                 loading={isSubmitting}
               >

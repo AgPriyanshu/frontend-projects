@@ -93,5 +93,113 @@ export const semanticTokens = {
         _dark: "{colors.brand.900}",
       },
     },
+
+    // Status colors - Success
+    success: {
+      value: {
+        _light: "#16a34a", // green.600
+        _dark: "#22c55e", // green.500
+      },
+    },
+    successHover: {
+      value: {
+        _light: "#15803d", // green.700
+        _dark: "#16a34a", // green.600
+      },
+    },
+    successActive: {
+      value: {
+        _light: "#166534", // green.800
+        _dark: "#15803d", // green.700
+      },
+    },
+
+    // Status colors - Error
+    error: {
+      value: {
+        _light: "#dc2626", // red.600
+        _dark: "#ef4444", // red.500
+      },
+    },
+    errorHover: {
+      value: {
+        _light: "#b91c1c", // red.700
+        _dark: "#dc2626", // red.600
+      },
+    },
+    errorActive: {
+      value: {
+        _light: "#991b1b", // red.800
+        _dark: "#b91c1c", // red.700
+      },
+    },
+
+    // Status colors - Warning
+    warning: {
+      value: {
+        _light: "#d97706", // amber.600
+        _dark: "#f59e0b", // amber.500
+      },
+    },
+    warningHover: {
+      value: {
+        _light: "#b45309", // amber.700
+        _dark: "#d97706", // amber.600
+      },
+    },
+    warningActive: {
+      value: {
+        _light: "#92400e", // amber.800
+        _dark: "#b45309", // amber.700
+      },
+    },
+
+    // Status colors - Info
+    info: {
+      value: {
+        _light: "#2563eb", // blue.600
+        _dark: "#3b82f6", // blue.500
+      },
+    },
+    infoHover: {
+      value: {
+        _light: "#1d4ed8", // blue.700
+        _dark: "#2563eb", // blue.600
+      },
+    },
+    infoActive: {
+      value: {
+        _light: "#1e40af", // blue.800
+        _dark: "#1d4ed8", // blue.700
+      },
+    },
+
+    // Icon colors
+    icon: {
+      value: {
+        _light: "{colors.neutral.700}",
+        _dark: "{colors.neutral.200}",
+      },
+    },
+    iconMuted: {
+      value: {
+        _light: "{colors.neutral.500}",
+        _dark: "{colors.neutral.400}",
+      },
+    },
+    iconOnPrimary: {
+      value: {
+        _light: "{colors.neutral.0}",
+        _dark: "{colors.neutral.0}",
+      },
+    },
+
+    // Inverse background (opposite of main background)
+    bgInverse: {
+      value: {
+        _light: "{colors.neutral.950}",
+        _dark: "{colors.neutral.0}",
+      },
+    },
   },
 };

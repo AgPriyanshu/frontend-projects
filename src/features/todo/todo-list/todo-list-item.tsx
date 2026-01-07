@@ -9,7 +9,7 @@ type TodoListItemProps = {
 export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
   return (
     <List.Item>
-      <List.Indicator asChild color="green.500">
+      <List.Indicator asChild color="success">
         {task.isCompleted ? <LuCircleCheck /> : <LuCircleDashed />}
       </List.Indicator>
       <Text>{task.description}</Text>

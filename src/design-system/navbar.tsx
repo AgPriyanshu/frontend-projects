@@ -2,32 +2,24 @@ import { Box, Flex, HStack, IconButton, Heading, Menu } from "@chakra-ui/react";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
-import { RoutePath } from "src/app/router/constants";
+import { clearToken } from "shared/local-storage/token";
+import { RoutePath } from "app/router/constants";
+import { ColorModeButton } from "./color-mode";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
-    // Clear tokens from localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    
-    // Redirect to login page
+    clearToken();
     navigate(RoutePath.Login);
   };
-  
+
   return (
-    <Box
-      as="nav"
-      w="full"
-      borderBottomWidth="1px"
-      px={8}
-      py={4}
-    >
+    <Box as="nav" w="full" borderBottomWidth="1px" px={8} py={4}>
       <Flex justify="space-between" align="center">
-        <HStack 
-          gap={3} 
-          cursor="pointer" 
+        <HStack
+          gap={3}
+          cursor="pointer"
           onClick={() => navigate("/")}
           _hover={{ opacity: 0.8 }}
           transition="opacity 0.2s"
@@ -35,8 +27,9 @@ export const Navbar = () => {
           <TbWorldBolt size={32} />
           <Heading size="md">World of Apps</Heading>
         </HStack>
-        
+
         <HStack gap={4}>
+          <ColorModeButton />
           <Menu.Root>
             <Menu.Trigger asChild>
               <IconButton
