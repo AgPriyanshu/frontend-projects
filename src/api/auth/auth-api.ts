@@ -1,26 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
+import type { ApiResponse } from "api/types";
+import type { AxiosResponse } from "axios";
+import { setAccessToken } from "../../shared/local-storage/token";
 import api from "../api";
-import { setTokens } from "../../shared/local-storage/token";
-import { queryClient } from "../query-client";
 import type { LoginCredentials, LoginResponse } from "./types";
-import { toCamelCase, type SnakeToCamelCase } from "shared/utils";
-
-type LoginResponseCamelCase = SnakeToCamelCase<LoginResponse>;
 
 export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await api.post<LoginResponse>(
+      return await api.post<ApiResponse<LoginResponse>>(
         "/auth/login/",
         credentials
       );
-      // Convert snake_case response from server to camelCase
-      return toCamelCase<LoginResponseCamelCase>(response.data);
     },
-    onSuccess: (data) => {
-      // Core logic that should always happen on successful login
-      setTokens(data.accessToken, data.refreshToken);
-      queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
+    onSuccess: (response: AxiosResponse<ApiResponse<LoginResponse>>) => {
+      const data = response.data.data;
+      setAccessToken(data.token);
     },
   });
 };

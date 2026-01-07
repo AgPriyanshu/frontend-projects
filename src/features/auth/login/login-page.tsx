@@ -30,8 +30,10 @@ export const LoginPage = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
   const navigate = useNavigate();
 
+  // Handlers.
   const onSubmit = async (data: LoginFormData) => {
     login(
       { username: data.email, password: data.password },
@@ -115,4 +117,4 @@ export const LoginPage = () => {
       </AbsoluteCenter>
     </Box>
   );
-};;;
+};

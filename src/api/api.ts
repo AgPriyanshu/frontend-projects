@@ -1,7 +1,12 @@
 import axios, { AxiosError } from "axios";
-import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import type {
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { getAccessToken } from "shared/local-storage/token";
 import { EnvVariable } from "app/config/env-variables";
+import { apiResponseMapper } from "./utils";
 
 const api: AxiosInstance = axios.create({
   baseURL: EnvVariable.API_BASE_URL,
@@ -14,15 +19,25 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getAccessToken();
-
-    // Skip adding token for login endpoint
-    const isLoginEndpoint = config.url?.includes("/auth/login");
+    const isLoginEndpoint = config.url?.includes("/auth/login/");
 
     if (token && config.headers && !isLoginEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response: AxiosResponse) => {
+    if (response.data) {
+      response.data = apiResponseMapper(response.data);
+    }
+    return response;
   },
   (error: AxiosError) => {
     return Promise.reject(error);

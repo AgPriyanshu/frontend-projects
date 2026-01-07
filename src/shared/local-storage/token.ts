@@ -1,34 +1,23 @@
+import { LocalStorageKeys } from "./constants";
 import { LocalStorageManager } from "./local-storage-manager";
-
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
 
 /**
  * Get the access token from localStorage
  */
 export const getAccessToken = (): string | null => {
-  return LocalStorageManager.getItem<string>(ACCESS_TOKEN_KEY);
+  return LocalStorageManager.getItem<string>(LocalStorageKeys.ACCESS_TOKEN);
 };
 
 /**
- * Get the refresh token from localStorage
+ * Store both access and refresh token
  */
-export const getRefreshToken = (): string | null => {
-  return LocalStorageManager.getItem<string>(REFRESH_TOKEN_KEY);
+export const setAccessToken = (accessToken: string): void => {
+  LocalStorageManager.setItem(LocalStorageKeys.ACCESS_TOKEN, accessToken);
 };
 
 /**
- * Store both access and refresh tokens
+ * Clear all token from localStorage
  */
-export const setTokens = (accessToken: string, refreshToken: string): void => {
-  LocalStorageManager.setItem(ACCESS_TOKEN_KEY, accessToken);
-  LocalStorageManager.setItem(REFRESH_TOKEN_KEY, refreshToken);
-};
-
-/**
- * Clear all tokens from localStorage
- */
-export const clearTokens = (): void => {
-  LocalStorageManager.removeItem(ACCESS_TOKEN_KEY);
-  LocalStorageManager.removeItem(REFRESH_TOKEN_KEY);
+export const clearToken = (): void => {
+  LocalStorageManager.removeItem(LocalStorageKeys.ACCESS_TOKEN);
 };

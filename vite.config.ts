@@ -18,9 +18,10 @@ export default defineConfig((_) => {
     plugins: [react(), tsconfigPaths()],
     resolve: {
       alias: {
+        api: path.resolve(dirname, "src/api"),
         app: path.resolve(dirname, "src/app"),
-        shared: path.resolve(dirname, "src/shared"),
         "design-system": path.resolve(dirname, "src/design-system"),
+        shared: path.resolve(dirname, "src/shared"),
       },
     },
     server: {
