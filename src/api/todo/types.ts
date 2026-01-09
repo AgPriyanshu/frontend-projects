@@ -8,3 +8,12 @@ export interface TaskResponse {
 }
 
 export type TaskListResponse = TaskResponse[];
+
+export interface UpdateTodoPayload {
+  description?: string;
+  isCompleted?: boolean;
+}
+
+export interface AddTodoPayload {
+  description: string;
+}

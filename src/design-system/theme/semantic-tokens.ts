@@ -1,6 +1,52 @@
 export const semanticTokens = {
   colors: {
-    // Primary brand colors
+    // Brand color palette (Chakra UI standard)
+    brand: {
+      solid: {
+        value: {
+          _light: "{colors.brand.600}",
+          _dark: "{colors.brand.500}",
+        },
+      },
+      contrast: {
+        value: {
+          _light: "{colors.neutral.0}",
+          _dark: "{colors.neutral.0}",
+        },
+      },
+      fg: {
+        value: {
+          _light: "{colors.brand.700}",
+          _dark: "{colors.brand.300}",
+        },
+      },
+      muted: {
+        value: {
+          _light: "{colors.brand.100}",
+          _dark: "{colors.brand.900}",
+        },
+      },
+      subtle: {
+        value: {
+          _light: "{colors.brand.200}",
+          _dark: "{colors.brand.800}",
+        },
+      },
+      emphasized: {
+        value: {
+          _light: "{colors.brand.300}",
+          _dark: "{colors.brand.700}",
+        },
+      },
+      focusRing: {
+        value: {
+          _light: "{colors.brand.500}",
+          _dark: "{colors.brand.400}",
+        },
+      },
+    },
+
+    // Primary brand colors (legacy - keeping for backward compatibility)
     primary: {
       value: {
         _light: "{colors.brand.500}",

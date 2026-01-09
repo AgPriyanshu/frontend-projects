@@ -4,7 +4,7 @@ interface ApiResonseMeta {
   message: string;
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T = any> {
   meta: ApiResonseMeta;
   data: T;
 }
