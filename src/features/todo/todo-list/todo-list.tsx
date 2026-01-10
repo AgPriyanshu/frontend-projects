@@ -1,6 +1,5 @@
 import { Box, Flex, Heading, List, Text } from "@chakra-ui/react";
 import { useTodoList } from "api/todo";
-import { useMemo } from "react";
 import { TodoInput } from "./todo-input";
 import { TodoListItem } from "./todo-list-item";
 
@@ -9,14 +8,16 @@ export const TodoList = () => {
   const { data: taskList } = useTodoList();
 
   // Calculate task statistics
-  const taskStats = useMemo(() => {
-    if (!taskList?.data) return { total: 0, completed: 0 };
+  const taskStats = (() => {
+    if (!taskList?.data) {
+      return { total: 0, completed: 0 };
+    }
 
     const total = taskList.data.length;
     const completed = taskList.data.filter((task) => task.isCompleted).length;
 
     return { total, completed };
-  }, [taskList?.data]);
+  })();
 
   return (
     <Box w="full" maxW="3xl">

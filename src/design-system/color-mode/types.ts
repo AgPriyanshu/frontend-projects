@@ -1,7 +1,7 @@
 import type { IconButtonProps } from "@chakra-ui/react";
 import type { ThemeProviderProps } from "next-themes";
 
-export interface ColorModeProviderProps extends ThemeProviderProps {}
+export type ColorModeProviderProps = ThemeProviderProps;
 
 export interface UseColorModeReturn {
   colorMode: ColorMode;
@@ -11,7 +11,4 @@ export interface UseColorModeReturn {
 
 export type ColorMode = "light" | "dark";
 
-export interface ColorModeButtonProps extends Omit<
-  IconButtonProps,
-  "aria-label"
-> {}
+export type ColorModeButtonProps = Omit<IconButtonProps, "aria-label">;

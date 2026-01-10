@@ -1,4 +1,4 @@
-import { Box, Grid, Flex, Button } from "@chakra-ui/react";
+import { Box, Flex, Grid } from "@chakra-ui/react";
 import { useState } from "react";
 import { AppItem } from "./app-item";
 import { apps } from "./constants";
@@ -27,7 +27,6 @@ export const HomePage = () => {
           ))}
         </Grid>
       </Box>
-      <Button>Hello</Button>
     </Flex>
   );
 };
