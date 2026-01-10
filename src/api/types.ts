@@ -1,6 +1,6 @@
 interface ApiResonseMeta {
   status_code: number;
-  success: Boolean;
+  success: boolean;
   message: string;
 }
 

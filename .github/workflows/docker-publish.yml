@@ -2,7 +2,7 @@ name: Docker Publish
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
   REGISTRY: ghcr.io
@@ -41,6 +41,6 @@ jobs:
           build-args: |
             NODE_ENV=production
           tags: |
-             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-             ${{ steps.meta.outputs.tags }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
