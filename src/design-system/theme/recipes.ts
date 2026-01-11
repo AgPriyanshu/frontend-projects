@@ -25,7 +25,7 @@ import { defineRecipe } from "@chakra-ui/react";
  */
 export const buttonRecipe = defineRecipe({
   base: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
     borderRadius: "lg",
   },
 });
@@ -94,7 +94,7 @@ export const badgeRecipe = defineRecipe({
     borderRadius: "md",
   },
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
