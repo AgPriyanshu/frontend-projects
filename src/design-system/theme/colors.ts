@@ -27,4 +27,4 @@ export const colors = {
     900: { value: "#0F0F0F" }, // cards / surfaces - true neutral
     950: { value: "#050505" }, // app background - near black
   },
-};
+} as const;

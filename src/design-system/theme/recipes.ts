@@ -1,28 +1,5 @@
 import { defineRecipe } from "@chakra-ui/react";
 
-/**
- * Component Recipes
- *
- * This file contains all custom recipe configurations for Chakra UI components.
- * Recipes allow you to customize the default styling and behavior of components.
- *
- * @see https://chakra-ui.com/docs/theming/customization/recipes
- */
-
-// ============================================================================
-// BUTTON RECIPE
-// ============================================================================
-
-/**
- * Button Recipe
- *
- * Customizes the default button component with:
- * - Brand color palette (orange)
- * - XL border radius for modern look
- *
- * Usage: <Button>Click me</Button>
- * Override: <Button colorPalette="red">Red Button</Button>
- */
 export const buttonRecipe = defineRecipe({
   base: {
     colorPalette: "brand" as any,
@@ -30,20 +7,6 @@ export const buttonRecipe = defineRecipe({
   },
 });
 
-// ============================================================================
-// INPUT RECIPE
-// ============================================================================
-
-/**
- * Input Recipe
- *
- * Customizes input fields with:
- * - LG border radius
- * - Brand color focus ring
- * - Consistent border styling
- *
- * Usage: <Input placeholder="Enter text" />
- */
 export const inputRecipe = defineRecipe({
   base: {
     borderRadius: "lg",
@@ -55,20 +18,6 @@ export const inputRecipe = defineRecipe({
   },
 });
 
-// ============================================================================
-// CARD RECIPE
-// ============================================================================
-
-/**
- * Card Recipe
- *
- * Customizes card components with:
- * - XL border radius
- * - Semantic background colors
- * - Consistent border styling
- *
- * Usage: <Card.Root>...</Card.Root>
- */
 export const cardRecipe = defineRecipe({
   base: {
     borderRadius: "xl",
@@ -78,17 +27,6 @@ export const cardRecipe = defineRecipe({
   },
 });
 
-// ============================================================================
-// FORM CONTROL RECIPES
-// ============================================================================
-
-/**
- * Badge Recipe
- *
- * Customizes badge components with brand colors
- *
- * Usage: <Badge>New</Badge>
- */
 export const badgeRecipe = defineRecipe({
   base: {
     borderRadius: "md",
@@ -110,7 +48,7 @@ export const checkboxRecipe = defineRecipe({
     borderRadius: "md",
   },
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
@@ -126,7 +64,7 @@ export const switchRecipe = defineRecipe({
     borderRadius: "full",
   },
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
@@ -139,7 +77,7 @@ export const switchRecipe = defineRecipe({
  */
 export const radioRecipe = defineRecipe({
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
@@ -156,7 +94,7 @@ export const radioRecipe = defineRecipe({
  */
 export const sliderRecipe = defineRecipe({
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
@@ -172,7 +110,7 @@ export const progressRecipe = defineRecipe({
     borderRadius: "full",
   },
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
@@ -185,7 +123,7 @@ export const progressRecipe = defineRecipe({
  */
 export const tabsRecipe = defineRecipe({
   defaultVariants: {
-    colorPalette: "brand",
+    colorPalette: "brand" as any,
   },
 });
 
