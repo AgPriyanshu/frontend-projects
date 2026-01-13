@@ -1,11 +1,12 @@
 import { Box, VStack, Heading, Button } from "@chakra-ui/react";
+import { AppCategory } from "./enums";
 
 interface FilterSidebarProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
 }
 
-const categories = ["All", "Productivity", "Navigation"];
+const categories = ["All", ...Object.values(AppCategory)];
 
 export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   selectedCategory,

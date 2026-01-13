@@ -1,6 +1,11 @@
 import { Route, Routes } from "react-router";
 import { App } from "src/app";
-import { HomePage, LoginPage, TodoPage } from "src/features";
+import {
+  AppItemPlaceholder,
+  HomePage,
+  LoginPage,
+  TodoPage,
+} from "src/features";
 import { ProtectedRoute } from "./protected-route";
 import { RoutePath } from "./constants";
 
@@ -17,6 +22,12 @@ export const AppRouter = () => {
       >
         <Route index element={<HomePage />} />
         <Route path={RoutePath.Todo} element={<TodoPage />} />
+        <Route path={RoutePath.Map} element={<AppItemPlaceholder />} />
+        <Route
+          path={RoutePath.DeviceClassifier}
+          element={<AppItemPlaceholder />}
+        />
+        <Route path={RoutePath.Store} element={<AppItemPlaceholder />} />
       </Route>
 
       {/* Public routes - no authentication required */}

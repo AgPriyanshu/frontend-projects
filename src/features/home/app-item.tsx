@@ -25,7 +25,7 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
         borderColor: "primaryHover",
       }}
     >
-      <Card.Body padding={6}>
+      <Card.Body padding={2} pt={6}>
         <VStack align="center" gap={4} height="full">
           <Box p={4} borderRadius="lg">
             <Icon as={app.icon} boxSize={8} color="icon" />
