@@ -12,5 +12,5 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <div className="protected-route-continaer">{children}</div>;
 };

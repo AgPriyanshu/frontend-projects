@@ -15,6 +15,12 @@ const config = defineConfig({
       margin: 0,
       padding: 0,
     },
+    ".outlet-container": {
+      "& > div": {
+        height: "100%",
+        width: "100%",
+      },
+    },
   },
 
   theme: {
