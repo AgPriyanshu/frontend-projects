@@ -11,10 +11,14 @@ import { semanticTokens } from "./semantic-tokens";
 
 const config = defineConfig({
   globalCss: {
+    "*": {
+      boxSizing: "border-box",
+    },
     body: {
       margin: 0,
       padding: 0,
     },
+
     ".outlet-container": {
       "& > div": {
         height: "100%",

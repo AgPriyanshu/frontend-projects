@@ -17,7 +17,7 @@ export const Navbar = () => {
   };
 
   return (
-    <Box as="nav" w="full" borderBottomWidth="1px" px={8} py={4}>
+    <Box as="nav" h={"8vh"} w="full" borderBottomWidth="1px" px={8} py={4}>
       <Flex justify="space-between" align="center">
         <HStack
           gap={3}
@@ -37,7 +37,7 @@ export const Navbar = () => {
               <IconButton
                 aria-label="User profile"
                 variant="ghost"
-                color={"white"}
+                color={"fg"}
                 _hover={{ bgColor: "bgMuted" }}
               >
                 <FaUser />
