@@ -33,7 +33,7 @@ export const useUpdateTodo = (taskId: string) => {
     mutationFn: async (payload: UpdateTodoPayload) => {
       return await api.patch<ApiResponse<TaskListResponse>>(
         `/tasks/${taskId}/`,
-        payload
+        { ...payload }
       );
     },
   });

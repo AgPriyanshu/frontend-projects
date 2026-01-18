@@ -6,7 +6,7 @@ import type {
 } from "axios";
 import { getAccessToken } from "shared/local-storage/token";
 import { EnvVariable } from "app/config/env-variables";
-import { apiResponseMapper } from "./utils";
+import { apiRequestMapper, apiResponseMapper } from "./utils";
 
 const api: AxiosInstance = axios.create({
   baseURL: EnvVariable.API_BASE_URL,
@@ -23,6 +23,14 @@ api.interceptors.request.use(
 
     if (token && config.headers && !isLoginEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (config.data) {
+      config.data = apiRequestMapper(config.data);
+    }
+
+    if (config.params) {
+      config.params = apiRequestMapper(config.params);
     }
 
     return config;

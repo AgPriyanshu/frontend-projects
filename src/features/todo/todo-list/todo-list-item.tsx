@@ -17,32 +17,36 @@ export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
 
   // Handlers.
   const onCheckChangeHandler = (details: CheckedChangeDetails) => {
-    const isChecked = !!details.checked;
-    setChecked(isChecked);
-    updateTodoItem({
-      isCompleted: isChecked,
-    });
+    setChecked(!!details.checked);
+    updateTodoItem(
+      {
+        isCompleted: !!details.checked,
+      },
+      { onSuccess: onSuccessItemUpdateOrRemove }
+    );
   };
 
   // Handler.
   const onClickDelete = () => {
-    deleteTodoItem(undefined, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: QueryKeys.todoList });
-      },
-    });
+    deleteTodoItem(undefined, { onSuccess: onSuccessItemUpdateOrRemove });
   };
+
+  // Helpers.
+  const onSuccessItemUpdateOrRemove = () =>
+    queryClient.invalidateQueries({
+      queryKey: QueryKeys.todoList,
+    });
 
   return (
     <List.Item>
-      <Flex gap={3} align="center">
+      <Flex gap={3} align="center" w={"full"}>
         <CheckboxCard.Root
-          w="3xl"
           checked={checked}
           onCheckedChange={onCheckChangeHandler}
           _checked={{ borderColor: "inherit", boxShadow: "none" }}
           borderColor={isDeleteHovered ? "red.500" : undefined}
           transition="border-color 0.2s ease-in-out"
+          cursor={"pointer"}
         >
           <CheckboxCard.HiddenInput />
           <CheckboxCard.Control display="flex" alignItems="center" gap={3}>

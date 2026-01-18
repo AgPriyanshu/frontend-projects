@@ -4,6 +4,7 @@ import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage/token";
 import { RoutePath } from "app/router/constants";
+import { queryClient } from "api/query-client";
 import { ColorModeButton } from "./color-mode";
 
 export const Navbar = () => {
@@ -11,6 +12,7 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     clearToken();
+    queryClient.clear();
     navigate(RoutePath.Login);
   };
 
