@@ -2,6 +2,7 @@ import { Box, Flex, VStack } from "@chakra-ui/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
+import { DatasetTree } from "./data-sources";
 import { Map } from "./map/map";
 
 export const WebGIS = () => {
@@ -65,8 +66,9 @@ export const WebGIS = () => {
             borderWidth={"1px"}
             borderRadius={"lg"}
             p={"1rem"}
+            overflow={"hidden"}
           >
-            Data Sources
+            <DatasetTree />
           </Box>
           <Box
             w={"full"}
