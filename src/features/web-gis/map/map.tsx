@@ -103,6 +103,43 @@ export const Map = () => {
     e.stopPropagation();
     setIsDragging(false);
 
+    // Check if it's a dataset node being dropped
+    const datasetId = e.dataTransfer.getData("application/dataset-id");
+
+    if (datasetId) {
+      console.log({ datasetId });
+      // Handle dataset node drop
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/web-gis/datasets/${datasetId}/download`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to download dataset");
+        }
+
+        const geojson = await response.json();
+
+        // Validate GeoJSON structure
+        if (!geojson.type || !geojson.features) {
+          alert("Invalid GeoJSON format");
+          return;
+        }
+
+        loadGeoJSONToMap(geojson, `dataset-${datasetId}`);
+      } catch (error) {
+        console.error("Error loading dataset:", error);
+        alert("Failed to load dataset. Please try again.");
+      }
+      return;
+    }
+
+    // Handle file drop (existing functionality)
     const files = Array.from(e.dataTransfer.files);
     const geojsonFile = files.find(
       (file) =>
@@ -127,87 +164,91 @@ export const Map = () => {
         return;
       }
 
-      const map = mapRef.current;
-      if (!map) return;
-
-      // Generate unique source and layer IDs
-      const sourceId = `geojson-${Date.now()}`;
-      const layerId = `geojson-layer-${Date.now()}`;
-
-      // Add GeoJSON source
-      map.addSource(sourceId, {
-        type: "geojson",
-        data: geojson,
-      });
-
-      // Add fill layer for polygons
-      map.addLayer({
-        id: `${layerId}-fill`,
-        type: "fill",
-        source: sourceId,
-        paint: {
-          "fill-color": "#088",
-          "fill-opacity": 0.4,
-        },
-        filter: ["==", "$type", "Polygon"],
-      });
-
-      // Add line layer for lines and polygon outlines
-      map.addLayer({
-        id: `${layerId}-line`,
-        type: "line",
-        source: sourceId,
-        paint: {
-          "line-color": "#088",
-          "line-width": 2,
-        },
-        filter: ["in", "$type", "LineString", "Polygon"],
-      });
-
-      // Add circle layer for points
-      map.addLayer({
-        id: `${layerId}-circle`,
-        type: "circle",
-        source: sourceId,
-        paint: {
-          "circle-radius": 6,
-          "circle-color": "#088",
-          "circle-stroke-width": 2,
-          "circle-stroke-color": "#fff",
-        },
-        filter: ["==", "$type", "Point"],
-      });
-
-      // Fit map to GeoJSON bounds
-      const bounds = new LngLatBounds();
-      geojson.features.forEach(
-        (feature: {
-          geometry: {
-            type: string;
-            coordinates: number[] | number[][] | number[][][];
-          };
-        }) => {
-          if (feature.geometry.type === "Point") {
-            bounds.extend(feature.geometry.coordinates as [number, number]);
-          } else if (feature.geometry.type === "LineString") {
-            (feature.geometry.coordinates as number[][]).forEach((coord) =>
-              bounds.extend(coord as [number, number])
-            );
-          } else if (feature.geometry.type === "Polygon") {
-            (feature.geometry.coordinates as number[][][])[0].forEach((coord) =>
-              bounds.extend(coord as [number, number])
-            );
-          }
-        }
-      );
-
-      map.fitBounds(bounds, { padding: 50 });
-
-      console.log(`GeoJSON loaded: ${geojsonFile.name}`);
+      loadGeoJSONToMap(geojson, geojsonFile.name);
     } catch (error) {
       console.error("Error loading GeoJSON:", error);
       alert("Failed to load GeoJSON file. Please check the file format.");
     }
+  };
+
+  const loadGeoJSONToMap = (geojson: any, identifier: string) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Generate unique source and layer IDs
+    const sourceId = `geojson-${Date.now()}`;
+    const layerId = `geojson-layer-${Date.now()}`;
+
+    // Add GeoJSON source
+    map.addSource(sourceId, {
+      type: "geojson",
+      data: geojson,
+    });
+
+    // Add fill layer for polygons
+    map.addLayer({
+      id: `${layerId}-fill`,
+      type: "fill",
+      source: sourceId,
+      paint: {
+        "fill-color": "#088",
+        "fill-opacity": 0.4,
+      },
+      filter: ["==", "$type", "Polygon"],
+    });
+
+    // Add line layer for lines and polygon outlines
+    map.addLayer({
+      id: `${layerId}-line`,
+      type: "line",
+      source: sourceId,
+      paint: {
+        "line-color": "#088",
+        "line-width": 2,
+      },
+      filter: ["in", "$type", "LineString", "Polygon"],
+    });
+
+    // Add circle layer for points
+    map.addLayer({
+      id: `${layerId}-circle`,
+      type: "circle",
+      source: sourceId,
+      paint: {
+        "circle-radius": 6,
+        "circle-color": "#088",
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff",
+      },
+      filter: ["==", "$type", "Point"],
+    });
+
+    // Fit map to GeoJSON bounds
+    const bounds = new LngLatBounds();
+    geojson.features.forEach(
+      (feature: {
+        geometry: {
+          type: string;
+          coordinates: number[] | number[][] | number[][][];
+        };
+      }) => {
+        if (feature.geometry.type === "Point") {
+          bounds.extend(feature.geometry.coordinates as [number, number]);
+        } else if (feature.geometry.type === "LineString") {
+          (feature.geometry.coordinates as number[][]).forEach((coord) =>
+            bounds.extend(coord as [number, number])
+          );
+        } else if (feature.geometry.type === "Polygon") {
+          (feature.geometry.coordinates as number[][][])[0].forEach((coord) =>
+            bounds.extend(coord as [number, number])
+          );
+        }
+      }
+    );
+
+    map.fitBounds(bounds, { padding: 50 });
+
+    console.log(`GeoJSON loaded: ${identifier}`);
   };
 
   return (

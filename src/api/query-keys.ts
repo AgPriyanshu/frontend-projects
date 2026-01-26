@@ -1,4 +1,5 @@
 export const QueryKeys = {
   todoList: ["/tasks/"],
-  datasetNodes: ["/datasets/nodes/"],
+  datasets: ["/datasets/"],
+  datasetsDetailDownload: (id: string) => [`/datasets/${id}/download`],
 };

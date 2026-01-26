@@ -19,3 +19,13 @@ export interface DatasetNodeResponse {
   dataset: DatasetResponse | null;
   createdAt: string;
 }
+
+export interface DatasetNodeUploadPayload {
+  // Node information
+  name: string;
+  parent: string | null; // ID of parent DatasetNode
+  type: DatasetNodeType;
+
+  // Files
+  files: File[]; // Array of File objects
+}

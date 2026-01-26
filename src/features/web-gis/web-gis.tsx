@@ -1,9 +1,9 @@
 import { Box, Flex, VStack } from "@chakra-ui/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ResizableBox } from "react-resizable";
-import "react-resizable/css/styles.css";
+
 import { DatasetTree } from "./data-sources";
-import { Map } from "./map/map";
+import { Map } from "./map";
 
 export const WebGIS = () => {
   // States.

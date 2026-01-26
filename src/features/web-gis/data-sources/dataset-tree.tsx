@@ -1,56 +1,19 @@
-import { Box, Flex, Text, useToken } from "@chakra-ui/react";
-import { useDatasetNodes } from "api/web-gis";
-import React from "react";
+import { Box, Text } from "@chakra-ui/react";
+import { useDatasets } from "api/web-gis";
 import { Tree } from "react-arborist";
-import type { NodeRendererProps } from "react-arborist";
-import { FaFolder, FaFolderOpen, FaFile } from "react-icons/fa";
-import { DatasetNodeType, type DatasetNode } from "../types";
-
-// Custom Node Component
-const Node = ({ node, style, dragHandle }: NodeRendererProps<DatasetNode>) => {
-  const isFolder = node.data.type === DatasetNodeType.FOLDER;
-
-  return (
-    <Flex
-      ref={dragHandle}
-      align="center"
-      style={style}
-      py={"0.25rem"}
-      cursor="pointer"
-      borderRadius="md"
-      bg={node.isSelected ? "bgMuted" : "transparent"}
-      _hover={{ bg: "primaryHover" }}
-      transition="background 0.2s"
-    >
-      <Box
-        as="span"
-        mr={2}
-        color={"fg"}
-        fontSize="sm"
-        onClick={(e) => {
-          e.stopPropagation();
-          node.toggle();
-        }}
-      >
-        {!isFolder ? <FaFile /> : node.isOpen ? <FaFolderOpen /> : <FaFolder />}
-      </Box>
-      <Text fontSize="sm" color={"fg"} userSelect="none">
-        {isFolder ? node.data.name : node.data.dataset?.fileName}
-      </Text>
-    </Flex>
-  );
-};
+import useResizeObserver from "use-resize-observer";
+import { DatasetTreeNode } from "./dataset-tree-node";
 
 export const DatasetTree = () => {
-  const [borderColor] = useToken("colors", ["border"]);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  // Hooks.
+  const { ref, height, width } = useResizeObserver();
 
   // APIs.
-  const { data, isLoading } = useDatasetNodes();
+  const { data, isLoading } = useDatasets();
 
   if (isLoading || !data) {
     return (
-      <Box ref={containerRef} h="full" w="full" borderColor={borderColor}>
+      <Box ref={ref} h="full" w="full">
         <Text fontSize="sm" color="fg" p={2}>
           Loading datasets...
         </Text>
@@ -58,16 +21,29 @@ export const DatasetTree = () => {
     );
   }
 
+  // Handlers.
+  const disableDropForSameFolder = (args: {
+    dragNodes: any;
+    parentNode: any;
+  }) => {
+    const { dragNodes, parentNode } = args;
+    const draggedNode = dragNodes[0];
+    const draggedNodeParent = draggedNode?.parent;
+    return draggedNodeParent?.id === parentNode?.id;
+  };
+
   return (
-    <Box ref={containerRef} h="full" w="full" borderColor={borderColor}>
+    <Box ref={ref} h="full" w="full">
       <Tree
-        initialData={data.data}
-        openByDefault={false}
+        data={data.data}
+        openByDefault={true}
         indent={20}
-        rowHeight={32}
         overscanCount={5}
+        disableDrop={disableDropForSameFolder}
+        height={height}
+        width={width}
       >
-        {Node}
+        {DatasetTreeNode}
       </Tree>
     </Box>
   );
