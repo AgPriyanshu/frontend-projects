@@ -27,6 +27,7 @@ export const WebGIS = () => {
       className="web-gis-container"
       h={"100%"}
       w={"100%"}
+      bg={"surface.page"}
       p="1rem"
       gap={"1rem"}
       justifyContent={"center"}

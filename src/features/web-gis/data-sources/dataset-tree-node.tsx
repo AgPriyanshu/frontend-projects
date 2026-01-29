@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
 import { Box, Flex, Text } from "@chakra-ui/react";
-import type { NodeRendererProps } from "react-arborist";
-import { FaFile, FaFolderOpen, FaFolder, FaPlus } from "react-icons/fa";
-import { type DatasetNode, DatasetNodeType } from "../types";
-import { InlineFileUploader } from "shared/components";
-import { useUploadDatasets } from "api/web-gis";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
+import { useUploadDatasets } from "api/web-gis";
+import { useEffect, useState } from "react";
+import type { NodeRendererProps } from "react-arborist";
+import { FaFolder, FaFolderOpen, FaPlus } from "react-icons/fa";
+import { TbVector } from "react-icons/tb";
+import { InlineFileUploader } from "shared/components";
+import { type DatasetNode, DatasetNodeType } from "../types";
 
 export const DatasetTreeNode = ({
   node,
@@ -67,33 +68,41 @@ export const DatasetTreeNode = ({
     <Flex
       ref={dragHandle}
       data-node-id={node.id}
-      align="center"
-      justify="space-between"
-      style={style}
-      py={"0.25rem"}
-      cursor="pointer"
-      borderRadius="md"
       onClick={(e) => {
         e.stopPropagation();
         node.toggle();
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      bg={node.isSelected ? "surface.subtle" : "transparent"}
-      _hover={{ bg: "intent.primaryHover" }}
+      // Styles
+      align="center"
+      justify="space-between"
+      style={{ ...style, alignItems: "center" }}
+      // p={"0.25rem"}
+      cursor="pointer"
+      borderColor={"border.default"}
+      // borderWidth={"1px"}
+      borderXWidth={"0px"}
+      bg={node.isSelected ? "intent.primary" : "initial"}
+      _hover={{ bg: node.isSelected ? "intent.primaryHover" : "surface.hover" }}
+      _active={{ bg: "intent.primaryActive" }}
       transition="background 0.2s"
       position="relative"
     >
       <Flex align="center" flex={1}>
-        <Box as="span" mx={2} color={"text.primary"} fontSize="sm">
-          {!isFolder ? (
-            <FaFile />
-          ) : node.isOpen ? (
+        {!isFolder ? (
+          <Box as="span" mx={2} color={"object.file"} fontSize="sm">
+            <TbVector />
+          </Box>
+        ) : node.isOpen ? (
+          <Box as="span" mx={2} color={"object.folder"} fontSize="sm">
             <FaFolderOpen />
-          ) : (
+          </Box>
+        ) : (
+          <Box as="span" mx={2} color={"object.folder"} fontSize="sm">
             <FaFolder />
-          )}
-        </Box>
+          </Box>
+        )}
         <Text fontSize="sm" color={"text.primary"} userSelect="none">
           {isFolder ? node.data.name : node.data.dataset?.fileName}
         </Text>

@@ -6,38 +6,38 @@ export const semanticTokens = {
     surface: {
       page: {
         value: {
-          _light: "{colors.neutral.0}",
-          _dark: "{colors.neutral.950}",
+          _light: "{colors.palette.neutral.0}",
+          _dark: "{colors.palette.neutral.950}",
         },
       },
       container: {
         value: {
-          _light: "{colors.neutral.50}",
-          _dark: "{colors.neutral.900}",
+          _light: "{colors.palette.neutral.50}",
+          _dark: "{colors.palette.neutral.900}",
         },
       },
       subtle: {
         value: {
-          _light: "{colors.neutral.100}",
-          _dark: "{colors.neutral.850}",
+          _light: "{colors.palette.neutral.100}",
+          _dark: "{colors.palette.neutral.850}",
         },
       },
       hover: {
         value: {
-          _light: "{colors.neutral.100}",
-          _dark: "{colors.neutral.800}",
+          _light: "{colors.palette.neutral.100}",
+          _dark: "{colors.palette.neutral.800}",
         },
       },
       disabled: {
         value: {
-          _light: "{colors.neutral.100}",
-          _dark: "{colors.neutral.850}",
+          _light: "{colors.palette.neutral.100}",
+          _dark: "{colors.palette.neutral.850}",
         },
       },
       inverse: {
         value: {
-          _light: "{colors.neutral.950}",
-          _dark: "{colors.neutral.0}",
+          _light: "{colors.palette.neutral.950}",
+          _dark: "{colors.palette.neutral.0}",
         },
       },
     },
@@ -48,36 +48,36 @@ export const semanticTokens = {
     text: {
       primary: {
         value: {
-          _light: "{colors.neutral.900}",
-          _dark: "{colors.neutral.0}",
+          _light: "{colors.palette.neutral.900}",
+          _dark: "{colors.palette.neutral.0}",
         },
       },
       secondary: {
         value: {
-          _light: "{colors.neutral.700}",
-          _dark: "{colors.neutral.200}",
+          _light: "{colors.palette.neutral.700}",
+          _dark: "{colors.palette.neutral.200}",
         },
       },
       muted: {
         value: {
-          _light: "{colors.neutral.500}",
-          _dark: "{colors.neutral.400}",
+          _light: "{colors.palette.neutral.500}",
+          _dark: "{colors.palette.neutral.400}",
         },
       },
       disabled: {
         value: {
-          _light: "{colors.neutral.400}",
-          _dark: "{colors.neutral.600}",
+          _light: "{colors.palette.neutral.400}",
+          _dark: "{colors.palette.neutral.600}",
         },
       },
       inverse: {
         value: {
-          _light: "{colors.neutral.0}",
-          _dark: "{colors.neutral.900}",
+          _light: "{colors.palette.neutral.0}",
+          _dark: "{colors.palette.neutral.900}",
         },
       },
       onIntent: {
-        value: "{colors.neutral.0}",
+        value: "{colors.palette.neutral.0}",
       },
     },
 
@@ -87,30 +87,30 @@ export const semanticTokens = {
     border: {
       default: {
         value: {
-          _light: "{colors.neutral.200}",
-          _dark: "{colors.neutral.800}",
+          _light: "{colors.palette.neutral.200}",
+          _dark: "{colors.palette.neutral.800}",
         },
       },
       muted: {
         value: {
-          _light: "{colors.neutral.100}",
-          _dark: "{colors.neutral.850}",
+          _light: "{colors.palette.neutral.100}",
+          _dark: "{colors.palette.neutral.850}",
         },
       },
       hover: {
         value: {
-          _light: "{colors.neutral.300}",
-          _dark: "{colors.neutral.700}",
+          _light: "{colors.palette.neutral.300}",
+          _dark: "{colors.palette.neutral.700}",
         },
       },
       disabled: {
         value: {
-          _light: "{colors.neutral.200}",
-          _dark: "{colors.neutral.800}",
+          _light: "{colors.palette.neutral.200}",
+          _dark: "{colors.palette.neutral.800}",
         },
       },
       focus: {
-        value: "{colors.brand.500}",
+        value: "{colors.palette.brand.500}",
       },
     },
 
@@ -120,20 +120,20 @@ export const semanticTokens = {
     intent: {
       primary: {
         value: {
-          _light: "{colors.brand.600}",
-          _dark: "{colors.brand.500}",
+          _light: "{colors.palette.brand.600}",
+          _dark: "{colors.palette.brand.500}",
         },
       },
       primaryHover: {
         value: {
-          _light: "{colors.brand.700}",
-          _dark: "{colors.brand.600}",
+          _light: "{colors.palette.brand.700}",
+          _dark: "{colors.palette.brand.600}",
         },
       },
       primaryActive: {
         value: {
-          _light: "{colors.brand.800}",
-          _dark: "{colors.brand.700}",
+          _light: "{colors.palette.brand.800}",
+          _dark: "{colors.palette.brand.700}",
         },
       },
 
@@ -165,8 +165,8 @@ export const semanticTokens = {
 
       warning: {
         value: {
-          _light: "#d97706",
-          _dark: "#f59e0b",
+          _light: "{colors.palette.yellow.600}",
+          _dark: "{colors.palette.yellow.500}",
         },
       },
 
@@ -184,18 +184,31 @@ export const semanticTokens = {
     icon: {
       primary: {
         value: {
-          _light: "{colors.neutral.700}",
-          _dark: "{colors.neutral.200}",
+          _light: "{colors.palette.neutral.700}",
+          _dark: "{colors.palette.neutral.200}",
         },
       },
       muted: {
         value: {
-          _light: "{colors.neutral.500}",
-          _dark: "{colors.neutral.400}",
+          _light: "{colors.palette.neutral.500}",
+          _dark: "{colors.palette.neutral.400}",
         },
       },
       onIntent: {
-        value: "{colors.neutral.0}",
+        value: "{colors.palette.neutral.0}",
+      },
+      warning: {
+        value: "{colors.intent.warning}",
+      },
+    },
+
+    // Objects.
+    object: {
+      file: {
+        value: "{colors.palette.blue.500}",
+      },
+      folder: {
+        value: "{colors.palette.yellow.500}",
       },
     },
   },

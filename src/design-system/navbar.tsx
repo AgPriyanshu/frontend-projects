@@ -17,7 +17,15 @@ export const Navbar = () => {
   };
 
   return (
-    <Box as="nav" h={"8vh"} w="full" borderBottomWidth="1px" px={8} py={4}>
+    <Box
+      as="nav"
+      h={"8vh"}
+      w="full"
+      borderBottomWidth="1px"
+      px={8}
+      py={4}
+      bg={"surface.container"}
+    >
       <Flex justify="space-between" align="center">
         <HStack
           gap={3}
