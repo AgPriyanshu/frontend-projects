@@ -1,9 +1,9 @@
-import { AbsoluteCenter, Heading } from "@chakra-ui/react";
+import { Center, Heading } from "@chakra-ui/react";
 
 export const AppItemPlaceholder = () => {
   return (
-    <AbsoluteCenter>
+    <Center>
       <Heading>Coming Soon ...</Heading>
-    </AbsoluteCenter>
+    </Center>
   );
 };

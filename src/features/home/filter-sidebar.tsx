@@ -17,7 +17,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       w="200px"
       p={4}
       borderRightWidth="1px"
-      borderColor="border"
+      borderColor="border.default"
       height="full"
     >
       <VStack align="stretch" gap={4}>
@@ -28,10 +28,19 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <Button
             key={category}
             variant="ghost"
-            bg={selectedCategory === category ? "primaryActive" : "transparent"}
-            color={selectedCategory === category ? "onPrimary" : "fg"}
+            bg={
+              selectedCategory === category
+                ? "intent.primaryActive"
+                : "transparent"
+            }
+            color={
+              selectedCategory === category ? "text.onIntent" : "text.primary"
+            }
             _hover={{
-              bg: selectedCategory === category ? "primaryHover" : "bgMuted",
+              bg:
+                selectedCategory === category
+                  ? "intent.primaryHover"
+                  : "surface.subtle",
             }}
             onClick={() => onCategoryChange(category)}
             justifyContent="flex-start"

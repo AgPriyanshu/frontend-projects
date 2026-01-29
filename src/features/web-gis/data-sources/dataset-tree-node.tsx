@@ -79,13 +79,13 @@ export const DatasetTreeNode = ({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      bg={node.isSelected ? "bgMuted" : "transparent"}
-      _hover={{ bg: "primaryHover" }}
+      bg={node.isSelected ? "surface.subtle" : "transparent"}
+      _hover={{ bg: "intent.primaryHover" }}
       transition="background 0.2s"
       position="relative"
     >
       <Flex align="center" flex={1}>
-        <Box as="span" mx={2} color={"fg"} fontSize="sm">
+        <Box as="span" mx={2} color={"text.primary"} fontSize="sm">
           {!isFolder ? (
             <FaFile />
           ) : node.isOpen ? (
@@ -94,7 +94,7 @@ export const DatasetTreeNode = ({
             <FaFolder />
           )}
         </Box>
-        <Text fontSize="sm" color={"fg"} userSelect="none">
+        <Text fontSize="sm" color={"text.primary"} userSelect="none">
           {isFolder ? node.data.name : node.data.dataset?.fileName}
         </Text>
       </Flex>

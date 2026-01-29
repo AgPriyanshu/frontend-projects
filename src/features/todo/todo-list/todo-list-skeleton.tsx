@@ -6,14 +6,14 @@ const TodoListItemSkeleton = () => {
       <Skeleton
         height="54px"
         flex="1"
-        bgColor={"bgMuted"}
+        bgColor={"surface.subtle"}
         borderRadius={"lg"}
       />
       <Skeleton
         height="36px"
         w="36px"
         borderRadius={"lg"}
-        bgColor={"bgMuted"}
+        bgColor={"surface.subtle"}
       />
     </HStack>
   );

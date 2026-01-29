@@ -40,7 +40,7 @@ export const WebGIS = () => {
             position="absolute"
             right="-10px"
             top="0"
-            bgColor={"border"}
+            bgColor={"border.default"}
             w={"5px"}
             h={"full"}
             justifyContent={"center"}
@@ -62,7 +62,7 @@ export const WebGIS = () => {
           <Box
             w={"full"}
             flex={0.5}
-            borderColor={"border"}
+            borderColor={"border.default"}
             borderWidth={"1px"}
             borderRadius={"lg"}
             p={"1rem"}
@@ -73,7 +73,7 @@ export const WebGIS = () => {
           <Box
             w={"full"}
             flex={1}
-            borderColor={"border"}
+            borderColor={"border.default"}
             borderWidth={"1px"}
             borderRadius={"lg"}
             p={"1rem"}
@@ -86,7 +86,7 @@ export const WebGIS = () => {
       <Box
         flex={1}
         h={"full"}
-        borderColor={"border"}
+        borderColor={"border.default"}
         borderWidth={"1px"}
         borderRadius={"lg"}
         overflow={"hidden"}

@@ -54,15 +54,15 @@ export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
             <CheckboxCard.Indicator
               _checked={{
                 color: "white",
-                borderColor: "primaryActive",
-                bgColor: "primaryActive",
+                borderColor: "intent.primaryActive",
+                bgColor: "intent.primaryActive",
               }}
               borderRadius={"xl"}
             />
 
             {/* Task Description - Middle */}
             <CheckboxCard.Label
-              _checked={{ textDecoration: "line-through", color: "fgMuted" }}
+              _checked={{ textDecoration: "line-through", color: "text.muted" }}
               flex={1}
               cursor="pointer"
             >

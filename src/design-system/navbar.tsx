@@ -37,8 +37,8 @@ export const Navbar = () => {
               <IconButton
                 aria-label="User profile"
                 variant="ghost"
-                color={"fg"}
-                _hover={{ bgColor: "bgMuted" }}
+                color={"text.primary"}
+                _hover={{ bgColor: "surface.subtle" }}
               >
                 <FaUser />
               </IconButton>

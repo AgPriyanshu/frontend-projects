@@ -44,10 +44,10 @@ export const TodoInput = () => {
         py={3}
         bg="bg"
         border="1px solid"
-        borderColor="border"
+        borderColor="border.default"
         borderRadius="lg"
       >
-        <Box color="fgMuted" fontSize="lg">
+        <Box color="text.muted" fontSize="lg">
           <LuPenLine />
         </Box>
         <Input
@@ -55,7 +55,7 @@ export const TodoInput = () => {
           value={taskInput}
           onChange={(e) => setTaskInput(e.target.value)}
           onKeyUp={handleKeyPress}
-          _placeholder={{ color: "fgMuted" }}
+          _placeholder={{ color: "text.muted" }}
           disabled={isPending}
         />
       </Flex>

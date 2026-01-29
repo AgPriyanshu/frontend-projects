@@ -14,7 +14,7 @@ export const DatasetTree = () => {
   if (isLoading || !data) {
     return (
       <Box ref={ref} h="full" w="full">
-        <Text fontSize="sm" color="fg" p={2}>
+        <Text fontSize="sm" color="text.primary" p={2}>
           Loading datasets...
         </Text>
       </Box>

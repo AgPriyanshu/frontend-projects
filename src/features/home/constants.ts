@@ -1,5 +1,10 @@
 import { RoutePath } from "app/router/constants";
-import { FaMapMarkedAlt, FaRegListAlt, FaStoreAlt } from "react-icons/fa";
+import {
+  FaLightbulb,
+  FaMapMarkedAlt,
+  FaRegListAlt,
+  FaStoreAlt,
+} from "react-icons/fa";
 import { MdDevicesOther } from "react-icons/md";
 import { AppCategory } from "./enums";
 import type { AppCard } from "./types";
@@ -32,5 +37,12 @@ export const apps: AppCard[] = [
     icon: FaStoreAlt,
     route: RoutePath.Store,
     category: AppCategory.Ecommerce,
+  },
+  {
+    title: "Live board",
+    description: "Live Collaboration white board",
+    icon: FaLightbulb,
+    route: RoutePath.WhiteBoard,
+    category: AppCategory.Productivity,
   },
 ];

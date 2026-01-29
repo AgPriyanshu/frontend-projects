@@ -5,6 +5,7 @@ export const RoutePath = {
   Login: "/login",
   DeviceClassifier: "/device-classifier",
   Store: "/store",
+  WhiteBoard: "/whiteboard",
 } as const;
 
 export type RoutePath = (typeof RoutePath)[keyof typeof RoutePath];

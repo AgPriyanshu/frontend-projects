@@ -52,7 +52,7 @@ export const ColorModeButton = React.forwardRef<
         variant="ghost"
         aria-label="Toggle color mode"
         size="sm"
-        color={"fg"}
+        color={"text.primary"}
         ref={ref}
         {...props}
         css={{
@@ -61,7 +61,7 @@ export const ColorModeButton = React.forwardRef<
             height: "5",
           },
         }}
-        _hover={{ bgColor: "bgMuted" }}
+        _hover={{ bgColor: "surface.subtle" }}
       >
         <ColorModeIcon />
       </IconButton>
@@ -73,7 +73,7 @@ export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
   (props, ref) => {
     return (
       <Span
-        color="fg"
+        color="text.primary"
         display="contents"
         className="chakra-theme light"
         colorPalette="gray"
@@ -89,7 +89,7 @@ export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
   (props, ref) => {
     return (
       <Span
-        color="fg"
+        color="text.primary"
         display="contents"
         className="chakra-theme dark"
         colorPalette="gray"

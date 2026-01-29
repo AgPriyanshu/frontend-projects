@@ -104,8 +104,8 @@ export const LoginPage = () => {
               </Fieldset.Content>
               <Button
                 type="submit"
-                color="onPrimary"
-                bg="primary"
+                color="text.onIntent"
+                bg="intent.primary"
                 borderRadius={"lg"}
                 loading={isSubmitting}
               >

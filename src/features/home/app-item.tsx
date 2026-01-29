@@ -18,17 +18,17 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
       transition="all 0.2s"
       borderRadius={"xl"}
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.default"
       _hover={{
         transform: "translateY(-4px)",
         shadow: "lg",
-        borderColor: "primaryHover",
+        borderColor: "intent.primaryHover",
       }}
     >
       <Card.Body padding={2} pt={6}>
         <VStack align="center" gap={4} height="full">
           <Box p={4} borderRadius="lg">
-            <Icon as={app.icon} boxSize={8} color="icon" />
+            <Icon as={app.icon} boxSize={8} color="icon.primary" />
           </Box>
 
           <VStack align="center" gap={3} width="full">

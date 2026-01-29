@@ -25,13 +25,13 @@ export const TodoList = () => {
     <Box w="full" maxW="3xl">
       <TodoInput />
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg" fontWeight="semibold" color="fg">
+        <Heading size="lg" fontWeight="semibold" color="text.primary">
           Today's Tasks
         </Heading>
         <Text
           fontSize="xs"
           fontWeight="medium"
-          color="fgMuted"
+          color="text.muted"
           letterSpacing="wide"
           textTransform="uppercase"
         >
