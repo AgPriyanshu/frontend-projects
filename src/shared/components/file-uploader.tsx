@@ -156,7 +156,7 @@ export const InlineFileUploader = ({
         opacity={disabled ? 0.5 : 1}
         transition="all 0.2s"
         _hover={
-          !disabled ? { color: "text.primary", transform: "scale(1.1)" } : {}
+          !disabled ? { color: "text.success", transform: "scale(1.1)" } : {}
         }
         p={1}
         borderRadius="sm"

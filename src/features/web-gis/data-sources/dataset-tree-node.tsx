@@ -4,11 +4,11 @@ import { QueryKeys } from "api/query-keys";
 import { useUploadDatasets } from "api/web-gis";
 import { useEffect, useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
-import { FaFolder, FaFolderOpen, FaPlus } from "react-icons/fa";
+import { AiOutlineFileAdd } from "react-icons/ai";
+import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { TbVector } from "react-icons/tb";
 import { InlineFileUploader } from "shared/components";
 import { type DatasetNode, DatasetNodeType } from "../types";
-
 export const DatasetTreeNode = ({
   node,
   style,
@@ -78,11 +78,7 @@ export const DatasetTreeNode = ({
       align="center"
       justify="space-between"
       style={{ ...style, alignItems: "center" }}
-      // p={"0.25rem"}
       cursor="pointer"
-      borderColor={"border.default"}
-      // borderWidth={"1px"}
-      borderXWidth={"0px"}
       bg={node.isSelected ? "intent.primary" : "initial"}
       _hover={{ bg: node.isSelected ? "intent.primaryHover" : "surface.hover" }}
       _active={{ bg: "intent.primaryActive" }}
@@ -112,12 +108,12 @@ export const DatasetTreeNode = ({
         <Box
           opacity={isHovered ? 1 : 0}
           transition="opacity 0.2s"
-          mr={2}
+          mr={"0.5rem"}
           onClick={(e) => e.stopPropagation()}
         >
           <InlineFileUploader
             onFileSelect={handleFileSelect}
-            icon={<FaPlus />}
+            icon={<AiOutlineFileAdd />}
             ariaLabel={`Upload file to ${node.data.name}`}
             multiple
           />

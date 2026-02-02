@@ -110,7 +110,7 @@ export const semanticTokens = {
         },
       },
       focus: {
-        value: "{colors.palette.brand.500}",
+        value: "{colors.intent.primaryActive}",
       },
     },
 

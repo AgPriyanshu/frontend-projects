@@ -66,7 +66,7 @@ export const WebGIS = () => {
             borderColor={"border.default"}
             borderWidth={"1px"}
             borderRadius={"lg"}
-            p={"1rem"}
+            py={"0.5rem"}
             overflow={"hidden"}
           >
             <DatasetTree />

@@ -36,17 +36,7 @@ export const TodoInput = () => {
 
   return (
     <Flex w="full" gap={3} mb={8} align="center">
-      <Flex
-        flex={1}
-        align="center"
-        gap={3}
-        px={4}
-        py={3}
-        bg="bg"
-        border="1px solid"
-        borderColor="border.default"
-        borderRadius="lg"
-      >
+      <Flex flex={1} align="center" gap={3} px={4} py={3} bg="bg">
         <Box color="text.muted" fontSize="lg">
           <LuPenLine />
         </Box>
@@ -57,6 +47,10 @@ export const TodoInput = () => {
           onKeyUp={handleKeyPress}
           _placeholder={{ color: "text.muted" }}
           disabled={isPending}
+          _focus={{
+            borderColor: "border.focus",
+            outlineColor: "border.focus",
+          }}
         />
       </Flex>
     </Flex>
