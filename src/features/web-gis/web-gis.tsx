@@ -1,10 +1,17 @@
-import { Box, Flex, VStack } from "@chakra-ui/react";
+import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ResizableBox } from "react-resizable";
 
 import { DatasetTree } from "./data-sources";
-import { Map } from "./map";
+import { LayerPanel, MapCanvas, Toolbar } from "./components";
 
+// Default workspace ID for the main map view.
+const DEFAULT_WORKSPACE_ID = "default";
+
+/**
+ * Main Web-GIS page component.
+ * Uses WorkspaceManager for state management.
+ */
 export const WebGIS = () => {
   // States.
   const [layerPanelWidth, setLayerPanelWidth] = useState(300);
@@ -60,6 +67,7 @@ export const WebGIS = () => {
         axis="x"
       >
         <VStack h="full">
+          {/* Datasets panel. */}
           <Box
             w={"full"}
             flex={0.5}
@@ -71,19 +79,33 @@ export const WebGIS = () => {
           >
             <DatasetTree />
           </Box>
+
+          {/* Layers panel. */}
           <Box
             w={"full"}
             flex={1}
             borderColor={"border.default"}
             borderWidth={"1px"}
             borderRadius={"lg"}
-            p={"1rem"}
+            overflow={"hidden"}
           >
-            Layers
+            <Box
+              p="0.5rem 1rem"
+              borderBottomWidth="1px"
+              borderColor="border.default"
+            >
+              <Text fontWeight="semibold" fontSize="sm">
+                Layers
+              </Text>
+            </Box>
+            <Box overflow="auto" h="calc(100% - 40px)">
+              <LayerPanel workspaceId={DEFAULT_WORKSPACE_ID} />
+            </Box>
           </Box>
         </VStack>
       </ResizableBox>
 
+      {/* Map area with toolbar. */}
       <Box
         flex={1}
         h={"full"}
@@ -91,8 +113,14 @@ export const WebGIS = () => {
         borderWidth={"1px"}
         borderRadius={"lg"}
         overflow={"hidden"}
+        position="relative"
       >
-        <Map />
+        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
+
+        {/* Toolbar positioned on the map. */}
+        <Box position="absolute" top="30%" left="1rem" zIndex={100}>
+          <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
+        </Box>
       </Box>
     </Flex>
   );
