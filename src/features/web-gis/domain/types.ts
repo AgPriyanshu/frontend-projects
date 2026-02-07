@@ -77,7 +77,7 @@ export type Unsubscribe = () => void;
  */
 export const DEFAULT_MAP_VIEW: MapView = {
   center: [78.9629, 20.5937],
-  zoom: 2,
+  zoom: 2.6,
   bearing: 0,
   pitch: 0,
 };
