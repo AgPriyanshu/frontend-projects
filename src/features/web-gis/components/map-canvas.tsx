@@ -75,35 +75,38 @@ export const MapCanvas = observer(
 
         // Check if it's a dataset node being dropped.
         const datasetId = e.dataTransfer.getData("application/dataset-id");
+        const datasetName = e.dataTransfer.getData("application/dataset-name");
 
         if (datasetId) {
-          // Handle dataset node drop.
+          // Handle dataset node drop - create layer via API.
           try {
-            const response = await fetch(
-              `${import.meta.env.VITE_API_BASE_URL}/web-gis/datasets/${datasetId}/download`,
+            // Create layer via API.
+            const createLayerResponse = await fetch(
+              `${import.meta.env.VITE_API_BASE_URL}/web-gis/layers/`,
               {
+                method: "POST",
                 headers: {
+                  "Content-Type": "application/json",
                   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
+                body: JSON.stringify({
+                  name: datasetName || `Layer ${datasetId}`,
+                  source: datasetId,
+                }),
               }
             );
 
-            if (!response.ok) {
-              throw new Error("Failed to download dataset");
+            if (!createLayerResponse.ok) {
+              throw new Error("Failed to create layer");
             }
 
-            const geojson = await response.json();
+            // Trigger refetch in LayerPanel.
+            window.dispatchEvent(new CustomEvent("layer-created"));
 
-            // Validate GeoJSON structure.
-            if (!geojson.type || !geojson.features) {
-              alert("Invalid GeoJSON format");
-              return;
-            }
-
-            loadGeoJSONAsLayer(geojson, `Dataset ${datasetId}`);
+            console.log(`Layer created for dataset: ${datasetName}`);
           } catch (error) {
-            console.error("Error loading dataset:", error);
-            alert("Failed to load dataset. Please try again.");
+            console.error("Error creating layer:", error);
+            alert("Failed to create layer. Please try again.");
           }
           return;
         }

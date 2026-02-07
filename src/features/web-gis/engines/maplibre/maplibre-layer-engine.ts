@@ -10,6 +10,7 @@ import type { ILayerEngine } from "../ports";
 export class MapLibreLayerEngine implements ILayerEngine {
   private map: MapLibreMap | null = null;
   private currentLayers: Map<string, SerializedLayer> = new Map();
+  private layerGeoJSON: Map<string, GeoJSON.GeoJSON> = new Map();
 
   /**
    * Binds the engine to a MapLibre map instance.
@@ -48,19 +49,27 @@ export class MapLibreLayerEngine implements ILayerEngine {
   fitToLayer(layerId: string): void {
     if (!this.map) return;
 
-    const source = this.map.getSource(`source-${layerId}`);
-    if (!source) return;
-
-    // For GeoJSON sources, calculate bounds from data.
-    if (source.type === "geojson") {
-      const data = (source as { _data?: GeoJSON.GeoJSON })._data;
-      if (data) {
-        const bounds = this.calculateBounds(data);
-        if (bounds) {
-          this.map.fitBounds(bounds, { padding: 50 });
-        }
+    // Use stored GeoJSON data for bounds calculation.
+    const geoJSON = this.layerGeoJSON.get(layerId);
+    if (geoJSON) {
+      const bounds = this.calculateBounds(geoJSON);
+      if (bounds) {
+        this.map.fitBounds(bounds, { padding: 50 });
       }
     }
+  }
+
+  fitToBounds(bbox: [number, number, number, number]): void {
+    if (!this.map) return;
+
+    // bbox is [minLng, minLat, maxLng, maxLat].
+    this.map.fitBounds(
+      [
+        [bbox[0], bbox[1]], // [minLng, minLat]
+        [bbox[2], bbox[3]], // [maxLng, maxLat]
+      ],
+      { padding: 50 }
+    );
   }
 
   private addLayer(layer: SerializedLayer): void {
@@ -73,6 +82,11 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
     // Add MapLibre layers based on layer type.
     this.addMapLibreLayers(layer.id, sourceId, layer);
+
+    // Store GeoJSON data for fitToLayer.
+    if ((layer.type === "geojson" || layer.type === "vector") && layer.data) {
+      this.layerGeoJSON.set(layer.id, layer.data as GeoJSON.GeoJSON);
+    }
 
     this.currentLayers.set(layer.id, { ...layer });
   }
@@ -278,6 +292,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
     }
 
     this.currentLayers.delete(layerId);
+    this.layerGeoJSON.delete(layerId);
   }
 
   private reorderLayers(layers: SerializedLayer[]): void {

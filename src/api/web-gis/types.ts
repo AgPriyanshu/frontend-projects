@@ -27,5 +27,26 @@ export interface DatasetNodeUploadPayload {
   type: DatasetNodeType;
 
   // Files
-  files: File[]; // Array of File objects
+  files: File[];
+}
+
+// Layer API types.
+export interface LayerStyleSpec {
+  type?: string;
+  paint?: Record<string, unknown>;
+  layout?: Record<string, unknown>;
+}
+
+export interface LayerResponse {
+  id: string;
+  name: string;
+  source: string; // Dataset ID.
+  style: LayerStyleSpec;
+  bbox: [number, number, number, number] | null; // [minLng, minLat, maxLng, maxLat]
+}
+
+export interface CreateLayerPayload {
+  name: string;
+  source: string; // Dataset ID.
+  style?: LayerStyleSpec;
 }

@@ -1,11 +1,12 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
-import { useUploadDatasets } from "api/web-gis";
+import { useCreateLayer, useUploadDatasets } from "api/web-gis";
 import { useEffect, useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
+import { MdAddCircleOutline } from "react-icons/md";
 import { TbVector } from "react-icons/tb";
 import { InlineFileUploader } from "shared/components";
 import { type DatasetNode, DatasetNodeType } from "../types";
@@ -22,6 +23,7 @@ export const DatasetTreeNode = ({
 
   // APIs.
   const { mutate: uploadDatasetNode } = useUploadDatasets();
+  const { mutate: createLayer, isPending: isCreatingLayer } = useCreateLayer();
 
   // Handlers.
   const handleFileSelect = (files: FileList) => {
@@ -43,6 +45,14 @@ export const DatasetTreeNode = ({
     );
   };
 
+  const handleAddAsLayer = () => {
+    if (!node.data.dataset) return;
+    createLayer({
+      name: node.data.dataset.fileName,
+      source: node.data.dataset.id,
+    });
+  };
+
   // Add dataset ID to drag data when dragging starts (for map drop)
   useEffect(() => {
     const element = document.querySelector(
@@ -52,8 +62,11 @@ export const DatasetTreeNode = ({
 
     const handleDragStart = (e: DragEvent) => {
       if (!isFolder && node.data.dataset) {
-        console.log(node.data.id, node.data.dataset.id);
-        e.dataTransfer?.setData("application/dataset-id", node.data.id);
+        e.dataTransfer?.setData("application/dataset-id", node.data.dataset.id);
+        e.dataTransfer?.setData(
+          "application/dataset-name",
+          node.data.dataset.fileName || node.data.name
+        );
       }
     };
 
@@ -104,7 +117,7 @@ export const DatasetTreeNode = ({
         </Text>
       </Flex>
 
-      {isFolder && (
+      {isFolder ? (
         <Box
           opacity={isHovered ? 1 : 0}
           transition="opacity 0.2s"
@@ -117,6 +130,23 @@ export const DatasetTreeNode = ({
             ariaLabel={`Upload file to ${node.data.name}`}
             multiple
           />
+        </Box>
+      ) : (
+        <Box
+          opacity={isHovered ? 1 : 0}
+          transition="opacity 0.2s"
+          mr={"0.5rem"}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <IconButton
+            size="xs"
+            variant="ghost"
+            aria-label={`Add ${node.data.dataset?.fileName} as layer`}
+            onClick={handleAddAsLayer}
+            loading={isCreatingLayer}
+          >
+            <MdAddCircleOutline />
+          </IconButton>
         </Box>
       )}
     </Flex>

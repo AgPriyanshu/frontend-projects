@@ -117,6 +117,13 @@ export class LayerStore {
   }
 
   /**
+   * Fits the map to specified bounds.
+   */
+  fitToBounds(bbox: [number, number, number, number]): void {
+    this.engine?.fitToBounds(bbox);
+  }
+
+  /**
    * Clears all layers.
    */
   clear(): void {

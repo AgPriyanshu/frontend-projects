@@ -15,4 +15,9 @@ export interface ILayerEngine {
    * Fits the map view to a specific layer's bounds.
    */
   fitToLayer(layerId: string): void;
+
+  /**
+   * Fits the map view to specified bounds.
+   */
+  fitToBounds(bbox: [number, number, number, number]): void;
 }
