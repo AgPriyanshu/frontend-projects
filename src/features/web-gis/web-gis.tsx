@@ -1,17 +1,10 @@
-import { Box, Flex, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, VStack } from "@chakra-ui/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ResizableBox } from "react-resizable";
 
-import { DatasetTree } from "./data-sources";
 import { LayerPanel, MapCanvas, Toolbar } from "./components";
+import { DatasetTree } from "./data-sources";
 
-// Default workspace ID for the main map view.
-const DEFAULT_WORKSPACE_ID = "default";
-
-/**
- * Main Web-GIS page component.
- * Uses WorkspaceManager for state management.
- */
 export const WebGIS = () => {
   // States.
   const [layerPanelWidth, setLayerPanelWidth] = useState(300);
@@ -30,8 +23,8 @@ export const WebGIS = () => {
 
   return (
     <Flex
-      ref={containerRef}
       className="web-gis-container"
+      ref={containerRef}
       h={"100%"}
       w={"100%"}
       bg={"surface.page"}
@@ -41,6 +34,7 @@ export const WebGIS = () => {
       alignItems={"center"}
     >
       <ResizableBox
+        className="web-gis-container-resizable"
         width={layerPanelWidth}
         height={containerHeight}
         handle={
@@ -67,8 +61,8 @@ export const WebGIS = () => {
         axis="x"
       >
         <VStack h="full">
-          {/* Datasets panel. */}
           <Box
+            className="dataset-tree-container"
             w={"full"}
             flex={0.5}
             borderColor={"border.default"}
@@ -80,8 +74,8 @@ export const WebGIS = () => {
             <DatasetTree />
           </Box>
 
-          {/* Layers panel. */}
           <Box
+            className="layers-panel-container"
             w={"full"}
             flex={1}
             borderColor={"border.default"}
@@ -89,17 +83,8 @@ export const WebGIS = () => {
             borderRadius={"lg"}
             overflow={"hidden"}
           >
-            <Box
-              p="0.5rem 1rem"
-              borderBottomWidth="1px"
-              borderColor="border.default"
-            >
-              <Text fontWeight="semibold" fontSize="sm">
-                Layers
-              </Text>
-            </Box>
             <Box overflow="auto" h="calc(100% - 40px)">
-              <LayerPanel workspaceId={DEFAULT_WORKSPACE_ID} />
+              <LayerPanel />
             </Box>
           </Box>
         </VStack>
@@ -115,11 +100,10 @@ export const WebGIS = () => {
         overflow={"hidden"}
         position="relative"
       >
-        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
+        <MapCanvas />
 
-        {/* Toolbar positioned on the map. */}
         <Box position="absolute" top="30%" left="1rem" zIndex={100}>
-          <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
+          <Toolbar />
         </Box>
       </Box>
     </Flex>

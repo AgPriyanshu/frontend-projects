@@ -18,6 +18,10 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.url && !config.url.endsWith("/")) {
+      config.url = `${config.url}/`;
+    }
+
     const token = getAccessToken();
     const isLoginEndpoint = config.url?.includes("/auth/login/");
 

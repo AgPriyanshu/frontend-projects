@@ -31,6 +31,7 @@
     "@types/react-resizable": "^3.0.8",
     "@watergis/maplibre-gl-terradraw": "^1.11.1",
     "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "maplibre-gl": "^5.16.0",
     "mobx": "^6.15.0",

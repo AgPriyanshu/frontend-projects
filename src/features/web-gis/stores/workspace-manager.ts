@@ -26,6 +26,7 @@ class WorkspaceManager {
     }
 
     const workspace = new WorkspaceStore(id);
+
     this.workspaces.set(id, workspace);
 
     // Set as active if it's the first workspace.

@@ -10,7 +10,7 @@ export const useDatasets = () => {
     queryKey: QueryKeys.datasets,
     queryFn: async () => {
       return await api.get<ApiResponse<DatasetNodeResponse[]>>(
-        `/web-gis${QueryKeys.datasets[0]}`
+        QueryKeys.datasets[0]
       );
     },
     select: (response: AxiosResponse<ApiResponse<DatasetNodeResponse[]>>) =>
@@ -38,7 +38,7 @@ export const useUploadDatasets = () => {
       });
 
       return await api.post<ApiResponse<DatasetNodeResponse>>(
-        `/web-gis${QueryKeys.datasets[0]}`,
+        QueryKeys.datasets[0],
         formData
       );
     },
@@ -48,12 +48,9 @@ export const useUploadDatasets = () => {
 export const useDownloadDataset = () => {
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await api.get(
-        `/web-gis${QueryKeys.datasetsDetailDownload(id)[0]}`,
-        {
-          responseType: "blob", // Important for file downloads
-        }
-      );
+      const response = await api.get(QueryKeys.datasetDownload(id)[0], {
+        responseType: "blob", // Important for file downloads
+      });
       return response;
     },
     onSuccess: (response) => {

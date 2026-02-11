@@ -2,10 +2,11 @@ import { Box, Flex, HStack, IconButton, Heading, Menu } from "@chakra-ui/react";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
-import { clearToken } from "shared/local-storage/token";
+import { clearToken } from "shared/local-storage";
 import { RoutePath } from "app/router/constants";
 import { queryClient } from "api/query-client";
-import { ColorModeButton } from "./color-mode";
+import { ColorModeButton } from "../color-mode";
+import { NotificationDropdown } from "./notification-dropdown";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export const Navbar = () => {
 
         <HStack gap={4}>
           <ColorModeButton />
+          <NotificationDropdown />
           <Menu.Root>
             <Menu.Trigger asChild>
               <IconButton

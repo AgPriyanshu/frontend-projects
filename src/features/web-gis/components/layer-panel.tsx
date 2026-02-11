@@ -8,18 +8,9 @@ import { FiEye, FiEyeOff, FiTrash2, FiZoomIn } from "react-icons/fi";
 import { LayerModel } from "../domain";
 import { workspaceManager } from "../stores";
 
-interface LayerPanelProps {
-  /** Workspace ID this panel belongs to. */
-  workspaceId: string;
-}
-
-/**
- * Layer panel component for managing map layers.
- * Fetches layers from API and syncs with LayerStore for map rendering.
- */
-export const LayerPanel = observer(({ workspaceId }: LayerPanelProps) => {
+export const LayerPanel = observer(() => {
   // Get workspace.
-  const workspace = workspaceManager.getWorkspace(workspaceId);
+  const workspace = workspaceManager.activeWorkspace;
   const layerStore = workspace?.layerStore;
 
   // API hooks.
