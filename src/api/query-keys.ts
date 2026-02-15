@@ -4,6 +4,7 @@ export const QueryKeys = {
   datasetDownload: (id: string) => [`/web-gis/datasets/${id}/download`],
   // Layers.
   layer: (id: string) => [`/web-gis/layers/${id}`],
+  layerGeoJson: (id: string) => [`/web-gis/layers/${id}/geojson`],
   layers: ["/web-gis/layers"],
   // Notifications.
   notification: (id: string) => [`/notifications/${id}`],

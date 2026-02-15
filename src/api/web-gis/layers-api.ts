@@ -47,3 +47,40 @@ export const useDeleteLayer = () => {
     },
   });
 };
+
+/**
+ * Loosely-typed GeoJSON response from the API.
+ */
+interface GeoJSONResponse {
+  type?: string;
+  features?: Record<string, unknown>[];
+  [key: string]: unknown;
+}
+
+/**
+ * Fetches GeoJSON data for a layer.
+ * Tries PostGIS features first, falls back to dataset file download.
+ */
+export const fetchLayerGeoJSON = async (
+  layerId: string,
+  datasetId: string
+): Promise<GeoJSONResponse | null> => {
+  return queryClient.fetchQuery({
+    queryKey: QueryKeys.layerGeoJson(layerId),
+    queryFn: async () => {
+      // Try fetching GeoJSON from PostGIS features.
+      const response = await api.get(`/web-gis/layers/${layerId}/geojson/`);
+      let geojson = response.data;
+
+      // Fallback: if no features in PostGIS, try the original file.
+      if (!geojson?.features || geojson.features.length === 0) {
+        const fallbackResponse = await api.get(
+          `/web-gis/datasets/${datasetId}/download`
+        );
+        geojson = fallbackResponse.data;
+      }
+
+      return geojson;
+    },
+  });
+};

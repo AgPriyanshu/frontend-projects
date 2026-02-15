@@ -2,6 +2,9 @@ import { Box } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { ApiResponse } from "api/types";
+import type { LayerResponse } from "api/web-gis";
+import { fetchLayerGeoJSON, useAddLayer } from "api/web-gis";
 import { LayerModel } from "../domain";
 import { MapLibreAdapter } from "../engines/maplibre";
 import { workspaceManager } from "../stores";
@@ -15,7 +18,7 @@ interface MapCanvasProps {
 
 /**
  * Map canvas component that mounts the MapLibre adapter.
- * Handles drag-and-drop for GeoJSON files and datasets.
+ * Handles drag-and-drop for dataset nodes from the data-sources panel.
  */
 export const MapCanvas = observer(
   ({ workspaceId, onReady }: MapCanvasProps) => {
@@ -26,6 +29,9 @@ export const MapCanvas = observer(
 
     // Get or create the workspace.
     const workspace = workspaceManager.getOrCreateWorkspace(workspaceId);
+
+    // API hooks.
+    const { mutate: createLayer } = useAddLayer();
 
     useEffect(() => {
       if (!containerRef.current) return;
@@ -51,6 +57,39 @@ export const MapCanvas = observer(
         adapterRef.current = null;
       };
     }, [workspace, onReady]);
+
+    /**
+     * Fetches GeoJSON for a layer and adds it to the MobX LayerStore.
+     */
+    const fetchAndAddLayer = useCallback(
+      async (apiLayer: LayerResponse) => {
+        try {
+          const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
+
+          // Skip if no features.
+          if (!geojson?.features || geojson.features.length === 0) {
+            console.warn(`No features found for layer ${apiLayer.name}`);
+            return;
+          }
+
+          // Create LayerModel and add to store.
+          const layer = new LayerModel({
+            id: apiLayer.id,
+            type: "geojson",
+            name: apiLayer.name,
+            source: geojson,
+          });
+
+          workspace.layerStore.addLayer(layer);
+          workspace.layerStore.fitToLayer(apiLayer.id);
+
+          console.log(`Layer loaded on map: ${apiLayer.name}`);
+        } catch (err) {
+          console.error(`Error loading layer ${apiLayer.name}:`, err);
+        }
+      },
+      [workspace.layerStore]
+    );
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -78,88 +117,29 @@ export const MapCanvas = observer(
         const datasetName = e.dataTransfer.getData("application/dataset-name");
 
         if (datasetId) {
-          // Handle dataset node drop - create layer via API.
-          try {
-            // Create layer via API.
-            const createLayerResponse = await fetch(
-              `${import.meta.env.VITE_API_BASE_URL}/web-gis/layers/`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                },
-                body: JSON.stringify({
-                  name: datasetName || `Layer ${datasetId}`,
-                  source: datasetId,
-                }),
-              }
-            );
-
-            if (!createLayerResponse.ok) {
-              throw new Error("Failed to create layer");
+          // Handle dataset node drop — create layer via API, then load on map.
+          createLayer(
+            {
+              name: datasetName || `Layer ${datasetId}`,
+              source: datasetId,
+            },
+            {
+              onSuccess: async (response) => {
+                const apiLayer = (response.data as ApiResponse<LayerResponse>)
+                  .data;
+                await fetchAndAddLayer(apiLayer);
+              },
+              onError: (error) => {
+                console.error("Error creating layer:", error);
+                alert("Failed to create layer. Please try again.");
+              },
             }
-
-            // Trigger refetch in LayerPanel.
-            window.dispatchEvent(new CustomEvent("layer-created"));
-
-            console.log(`Layer created for dataset: ${datasetName}`);
-          } catch (error) {
-            console.error("Error creating layer:", error);
-            alert("Failed to create layer. Please try again.");
-          }
+          );
           return;
-        }
-
-        // Handle file drop.
-        const files = Array.from(e.dataTransfer.files);
-        const geojsonFile = files.find(
-          (file) =>
-            file.name.endsWith(".geojson") ||
-            file.name.endsWith(".json") ||
-            file.type === "application/geo+json" ||
-            file.type === "application/json"
-        );
-
-        if (!geojsonFile) {
-          alert("Please drop a valid GeoJSON file (.geojson or .json)");
-          return;
-        }
-
-        try {
-          const text = await geojsonFile.text();
-          const geojson = JSON.parse(text);
-
-          // Validate GeoJSON structure.
-          if (!geojson.type || !geojson.features) {
-            alert("Invalid GeoJSON format");
-            return;
-          }
-
-          loadGeoJSONAsLayer(geojson, geojsonFile.name);
-        } catch (error) {
-          console.error("Error loading GeoJSON:", error);
-          alert("Failed to load GeoJSON file. Please check the file format.");
         }
       },
-      [workspace]
+      [workspace, createLayer, fetchAndAddLayer]
     );
-
-    const loadGeoJSONAsLayer = (geojson: GeoJSON.GeoJSON, name: string) => {
-      const layerId = `layer-${Date.now()}`;
-
-      const layer = new LayerModel({
-        id: layerId,
-        type: "geojson",
-        name,
-        source: geojson,
-      });
-
-      workspace.layerStore.addLayer(layer);
-      workspace.layerStore.fitToLayer(layerId);
-
-      console.log(`GeoJSON loaded as layer: ${name}`);
-    };
 
     return (
       <Box
@@ -197,7 +177,7 @@ export const MapCanvas = observer(
               fontSize="1.2rem"
               fontWeight="600"
             >
-              Drop GeoJSON file here
+              Drop dataset here to add as layer
             </Box>
           </Box>
         )}

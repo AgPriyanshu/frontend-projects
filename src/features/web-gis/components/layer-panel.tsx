@@ -1,8 +1,8 @@
 import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { useDeleteLayer, useLayers } from "api/web-gis";
 import type { LayerResponse } from "api/web-gis";
+import { fetchLayerGeoJSON, useDeleteLayer, useLayers } from "api/web-gis";
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo } from "react";
 import { FiEye, FiEyeOff, FiTrash2, FiZoomIn } from "react-icons/fi";
 
 import { LayerModel } from "../domain";
@@ -14,22 +14,15 @@ export const LayerPanel = observer(() => {
   const layerStore = workspace?.layerStore;
 
   // API hooks.
-  const { data: layersData, isLoading, error, refetch } = useLayers();
+  const { data: layersData, isLoading, error } = useLayers();
   const { mutate: deleteLayer, isPending: isDeleting } = useDeleteLayer();
 
-  const apiLayers: LayerResponse[] = layersData?.data ?? [];
+  const apiLayers: LayerResponse[] = useMemo(
+    () => layersData?.data ?? [],
+    [layersData?.data]
+  );
 
-  // Listen for layer-created events (from drag-drop) to refetch.
-  useEffect(() => {
-    const handleLayerCreated = () => {
-      refetch();
-    };
-    window.addEventListener("layer-created", handleLayerCreated);
-    return () =>
-      window.removeEventListener("layer-created", handleLayerCreated);
-  }, [refetch]);
-
-  // Sync API layers to LayerStore.
+  // Sync API layers to LayerStore (for map rendering).
   useEffect(() => {
     if (!layerStore || apiLayers.length === 0) return;
 
@@ -39,44 +32,10 @@ export const LayerPanel = observer(() => {
         if (layerStore.getLayer(apiLayer.id)) continue;
 
         try {
-          // Fetch GeoJSON data from layer's PostGIS features.
-          const response = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/web-gis/layers/${apiLayer.id}/geojson/`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
+          const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
 
-          if (!response.ok) {
-            console.error(`Failed to fetch data for layer ${apiLayer.name}`);
-            continue;
-          }
-
-          let geojson = await response.json();
-
-          // Fallback: If no features in PostGIS, try downloading the original file.
-          if (!geojson.features || geojson.features.length === 0) {
-            console.log(
-              `No PostGIS features for ${apiLayer.name}, falling back to file download`
-            );
-            const fallbackResponse = await fetch(
-              `${import.meta.env.VITE_API_BASE_URL}/web-gis/datasets/${apiLayer.source}/download`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                },
-              }
-            );
-
-            if (fallbackResponse.ok) {
-              geojson = await fallbackResponse.json();
-            }
-          }
-
-          // Skip if still no features.
-          if (!geojson.features || geojson.features.length === 0) {
+          // Skip if no features.
+          if (!geojson?.features || geojson.features.length === 0) {
             console.warn(`No features found for layer ${apiLayer.name}`);
             continue;
           }
@@ -117,16 +76,13 @@ export const LayerPanel = observer(() => {
     );
   }
 
-  // Use layers from LayerStore for display (they have full data).
-  const layers = layerStore?.layersArray ?? [];
-
   // Empty state.
-  if (layers.length === 0) {
+  if (apiLayers.length === 0) {
     return (
       <Box p="1rem" color="fg.muted" textAlign="center">
         <Text fontSize="sm">No layers added yet.</Text>
         <Text fontSize="xs" mt="0.5rem">
-          Click the add icon on a dataset to create a layer.
+          Drag a dataset onto the map to create a layer.
         </Text>
       </Box>
     );
@@ -157,60 +113,66 @@ export const LayerPanel = observer(() => {
 
   return (
     <VStack gap="0.5rem" p="0.5rem" align="stretch">
-      {layers.map((layer) => (
-        <Flex
-          key={layer.id}
-          p="0.5rem"
-          borderRadius="md"
-          bg="bg.subtle"
-          alignItems="center"
-          gap="0.5rem"
-          _hover={{ bg: "bg.muted" }}
-        >
-          {/* Visibility toggle. */}
-          <IconButton
-            aria-label={layer.visible ? "Hide layer" : "Show layer"}
-            size="xs"
-            variant="ghost"
-            onClick={() => handleToggleVisibility(layer.id)}
-          >
-            {layer.visible ? <FiEye /> : <FiEyeOff />}
-          </IconButton>
+      {apiLayers.map((apiLayer) => {
+        // Get MobX model for visibility state (if synced).
+        const storeLayer = layerStore?.getLayer(apiLayer.id);
+        const isVisible = storeLayer?.visible ?? true;
 
-          {/* Layer name. */}
-          <Text
-            flex={1}
-            fontSize="sm"
-            fontWeight="medium"
-            truncate
-            opacity={layer.visible ? 1 : 0.5}
+        return (
+          <Flex
+            key={apiLayer.id}
+            p="0.5rem"
+            borderRadius="md"
+            bg="bg.subtle"
+            alignItems="center"
+            gap="0.5rem"
+            _hover={{ bg: "bg.muted" }}
           >
-            {layer.name}
-          </Text>
+            {/* Visibility toggle. */}
+            <IconButton
+              aria-label={isVisible ? "Hide layer" : "Show layer"}
+              size="xs"
+              variant="ghost"
+              onClick={() => handleToggleVisibility(apiLayer.id)}
+            >
+              {isVisible ? <FiEye /> : <FiEyeOff />}
+            </IconButton>
 
-          {/* Zoom to layer. */}
-          <IconButton
-            aria-label="Zoom to layer"
-            size="xs"
-            variant="ghost"
-            onClick={() => handleFitToLayer(layer.id)}
-          >
-            <FiZoomIn />
-          </IconButton>
+            {/* Layer name. */}
+            <Text
+              flex={1}
+              fontSize="sm"
+              fontWeight="medium"
+              truncate
+              opacity={isVisible ? 1 : 0.5}
+            >
+              {apiLayer.name}
+            </Text>
 
-          {/* Remove layer. */}
-          <IconButton
-            aria-label="Remove layer"
-            size="xs"
-            variant="ghost"
-            colorPalette="red"
-            onClick={() => handleDelete(layer.id)}
-            loading={isDeleting}
-          >
-            <FiTrash2 />
-          </IconButton>
-        </Flex>
-      ))}
+            {/* Zoom to layer. */}
+            <IconButton
+              aria-label="Zoom to layer"
+              size="xs"
+              variant="ghost"
+              onClick={() => handleFitToLayer(apiLayer.id)}
+            >
+              <FiZoomIn />
+            </IconButton>
+
+            {/* Remove layer. */}
+            <IconButton
+              aria-label="Remove layer"
+              size="xs"
+              variant="ghost"
+              colorPalette="red"
+              onClick={() => handleDelete(apiLayer.id)}
+              loading={isDeleting}
+            >
+              <FiTrash2 />
+            </IconButton>
+          </Flex>
+        );
+      })}
     </VStack>
   );
 });

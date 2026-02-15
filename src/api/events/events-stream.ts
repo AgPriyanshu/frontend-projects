@@ -52,7 +52,6 @@ export const useNotificationStream = () => {
 
     eventSource.onmessage = (event) => {
       try {
-        console.log({ evenData: event.data });
         const newNotification = toCamelCase(
           JSON.parse(event.data)
         ) as Notification;

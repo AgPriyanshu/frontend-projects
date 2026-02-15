@@ -1,7 +1,7 @@
 import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
-import { useCreateLayer, useUploadDatasets } from "api/web-gis";
+import { useAddLayer, useUploadDatasets } from "api/web-gis";
 import { useEffect, useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
@@ -23,7 +23,7 @@ export const DatasetTreeNode = ({
 
   // APIs.
   const { mutate: uploadDatasetNode } = useUploadDatasets();
-  const { mutate: createLayer, isPending: isCreatingLayer } = useCreateLayer();
+  const { mutate: createLayer, isPending: isCreatingLayer } = useAddLayer();
 
   // Handlers.
   const handleFileSelect = (files: FileList) => {

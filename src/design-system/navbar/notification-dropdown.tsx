@@ -17,7 +17,7 @@ import {
   type Notification,
 } from "api/events";
 import { isEmpty } from "lodash";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaBell } from "react-icons/fa";
 import {
   FcAbout,
@@ -78,10 +78,6 @@ export const NotificationDropdown = () => {
   const unreadNotifications = !isEmpty(notifications)
     ? notifications.data.filter((notification) => !notification.seen)
     : [];
-
-  useEffect(() => {
-    console.log({ not: notifications?.data });
-  }, [notifications]);
 
   console.info(`sse: ${isConnected}`);
 
