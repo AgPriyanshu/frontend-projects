@@ -21,10 +21,8 @@ export const useDatasets = () => {
 export const useUploadDatasets = () => {
   return useMutation({
     mutationFn: async (payload: DatasetNodeUploadPayload) => {
-      // Create FormData to handle file uploads
       const formData = new FormData();
 
-      // Add node information
       formData.append("name", payload.name);
       formData.append("type", payload.type);
 
@@ -32,7 +30,6 @@ export const useUploadDatasets = () => {
         formData.append("parent", payload.parent);
       }
 
-      // Add files
       payload.files.forEach((file: File) => {
         formData.append("files", file);
       });

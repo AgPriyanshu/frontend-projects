@@ -6,15 +6,12 @@ import type { ApiResponse } from "api/types";
 import type { AxiosResponse } from "axios";
 import type { CreateLayerPayload, LayerResponse } from "./types";
 
-/**
- * Fetches all layers.
- */
 export const useLayers = () => {
   return useQuery({
     queryKey: QueryKeys.layers,
     queryFn: async () => {
       return await api.get<ApiResponse<LayerResponse[]>>(
-        `/web-gis${QueryKeys.layers[0]}`
+        `${QueryKeys.layers[0]}`
       );
     },
     select: (response: AxiosResponse<ApiResponse<LayerResponse[]>>) =>
@@ -22,14 +19,11 @@ export const useLayers = () => {
   });
 };
 
-/**
- * Creates a new layer from a dataset.
- */
-export const useCreateLayer = () => {
+export const useAddLayer = () => {
   return useMutation({
     mutationFn: async (payload: CreateLayerPayload) => {
       return await api.post<ApiResponse<LayerResponse>>(
-        `/web-gis${QueryKeys.layers[0]}`,
+        `${QueryKeys.layers[0]}`,
         payload
       );
     },
@@ -41,13 +35,10 @@ export const useCreateLayer = () => {
   });
 };
 
-/**
- * Deletes a layer by ID.
- */
 export const useDeleteLayer = () => {
   return useMutation({
     mutationFn: async (id: string) => {
-      return await api.delete(`/web-gis/layers/${id}/`);
+      return await api.delete(QueryKeys.layer(id)[0]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
