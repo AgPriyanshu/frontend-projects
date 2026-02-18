@@ -41,6 +41,7 @@ export interface SerializedLayer {
   style: LayerStyle;
   visible: boolean;
   order: number;
+  bbox?: [number, number, number, number];
 }
 
 /**
@@ -81,3 +82,8 @@ export const DEFAULT_MAP_VIEW: MapView = {
   bearing: 0,
   pitch: 0,
 };
+
+/**
+ * Default workspace ID.
+ */
+export const DEFAULT_WORKSPACE_ID = "main";

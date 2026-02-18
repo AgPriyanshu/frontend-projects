@@ -35,6 +35,18 @@ export class LayerStore {
     );
   }
 
+  // ... (omitted)
+
+  /**
+   * Fits the map to specified bounds.
+   */
+  /**
+   * Fits the map to specified bounds.
+   */
+  fitToBounds(bbox: [number, number, number, number]): void {
+    this.engine?.fitToBounds(bbox);
+  }
+
   /**
    * Gets all layers as serialized format for engine sync.
    */
@@ -114,13 +126,6 @@ export class LayerStore {
    */
   fitToLayer(layerId: string): void {
     this.engine?.fitToLayer(layerId);
-  }
-
-  /**
-   * Fits the map to specified bounds.
-   */
-  fitToBounds(bbox: [number, number, number, number]): void {
-    this.engine?.fitToBounds(bbox);
   }
 
   /**

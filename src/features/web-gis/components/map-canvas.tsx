@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ApiResponse } from "api/types";
 import type { LayerResponse } from "api/web-gis";
-import { fetchLayerGeoJSON, useAddLayer } from "api/web-gis";
+import { buildTileUrl, fetchLayerGeoJSON, useAddLayer } from "api/web-gis";
 import { LayerModel } from "../domain";
 import { MapLibreAdapter } from "../engines/maplibre";
 import { workspaceManager } from "../stores";
@@ -64,6 +64,30 @@ export const MapCanvas = observer(
     const fetchAndAddLayer = useCallback(
       async (apiLayer: LayerResponse) => {
         try {
+          // Raster layers: use XYZ tile URL instead of GeoJSON.
+          if (apiLayer.datasetType === "raster") {
+            const tileUrl = buildTileUrl(apiLayer.source);
+            const layer = new LayerModel({
+              id: apiLayer.id,
+              type: "raster",
+              name: apiLayer.name,
+              source: [tileUrl],
+            });
+
+            workspace.layerStore.addLayer(layer);
+
+            // Fit to tileset bounds if available.
+            if (apiLayer.tileset?.bounds) {
+              workspace.layerStore.fitToBounds(
+                apiLayer.tileset.bounds as [number, number, number, number]
+              );
+            }
+
+            console.log(`Raster layer loaded on map: ${apiLayer.name}`);
+            return;
+          }
+
+          // Vector/GeoJSON layers: fetch features.
           const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
 
           // Skip if no features.

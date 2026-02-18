@@ -1,49 +1,34 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
-import { queryClient } from "api/query-client";
-import { QueryKeys } from "api/query-keys";
-import { useUploadDatasets } from "api/web-gis";
+import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
+import { useDeleteDatasetNode } from "api/web-gis";
 import { useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { TbVector } from "react-icons/tb";
-import { InlineFileUploader } from "shared/components";
+import { FiTrash2 } from "react-icons/fi";
+import { TbMap2, TbVector } from "react-icons/tb";
 import { type DatasetNode, DatasetNodeType } from "../../types";
+
+interface DatasetTreeNodeProps extends NodeRendererProps<DatasetNode> {
+  onUpload?: () => void;
+}
 
 export const DatasetTreeNode = ({
   node,
   style,
   dragHandle,
-}: NodeRendererProps<DatasetNode>) => {
+  onUpload,
+}: DatasetTreeNodeProps) => {
   // States.
   const [isHovered, setIsHovered] = useState(false);
+
+  // APIs.
+  const { mutate: deleteNode, isPending: isDeleting } = useDeleteDatasetNode();
 
   // Variables.
   const isFolder = node.data.type === DatasetNodeType.FOLDER;
   const dataset = node.data.dataset;
 
-  // APIs.
-  const { mutate: uploadDatasetNode } = useUploadDatasets();
-
   // Handlers.
-  const handleFileSelect = (files: FileList) => {
-    uploadDatasetNode(
-      {
-        name: node.data.name,
-        type: DatasetNodeType.DATASET,
-        parent: node.data.id,
-        files: Array.from(files),
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: QueryKeys.datasets,
-          });
-        },
-      }
-    );
-  };
-
   const handleDragStart = (e: React.DragEvent) => {
     if (isFolder || !dataset) return;
 
@@ -52,7 +37,15 @@ export const DatasetTreeNode = ({
       "application/dataset-name",
       dataset.fileName || node.data.name
     );
+    e.dataTransfer.setData("application/dataset-type", dataset.type ?? "");
     e.dataTransfer.effectAllowed = "copy";
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete "${node.data.name}"?`)) {
+      deleteNode(node.data.id);
+    }
   };
 
   // Renders.
@@ -95,6 +88,10 @@ export const DatasetTreeNode = ({
       <Flex align="center" flex={1}>
         {isFolder ? (
           renderFolderIcon(node.isOpen)
+        ) : dataset?.type === "raster" ? (
+          <Box as="span" mx={2} color={"green.400"} fontSize="sm">
+            <TbMap2 />
+          </Box>
         ) : (
           <Box as="span" mx={2} color={"object.file"} fontSize="sm">
             <TbVector />
@@ -106,21 +103,40 @@ export const DatasetTreeNode = ({
         </Text>
       </Flex>
 
-      {isFolder && (
-        <Box
-          opacity={isHovered ? 1 : 0}
-          transition="opacity 0.2s"
-          mr={"0.5rem"}
-          onClick={(e) => e.stopPropagation()}
+      {/* Actions: Upload & Delete */}
+      <Flex
+        align="center"
+        gap="0.25rem"
+        opacity={isHovered ? 1 : 0}
+        transition="opacity 0.2s"
+        mr={"0.5rem"}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {isFolder && (
+          <IconButton
+            size="xs"
+            variant="ghost"
+            aria-label={`Upload file to ${node.data.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpload?.();
+            }}
+          >
+            <AiOutlineFileAdd />
+          </IconButton>
+        )}
+
+        <IconButton
+          size="xs"
+          variant="ghost"
+          colorPalette="red"
+          aria-label={`Delete ${node.data.name}`}
+          onClick={(e) => handleDelete(e)}
+          loading={isDeleting}
         >
-          <InlineFileUploader
-            onFileSelect={handleFileSelect}
-            icon={<AiOutlineFileAdd />}
-            ariaLabel={`Upload file to ${node.data.name}`}
-            multiple
-          />
-        </Box>
-      )}
+          <FiTrash2 />
+        </IconButton>
+      </Flex>
     </Flex>
   );
 };

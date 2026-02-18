@@ -10,7 +10,7 @@ import { apiRequestMapper, apiResponseMapper } from "./utils";
 
 const api: AxiosInstance = axios.create({
   baseURL: EnvVariable.API_BASE_URL,
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -18,8 +18,11 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (config.url && !config.url.endsWith("/")) {
-      config.url = `${config.url}/`;
+    if (config.url) {
+      const [baseUrl, queryString] = config.url.split("?");
+      if (!baseUrl.endsWith("/")) {
+        config.url = `${baseUrl}/${queryString ? `?${queryString}` : ""}`;
+      }
     }
 
     const token = getAccessToken();

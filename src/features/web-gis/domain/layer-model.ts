@@ -20,6 +20,7 @@ export class LayerModel {
   style: LayerStyle;
   visible: boolean;
   order: number;
+  bbox?: [number, number, number, number];
 
   constructor(params: {
     id: string;
@@ -29,6 +30,7 @@ export class LayerModel {
     style?: LayerStyle;
     visible?: boolean;
     order?: number;
+    bbox?: [number, number, number, number];
   }) {
     this.id = params.id;
     this.type = params.type;
@@ -37,6 +39,7 @@ export class LayerModel {
     this.style = params.style ?? { ...DEFAULT_LAYER_STYLE };
     this.visible = params.visible ?? true;
     this.order = params.order ?? 0;
+    this.bbox = params.bbox;
 
     makeAutoObservable(this, {
       id: false,
@@ -55,6 +58,7 @@ export class LayerModel {
       style: { ...this.style },
       visible: this.visible,
       order: this.order,
+      bbox: this.bbox,
     };
   }
 
@@ -98,6 +102,7 @@ export class LayerModel {
       style: serialized.style,
       visible: serialized.visible,
       order: serialized.order,
+      bbox: serialized.bbox,
     });
   }
 }

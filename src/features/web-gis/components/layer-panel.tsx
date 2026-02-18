@@ -1,9 +1,15 @@
 import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
 import type { LayerResponse } from "api/web-gis";
-import { fetchLayerGeoJSON, useDeleteLayer, useLayers } from "api/web-gis";
+import {
+  buildTileUrl,
+  fetchLayerGeoJSON,
+  useDeleteLayer,
+  useLayers,
+} from "api/web-gis";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import { FiEye, FiEyeOff, FiTrash2, FiZoomIn } from "react-icons/fi";
+import { TbMap2, TbVector } from "react-icons/tb";
 
 import { LayerModel } from "../domain";
 import { workspaceManager } from "../stores";
@@ -32,6 +38,22 @@ export const LayerPanel = observer(() => {
         if (layerStore.getLayer(apiLayer.id)) continue;
 
         try {
+          // Raster layers: use XYZ tile URL.
+          if (apiLayer.datasetType === "raster") {
+            const tileUrl = buildTileUrl(apiLayer.source);
+            const layer = new LayerModel({
+              id: apiLayer.id,
+              type: "raster",
+              name: apiLayer.name,
+              source: [tileUrl],
+              bbox: apiLayer.bbox || undefined,
+            });
+
+            layerStore.addLayer(layer);
+            continue;
+          }
+
+          // Vector/GeoJSON layers: fetch features.
           const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
 
           // Skip if no features.
@@ -46,6 +68,7 @@ export const LayerPanel = observer(() => {
             type: "geojson",
             name: apiLayer.name,
             source: geojson,
+            bbox: apiLayer.bbox || undefined,
           });
 
           layerStore.addLayer(layer);
@@ -103,6 +126,7 @@ export const LayerPanel = observer(() => {
   const handleFitToLayer = (layerId: string) => {
     // Try to use bbox from API layer (more efficient).
     const apiLayer = apiLayers.find((l) => l.id === layerId);
+
     if (apiLayer?.bbox) {
       layerStore?.fitToBounds(apiLayer.bbox);
     } else {
@@ -138,16 +162,27 @@ export const LayerPanel = observer(() => {
               {isVisible ? <FiEye /> : <FiEyeOff />}
             </IconButton>
 
-            {/* Layer name. */}
-            <Text
-              flex={1}
-              fontSize="sm"
-              fontWeight="medium"
-              truncate
-              opacity={isVisible ? 1 : 0.5}
-            >
-              {apiLayer.name}
-            </Text>
+            {/* Layer type icon + name. */}
+            <Flex align="center" gap="0.375rem" flex={1}>
+              <Box
+                as="span"
+                color={
+                  apiLayer.datasetType === "raster" ? "green.400" : "blue.400"
+                }
+                fontSize="sm"
+                flexShrink={0}
+              >
+                {apiLayer.datasetType === "raster" ? <TbMap2 /> : <TbVector />}
+              </Box>
+              <Text
+                fontSize="sm"
+                fontWeight="medium"
+                truncate
+                opacity={isVisible ? 1 : 0.5}
+              >
+                {apiLayer.name}
+              </Text>
+            </Flex>
 
             {/* Zoom to layer. */}
             <IconButton

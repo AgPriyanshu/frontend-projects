@@ -1,12 +1,19 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { useDatasets } from "api/web-gis";
+import { useState } from "react";
 import { Tree } from "react-arborist";
 import useResizeObserver from "use-resize-observer";
+
 import { DatasetTreeNode } from "./dataset-tree-node";
+import { DatasetUploadModal } from "./dataset-upload-modal";
 
 export const DatasetTree = () => {
+  // States.
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadParentId, setUploadParentId] = useState<string | null>(null);
+
   // Hooks.
-  const { ref, height, width } = useResizeObserver();
+  const { ref, height = 0, width = 0 } = useResizeObserver();
 
   // APIs.
   const { data, isLoading } = useDatasets();
@@ -23,29 +30,48 @@ export const DatasetTree = () => {
     return draggedNodeParent?.id === parentNode?.id;
   };
 
-  // Render.
-  if (isLoading || !data) {
-    return (
-      <Box ref={ref} h="full" w="full">
-        <Text fontSize="sm" color="text.primary" p={2}>
-          Loading datasets...
-        </Text>
-      </Box>
-    );
-  }
+  const handleOpenUpload = (parentId: string | null = null) => {
+    setUploadParentId(parentId);
+    setIsUploadModalOpen(true);
+  };
 
+  // Render.
   return (
-    <Box ref={ref} h="full" w="full">
-      <Tree
-        data={data.data}
-        openByDefault={true}
-        indent={15}
-        disableDrop={disableDropForSameFolder}
-        height={height}
-        width={width}
-      >
-        {DatasetTreeNode}
-      </Tree>
-    </Box>
+    <>
+      <Flex direction="column" h="full" w="full">
+        <Box flex={1} w="full" ref={ref}>
+          {isLoading || !data ? (
+            <Text fontSize="sm" color="text.primary" p={2}>
+              Loading datasets...
+            </Text>
+          ) : (
+            <Tree
+              data={data.data}
+              openByDefault={true}
+              indent={15}
+              disableDrop={disableDropForSameFolder}
+              height={height}
+              width={width}
+            >
+              {(props) => (
+                <DatasetTreeNode
+                  {...props}
+                  onUpload={() => handleOpenUpload(props.node.data.id)}
+                />
+              )}
+            </Tree>
+          )}
+        </Box>
+      </Flex>
+
+      <DatasetUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          setUploadParentId(null);
+        }}
+        parentId={uploadParentId}
+      />
+    </>
   );
 };

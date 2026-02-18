@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "api/api";
+import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
 import type { AxiosResponse } from "axios";
@@ -36,7 +37,10 @@ export const useUploadDatasets = () => {
 
       return await api.post<ApiResponse<DatasetNodeResponse>>(
         QueryKeys.datasets[0],
-        formData
+        formData,
+        {
+          timeout: 0,
+        }
       );
     },
   });
@@ -71,9 +75,21 @@ export const useDownloadDataset = () => {
       document.body.appendChild(link);
       link.click();
 
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+    },
+  });
+};
+
+export const useDeleteDatasetNode = () => {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await api.delete(`${QueryKeys.datasets[0]}/${id}/`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.datasets,
+      });
     },
   });
 };

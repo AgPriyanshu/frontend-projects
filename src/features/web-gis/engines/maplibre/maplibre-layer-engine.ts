@@ -108,6 +108,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
           type: "raster",
           tiles: layer.data as string[],
           tileSize: 256,
+          bounds: layer.bbox, // Limit requests to bbox
         });
         break;
 
@@ -117,6 +118,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
           type: "raster",
           tiles: [layer.data as string],
           tileSize: 256,
+          bounds: layer.bbox, // Limit requests to bbox
         });
         break;
     }
