@@ -29,7 +29,7 @@ export type DrawMode =
 /**
  * Layer types supported by the platform.
  */
-export type LayerType = "vector" | "raster" | "wms" | "geojson";
+export type LayerType = "vector" | "raster" | "raster-dem" | "wms" | "geojson";
 
 /**
  * Serialized layer representation for engine syncing.

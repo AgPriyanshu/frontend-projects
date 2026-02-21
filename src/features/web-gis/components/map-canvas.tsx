@@ -64,12 +64,15 @@ export const MapCanvas = observer(
     const fetchAndAddLayer = useCallback(
       async (apiLayer: LayerResponse) => {
         try {
-          // Raster layers: use XYZ tile URL instead of GeoJSON.
-          if (apiLayer.datasetType === "raster") {
+          // Raster and Raster-DEM layers: use XYZ tile URL instead of GeoJSON.
+          if (
+            apiLayer.datasetType === "raster" ||
+            apiLayer.datasetType === "raster-dem"
+          ) {
             const tileUrl = buildTileUrl(apiLayer.source);
             const layer = new LayerModel({
               id: apiLayer.id,
-              type: "raster",
+              type: apiLayer.datasetType as "raster" | "raster-dem", // explicitly map to LayerType
               name: apiLayer.name,
               source: [tileUrl],
             });
@@ -83,7 +86,9 @@ export const MapCanvas = observer(
               );
             }
 
-            console.log(`Raster layer loaded on map: ${apiLayer.name}`);
+            console.log(
+              `${apiLayer.datasetType} layer loaded on map: ${apiLayer.name}`
+            );
             return;
           }
 

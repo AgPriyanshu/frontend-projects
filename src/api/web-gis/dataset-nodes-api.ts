@@ -31,6 +31,10 @@ export const useUploadDatasets = () => {
         formData.append("parent", payload.parent);
       }
 
+      if (payload.dataset_type) {
+        formData.append("dataset_type", payload.dataset_type);
+      }
+
       payload.files.forEach((file: File) => {
         formData.append("files", file);
       });

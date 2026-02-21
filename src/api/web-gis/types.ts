@@ -1,6 +1,6 @@
 import type { DatasetNodeType } from "src/features/web-gis/types";
 
-export type DatasetType = "vector" | "raster" | "text";
+export type DatasetType = "vector" | "raster" | "text" | "raster-dem";
 
 export interface TileSetResponse {
   id: string;
@@ -42,6 +42,7 @@ export interface DatasetNodeUploadPayload {
   name: string;
   parent: string | null; // ID of parent DatasetNode.
   type: DatasetNodeType;
+  dataset_type?: DatasetType;
 
   // Files.
   files: File[];

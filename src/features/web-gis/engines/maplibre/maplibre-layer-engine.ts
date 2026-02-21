@@ -112,6 +112,17 @@ export class MapLibreLayerEngine implements ILayerEngine {
         });
         break;
 
+      case "raster-dem":
+        this.map.addSource(sourceId, {
+          type: "raster-dem",
+          tiles: layer.data as string[],
+          tileSize: 256,
+          bounds: layer.bbox,
+          encoding: "mapbox", // Terrain-RGB
+          maxzoom: 14, // MapLibre Terrain requires a maxzoom to extrapolate from
+        });
+        break;
+
       case "wms":
         // WMS layers use raster source with WMS URL template.
         this.map.addSource(sourceId, {
@@ -140,6 +151,23 @@ export class MapLibreLayerEngine implements ILayerEngine {
         source: sourceId,
         layout: { visibility },
       });
+      return;
+    }
+
+    if (layer.type === "raster-dem") {
+      this.map.addLayer({
+        id: `${layerId}-hillshade`,
+        type: "hillshade",
+        source: sourceId,
+        layout: { visibility },
+        paint: {
+          "hillshade-shadow-color": "#474747",
+          "hillshade-highlight-color": "#ffffff",
+          "hillshade-accent-color": "#000000",
+        },
+      });
+      // Optionally enable 3D terrain by default.
+      this.map.setTerrain({ source: sourceId, exaggeration: 1.5 });
       return;
     }
 
@@ -328,6 +356,9 @@ export class MapLibreLayerEngine implements ILayerEngine {
   private getLayerTypesByType(type: LayerType): string[] {
     if (type === "raster" || type === "wms") {
       return ["raster"];
+    }
+    if (type === "raster-dem") {
+      return ["hillshade"];
     }
     return ["fill", "line", "circle"];
   }

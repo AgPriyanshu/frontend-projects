@@ -23,6 +23,7 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
       name: string;
       type: string;
       parent: string | null;
+      dataset_type?: string;
     }) => {
       // Use the correct endpoint path. Ensure it matches your API routing.
       // Assuming /web-gis/api/dataset-nodes/ based on previous context.
@@ -72,7 +73,11 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
     },
   });
 
-  const uploadFile = async (file: File, parentId: string | null) => {
+  const uploadFile = async (
+    file: File,
+    parentId: string | null,
+    datasetType?: string
+  ) => {
     setIsUploading(true);
     let uploadId = "";
     let key = "";
@@ -80,11 +85,11 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
     try {
       setProgress(0);
 
-      // 1. Initiate Upload
       const initRes = await initMutation.mutateAsync({
         name: file.name,
         type: "dataset",
         parent: parentId,
+        dataset_type: datasetType,
       });
       // Backend returns camelCase keys from Response({...}) in _multipart_init
       uploadId = initRes.uploadId;

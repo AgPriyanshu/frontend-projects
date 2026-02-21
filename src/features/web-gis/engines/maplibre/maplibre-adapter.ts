@@ -47,6 +47,7 @@ export class MapLibreAdapter implements IMapAdapter {
       zoom: this.initialView.zoom,
       bearing: this.initialView.bearing,
       pitch: this.initialView.pitch,
+      maxPitch: 85, // Required to tilt the camera enough to see 3D terrain clearly
       // Increase tile cache size for better performance during zoom.
       maxTileCacheSize: 200,
     });
