@@ -89,7 +89,17 @@ export const fetchLayerGeoJSON = async (
  * Builds the XYZ tile URL template for a raster dataset.
  * Used by MapLibre to request individual tiles from the backend.
  */
-export const buildTileUrl = (datasetId: string): string => {
+export const buildTileUrl = (
+  datasetId: string,
+  options?: { terrain?: boolean }
+): string => {
   const baseUrl = api.defaults.baseURL ?? "";
-  return `${baseUrl}/web-gis/datasets/${datasetId}/tiles/{z}/{x}/{y}.png`;
+  const params = new URLSearchParams();
+  if (options?.terrain) {
+    params.set("terrain", "true");
+  }
+
+  const query = params.toString();
+  const suffix = query ? `?${query}` : "";
+  return `${baseUrl}/web-gis/datasets/${datasetId}/tiles/{z}/{x}/{y}.png${suffix}`;
 };

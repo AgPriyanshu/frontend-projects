@@ -1,6 +1,6 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 
-import type { LayerType, SerializedLayer } from "../../domain";
+import type { SerializedLayer } from "../../domain";
 import type { ILayerEngine } from "../ports";
 
 /**
@@ -11,6 +11,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
   private map: MapLibreMap | null = null;
   private currentLayers: Map<string, SerializedLayer> = new Map();
   private layerGeoJSON: Map<string, GeoJSON.GeoJSON> = new Map();
+  private activeTerrainSourceId: string | null = null;
 
   /**
    * Binds the engine to a MapLibre map instance.
@@ -44,6 +45,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
     // Update layer order.
     this.reorderLayers(layers);
+    this.syncTerrain(layers);
   }
 
   fitToLayer(layerId: string): void {
@@ -104,23 +106,23 @@ export class MapLibreLayerEngine implements ILayerEngine {
         break;
 
       case "raster":
-        this.map.addSource(sourceId, {
-          type: "raster",
-          tiles: layer.data as string[],
-          tileSize: 256,
-          bounds: layer.bbox, // Limit requests to bbox
-        });
-        break;
-
-      case "raster-dem":
-        this.map.addSource(sourceId, {
-          type: "raster-dem",
-          tiles: layer.data as string[],
-          tileSize: 256,
-          bounds: layer.bbox,
-          encoding: "mapbox", // Terrain-RGB
-          maxzoom: 14, // MapLibre Terrain requires a maxzoom to extrapolate from
-        });
+        if (layer.rasterKind === "elevation") {
+          this.map.addSource(sourceId, {
+            type: "raster-dem",
+            tiles: layer.data as string[],
+            tileSize: 256,
+            bounds: layer.bbox,
+            encoding: "mapbox", // Terrain-RGB
+            // maxzoom: 14, // MapLibre Terrain requires a maxzoom to extrapolate from
+          });
+        } else {
+          this.map.addSource(sourceId, {
+            type: "raster",
+            tiles: layer.data as string[],
+            tileSize: 256,
+            bounds: layer.bbox, // Limit requests to bbox
+          });
+        }
         break;
 
       case "wms":
@@ -144,6 +146,12 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
     const visibility = layer.visible ? "visible" : "none";
 
+    if (layer.type === "raster" && layer.rasterKind === "elevation") {
+      // Terrain-only mode: no hillshade overlay layer.
+      // The DEM source is consumed by map.setTerrain(...) in syncTerrain().
+      return;
+    }
+
     if (layer.type === "raster" || layer.type === "wms") {
       this.map.addLayer({
         id: `${layerId}-raster`,
@@ -151,23 +159,6 @@ export class MapLibreLayerEngine implements ILayerEngine {
         source: sourceId,
         layout: { visibility },
       });
-      return;
-    }
-
-    if (layer.type === "raster-dem") {
-      this.map.addLayer({
-        id: `${layerId}-hillshade`,
-        type: "hillshade",
-        source: sourceId,
-        layout: { visibility },
-        paint: {
-          "hillshade-shadow-color": "#474747",
-          "hillshade-highlight-color": "#ffffff",
-          "hillshade-accent-color": "#000000",
-        },
-      });
-      // Optionally enable 3D terrain by default.
-      this.map.setTerrain({ source: sourceId, exaggeration: 1.5 });
       return;
     }
 
@@ -226,7 +217,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
     // Update visibility.
     const visibility = layer.visible ? "visible" : "none";
-    const layerTypes = this.getLayerTypesByType(layer.type);
+    const layerTypes = this.getLayerTypes(layer);
 
     for (const type of layerTypes) {
       const mapLayerId = `${layer.id}-${type}`;
@@ -307,7 +298,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
     const layer = this.currentLayers.get(layerId);
     if (!layer) return;
 
-    const layerTypes = this.getLayerTypesByType(layer.type);
+    const layerTypes = this.getLayerTypes(layer);
 
     for (const type of layerTypes) {
       const mapLayerId = `${layerId}-${type}`;
@@ -335,8 +326,8 @@ export class MapLibreLayerEngine implements ILayerEngine {
       const currentLayer = sorted[i];
       const previousLayer = sorted[i - 1];
 
-      const currentTypes = this.getLayerTypesByType(currentLayer.type);
-      const previousTypes = this.getLayerTypesByType(previousLayer.type);
+      const currentTypes = this.getLayerTypes(currentLayer);
+      const previousTypes = this.getLayerTypes(previousLayer);
 
       if (currentTypes.length > 0 && previousTypes.length > 0) {
         const currentFirstLayerId = `${currentLayer.id}-${currentTypes[0]}`;
@@ -353,14 +344,49 @@ export class MapLibreLayerEngine implements ILayerEngine {
     }
   }
 
-  private getLayerTypesByType(type: LayerType): string[] {
-    if (type === "raster" || type === "wms") {
+  private getLayerTypes(layer: SerializedLayer): string[] {
+    if (layer.type === "raster") {
+      return layer.rasterKind === "elevation" ? [] : ["raster"];
+    }
+    if (layer.type === "wms") {
       return ["raster"];
     }
-    if (type === "raster-dem") {
-      return ["hillshade"];
-    }
     return ["fill", "line", "circle"];
+  }
+
+  private syncTerrain(layers: SerializedLayer[]): void {
+    if (!this.map) return;
+
+    // MapLibre supports a single terrain source at a time.
+    // Choose the top-most visible elevation layer with terrain enabled.
+    const terrainLayer = [...layers]
+      .sort((a, b) => b.order - a.order)
+      .find(
+        (layer) =>
+          layer.type === "raster" &&
+          layer.rasterKind === "elevation" &&
+          layer.visible &&
+          layer.terrainEnabled
+      );
+
+    if (!terrainLayer) {
+      this.map.setTerrain(null);
+      this.activeTerrainSourceId = null;
+      return;
+    }
+
+    const sourceId = `source-${terrainLayer.id}`;
+    if (!this.map.getSource(sourceId)) {
+      this.map.setTerrain(null);
+      this.activeTerrainSourceId = null;
+      return;
+    }
+
+    this.map.setTerrain({
+      source: sourceId,
+    });
+
+    this.activeTerrainSourceId = sourceId;
   }
 
   private hasLayerChanged(
@@ -370,6 +396,8 @@ export class MapLibreLayerEngine implements ILayerEngine {
     return (
       existing.visible !== newLayer.visible ||
       existing.order !== newLayer.order ||
+      existing.rasterKind !== newLayer.rasterKind ||
+      existing.terrainEnabled !== newLayer.terrainEnabled ||
       JSON.stringify(existing.style) !== JSON.stringify(newLayer.style) ||
       JSON.stringify(existing.data) !== JSON.stringify(newLayer.data)
     );
@@ -444,6 +472,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
       this.removeLayer(layerId);
     }
     this.currentLayers.clear();
+    this.activeTerrainSourceId = null;
     this.map = null;
   }
 }

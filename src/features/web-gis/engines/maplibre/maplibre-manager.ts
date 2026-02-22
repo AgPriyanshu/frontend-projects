@@ -8,16 +8,16 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { DEFAULT_MAP_VIEW, type MapView } from "../../domain";
-import type { IMapAdapter } from "../ports";
+import type { IMapManager } from "../ports";
 import { MapLibreMapEngine } from "./maplibre-map-engine";
 import { MapLibreLayerEngine } from "./maplibre-layer-engine";
 import { MapLibreDrawEngine } from "./maplibre-draw-engine";
 
 /**
- * MapLibre adapter implementing IMapAdapter.
+ * MapLibre manager implementing IMapManager.
  * Orchestrates all MapLibre engine implementations.
  */
-export class MapLibreAdapter implements IMapAdapter {
+export class MapLibreMapManager implements IMapManager {
   private mapInstance: MapLibreMap | null = null;
   private ready = false;
 
@@ -36,7 +36,7 @@ export class MapLibreAdapter implements IMapAdapter {
 
   mount(container: HTMLElement): void {
     if (this.mapInstance) {
-      console.warn("MapLibreAdapter: Map already mounted");
+      console.warn("MapLibreMapManager: Map already mounted");
       return;
     }
 
@@ -47,7 +47,6 @@ export class MapLibreAdapter implements IMapAdapter {
       zoom: this.initialView.zoom,
       bearing: this.initialView.bearing,
       pitch: this.initialView.pitch,
-      maxPitch: 85, // Required to tilt the camera enough to see 3D terrain clearly
       // Increase tile cache size for better performance during zoom.
       maxTileCacheSize: 200,
     });

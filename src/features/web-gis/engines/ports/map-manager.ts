@@ -3,10 +3,10 @@ import type { ILayerEngine } from "./layer-engine";
 import type { IMapEngine } from "./map-engine";
 
 /**
- * Main map adapter interface.
+ * Main map manager interface.
  * Aggregates all engine capabilities and manages lifecycle.
  */
-export interface IMapAdapter {
+export interface IMapManager {
   /**
    * Map engine for view control.
    */

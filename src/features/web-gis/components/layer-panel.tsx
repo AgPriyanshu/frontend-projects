@@ -40,13 +40,31 @@ export const LayerPanel = observer(() => {
         try {
           // Raster layers: use XYZ tile URL.
           if (apiLayer.datasetType === "raster") {
-            const tileUrl = buildTileUrl(apiLayer.source);
+            if (!apiLayer.tileset || apiLayer.tileset.status !== "ready") {
+              console.info(
+                `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
+                  apiLayer.tileset?.status ?? "missing"
+                })`
+              );
+              continue;
+            }
+
+            const tileUrl = buildTileUrl(apiLayer.source, {
+              terrain: apiLayer.rasterKind === "elevation",
+            });
+            const rasterBbox =
+              apiLayer.bbox ??
+              (apiLayer.tileset?.bounds as
+                | [number, number, number, number]
+                | null) ??
+              undefined;
             const layer = new LayerModel({
               id: apiLayer.id,
               type: "raster",
               name: apiLayer.name,
               source: [tileUrl],
-              bbox: apiLayer.bbox || undefined,
+              rasterKind: apiLayer.rasterKind ?? "raster",
+              bbox: rasterBbox,
             });
 
             layerStore.addLayer(layer);
@@ -193,6 +211,25 @@ export const LayerPanel = observer(() => {
             >
               <FiZoomIn />
             </IconButton>
+
+            {apiLayer.datasetType === "raster" &&
+              apiLayer.rasterKind === "elevation" && (
+                <IconButton
+                  aria-label={
+                    storeLayer?.terrainEnabled
+                      ? "Disable terrain"
+                      : "Enable terrain"
+                  }
+                  size="xs"
+                  variant="ghost"
+                  colorPalette={storeLayer?.terrainEnabled ? "green" : "gray"}
+                  onClick={() => layerStore?.toggleTerrain(apiLayer.id)}
+                >
+                  <Text fontSize="2xs" fontWeight="bold">
+                    3D
+                  </Text>
+                </IconButton>
+              )}
 
             {/* Remove layer. */}
             <IconButton

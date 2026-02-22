@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-// Assuming api is exported as default or named from parent directory
 import api from "../api";
 
 interface MultipartCompleteResponse {
@@ -73,11 +72,7 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
     },
   });
 
-  const uploadFile = async (
-    file: File,
-    parentId: string | null,
-    datasetType?: string
-  ) => {
+  const uploadFile = async (file: File, parentId: string | null) => {
     setIsUploading(true);
     let uploadId = "";
     let key = "";
@@ -89,7 +84,6 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
         name: file.name,
         type: "dataset",
         parent: parentId,
-        dataset_type: datasetType,
       });
       // Backend returns camelCase keys from Response({...}) in _multipart_init
       uploadId = initRes.uploadId;
@@ -116,11 +110,7 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
         });
 
         // Upload to S3 directly (bypass API axios interceptors)
-        const response = await axios.put(signRes.url, chunk, {
-          headers: {
-            "Content-Type": file.type || "application/octet-stream",
-          },
-        });
+        const response = await axios.put(signRes.url, chunk);
 
         // Extract ETag
         // S3 ETag is usually surrounded by quotes.

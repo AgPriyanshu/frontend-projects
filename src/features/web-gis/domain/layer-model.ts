@@ -4,6 +4,7 @@ import {
   DEFAULT_LAYER_STYLE,
   type LayerStyle,
   type LayerType,
+  type RasterKind,
   type SerializedLayer,
 } from "./types";
 
@@ -17,6 +18,8 @@ export class LayerModel {
 
   name: string;
   source: unknown;
+  rasterKind?: RasterKind;
+  terrainEnabled: boolean;
   style: LayerStyle;
   visible: boolean;
   order: number;
@@ -27,6 +30,8 @@ export class LayerModel {
     type: LayerType;
     name: string;
     source: unknown;
+    rasterKind?: RasterKind;
+    terrainEnabled?: boolean;
     style?: LayerStyle;
     visible?: boolean;
     order?: number;
@@ -36,6 +41,9 @@ export class LayerModel {
     this.type = params.type;
     this.name = params.name;
     this.source = params.source;
+    this.rasterKind = params.rasterKind;
+    this.terrainEnabled =
+      params.terrainEnabled ?? this.rasterKind === "elevation";
     this.style = params.style ?? { ...DEFAULT_LAYER_STYLE };
     this.visible = params.visible ?? true;
     this.order = params.order ?? 0;
@@ -54,6 +62,8 @@ export class LayerModel {
     return {
       id: this.id,
       type: this.type,
+      rasterKind: this.rasterKind,
+      terrainEnabled: this.terrainEnabled,
       data: this.source,
       style: { ...this.style },
       visible: this.visible,
@@ -84,6 +94,20 @@ export class LayerModel {
   }
 
   /**
+   * Toggles terrain rendering for elevation raster layers.
+   */
+  toggleTerrain(): void {
+    this.terrainEnabled = !this.terrainEnabled;
+  }
+
+  /**
+   * Sets terrain rendering for elevation raster layers.
+   */
+  setTerrainEnabled(enabled: boolean): void {
+    this.terrainEnabled = enabled;
+  }
+
+  /**
    * Sets layer order.
    */
   setOrder(order: number): void {
@@ -97,6 +121,8 @@ export class LayerModel {
     return new LayerModel({
       id: serialized.id,
       type: serialized.type,
+      rasterKind: serialized.rasterKind,
+      terrainEnabled: serialized.terrainEnabled,
       name,
       source: serialized.data,
       style: serialized.style,

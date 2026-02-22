@@ -29,7 +29,6 @@ export const DatasetUploadModal = ({
 }: DatasetUploadModalProps) => {
   // State.
   const [files, setFiles] = useState<File[]>([]);
-  const [datasetType, setDatasetType] = useState<string | undefined>(undefined);
 
   // API.
   const { mutateAsync: uploadDataset, isPending: isStandardPending } =
@@ -68,13 +67,12 @@ export const DatasetUploadModal = ({
           type: DatasetNodeType.DATASET,
           parent: parentId,
           files: smallFiles,
-          dataset_type: datasetType as any,
         });
       }
 
       // Upload large files individually using multipart
       for (const file of largeFiles) {
-        await uploadMultipart(file, parentId, datasetType);
+        await uploadMultipart(file, parentId);
       }
 
       // Success
@@ -89,7 +87,6 @@ export const DatasetUploadModal = ({
 
   const handleClose = () => {
     setFiles([]);
-    setDatasetType(undefined);
     onClose();
   };
 
@@ -109,30 +106,6 @@ export const DatasetUploadModal = ({
                   Select dataset files (e.g., GeoTIFF, Shapefiles, GeoJSON,
                   etc.) to upload.
                 </Text>
-
-                <Box mb={2}>
-                  <Text mb={1} fontSize="sm" fontWeight="medium">
-                    Content Type Override (Optional)
-                  </Text>
-                  <select
-                    style={{
-                      padding: "8px",
-                      width: "100%",
-                      borderRadius: "6px",
-                      border: "1px solid var(--chakra-colors-border-default)",
-                      backgroundColor: "var(--chakra-colors-bg-panel)",
-                    }}
-                    value={datasetType || ""}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                      setDatasetType(e.target.value || undefined)
-                    }
-                  >
-                    <option value="">Auto-detect from file</option>
-                    <option value="raster-dem">
-                      Digital Elevation Model (DEM)
-                    </option>
-                  </select>
-                </Box>
 
                 <Box
                   borderWidth="2px"

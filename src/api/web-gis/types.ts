@@ -1,6 +1,7 @@
 import type { DatasetNodeType } from "src/features/web-gis/types";
 
-export type DatasetType = "vector" | "raster" | "text" | "raster-dem";
+export type DatasetType = "vector" | "raster" | "text";
+export type RasterKind = "elevation" | "ortho" | "raster";
 
 export interface TileSetResponse {
   id: string;
@@ -62,6 +63,8 @@ export interface LayerResponse {
   style: LayerStyleSpec;
   bbox: [number, number, number, number] | null; // [minLng, minLat, maxLng, maxLat].
   datasetType: DatasetType | null; // Type of the source dataset.
+  rasterKind: RasterKind | null;
+  bandCount: number | null;
   tileset: TileSetResponse | null; // Tileset info for raster datasets.
 }
 
@@ -70,3 +73,5 @@ export interface CreateLayerPayload {
   source: string; // Dataset ID.
   style?: LayerStyleSpec;
 }
+
+// Multipart Upload Dataset.

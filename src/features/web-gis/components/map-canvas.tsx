@@ -6,24 +6,24 @@ import type { ApiResponse } from "api/types";
 import type { LayerResponse } from "api/web-gis";
 import { buildTileUrl, fetchLayerGeoJSON, useAddLayer } from "api/web-gis";
 import { LayerModel } from "../domain";
-import { MapLibreAdapter } from "../engines/maplibre";
+import { MapLibreMapManager } from "../engines/maplibre";
 import { workspaceManager } from "../stores";
 
 interface MapCanvasProps {
   /** Workspace ID this canvas belongs to. */
   workspaceId: string;
-  /** Called when the adapter is mounted and ready. */
+  /** Called when the map manager is mounted and ready. */
   onReady?: () => void;
 }
 
 /**
- * Map canvas component that mounts the MapLibre adapter.
+ * Map canvas component that mounts the MapLibre map manager.
  * Handles drag-and-drop for dataset nodes from the data-sources panel.
  */
 export const MapCanvas = observer(
   ({ workspaceId, onReady }: MapCanvasProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const adapterRef = useRef<MapLibreAdapter | null>(null);
+    const mapManagerRef = useRef<MapLibreMapManager | null>(null);
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -36,25 +36,25 @@ export const MapCanvas = observer(
     useEffect(() => {
       if (!containerRef.current) return;
 
-      // Create and mount the adapter.
-      const adapter = new MapLibreAdapter();
-      adapterRef.current = adapter;
+      // Create and mount the map manager.
+      const mapManager = new MapLibreMapManager();
+      mapManagerRef.current = mapManager;
 
-      adapter.mount(containerRef.current);
+      mapManager.mount(containerRef.current);
 
       // Wait for map to be ready, then bind stores.
       const checkReady = setInterval(() => {
-        if (adapter.isReady()) {
+        if (mapManager.isReady()) {
           clearInterval(checkReady);
-          workspace.bindAdapter(adapter);
+          workspace.bindMapManager(mapManager);
           onReady?.();
         }
       }, 100);
 
       return () => {
         clearInterval(checkReady);
-        adapter.destroy();
-        adapterRef.current = null;
+        mapManager.destroy();
+        mapManagerRef.current = null;
       };
     }, [workspace, onReady]);
 
@@ -64,17 +64,33 @@ export const MapCanvas = observer(
     const fetchAndAddLayer = useCallback(
       async (apiLayer: LayerResponse) => {
         try {
-          // Raster and Raster-DEM layers: use XYZ tile URL instead of GeoJSON.
-          if (
-            apiLayer.datasetType === "raster" ||
-            apiLayer.datasetType === "raster-dem"
-          ) {
-            const tileUrl = buildTileUrl(apiLayer.source);
+          // Raster layers: use XYZ tile URL instead of GeoJSON.
+          if (apiLayer.datasetType === "raster") {
+            if (!apiLayer.tileset || apiLayer.tileset.status !== "ready") {
+              console.info(
+                `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
+                  apiLayer.tileset?.status ?? "missing"
+                })`
+              );
+              return;
+            }
+
+            const tileUrl = buildTileUrl(apiLayer.source, {
+              terrain: apiLayer.rasterKind === "elevation",
+            });
+            const rasterBbox =
+              apiLayer.bbox ??
+              (apiLayer.tileset?.bounds as
+                | [number, number, number, number]
+                | null) ??
+              undefined;
             const layer = new LayerModel({
               id: apiLayer.id,
-              type: apiLayer.datasetType as "raster" | "raster-dem", // explicitly map to LayerType
+              type: "raster",
               name: apiLayer.name,
               source: [tileUrl],
+              rasterKind: apiLayer.rasterKind ?? "raster",
+              bbox: rasterBbox,
             });
 
             workspace.layerStore.addLayer(layer);
@@ -87,7 +103,7 @@ export const MapCanvas = observer(
             }
 
             console.log(
-              `${apiLayer.datasetType} layer loaded on map: ${apiLayer.name}`
+              `raster layer loaded on map: ${apiLayer.name} (${apiLayer.rasterKind ?? "raster"})`
             );
             return;
           }

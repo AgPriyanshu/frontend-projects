@@ -10,7 +10,7 @@ import {
   TerraDrawSelectMode,
   TerraDrawRenderMode,
 } from "terra-draw";
-import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
+import { TerraDrawMapLibreGLAdapter as TerraDrawMapLibreGLBridge } from "terra-draw-maplibre-gl-adapter";
 import type { GeoJSON } from "geojson";
 
 import type { DrawMode, Unsubscribe } from "../../domain";
@@ -37,10 +37,10 @@ export class MapLibreDrawEngine implements IDrawEngine {
   private initializeTerraDraw(): void {
     if (!this.map) return;
 
-    const adapter = new TerraDrawMapLibreGLAdapter({ map: this.map });
+    const drawBridge = new TerraDrawMapLibreGLBridge({ map: this.map });
 
     this.draw = new TerraDraw({
-      adapter,
+      adapter: drawBridge,
       modes: [
         new TerraDrawPointMode(),
         new TerraDrawLineStringMode(),

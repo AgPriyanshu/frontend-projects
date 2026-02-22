@@ -1,6 +1,6 @@
 /**
  * Engine-agnostic type definitions for Web-GIS platform.
- * These types are used across all stores and engine adapters.
+ * These types are used across all stores and engine managers.
  */
 
 /**
@@ -29,7 +29,8 @@ export type DrawMode =
 /**
  * Layer types supported by the platform.
  */
-export type LayerType = "vector" | "raster" | "raster-dem" | "wms" | "geojson";
+export type LayerType = "vector" | "raster" | "wms" | "geojson";
+export type RasterKind = "elevation" | "ortho" | "raster";
 
 /**
  * Serialized layer representation for engine syncing.
@@ -37,6 +38,8 @@ export type LayerType = "vector" | "raster" | "raster-dem" | "wms" | "geojson";
 export interface SerializedLayer {
   id: string;
   type: LayerType;
+  rasterKind?: RasterKind;
+  terrainEnabled?: boolean;
   data: unknown;
   style: LayerStyle;
   visible: boolean;

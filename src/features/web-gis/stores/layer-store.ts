@@ -103,6 +103,13 @@ export class LayerStore {
   }
 
   /**
+   * Toggles terrain rendering for an elevation layer.
+   */
+  toggleTerrain(layerId: string): void {
+    this.layers.get(layerId)?.toggleTerrain();
+  }
+
+  /**
    * Moves a layer to a new position.
    */
   moveLayer(layerId: string, newOrder: number): void {
