@@ -17,15 +17,16 @@ export class WorkspaceStore {
   readonly toolStore: ToolStore;
   readonly drawStore: DrawStore;
 
-  private mapManager: IMapManager | null = null;
-  private isBound = false;
+  private mapManager: IMapManager;
 
-  constructor(id: string) {
+  constructor(id: string, createMapManager: () => IMapManager) {
     this.id = id;
     this.mapStore = new MapStore();
     this.layerStore = new LayerStore();
     this.toolStore = new ToolStore();
     this.drawStore = new DrawStore();
+    this.mapManager = createMapManager();
+    this.bindStores();
 
     makeAutoObservable(this, {
       id: false,
@@ -36,28 +37,17 @@ export class WorkspaceStore {
     });
   }
 
-  /**
-   * Binds all stores to the map manager's engine capabilities.
-   * Should be called when the map manager is ready.
-   */
-  bindMapManager(mapManager: IMapManager): void {
-    if (this.isBound) {
-      console.warn("WorkspaceStore: Already bound to a map manager");
-      return;
-    }
-
-    this.mapManager = mapManager;
-    this.mapStore.bind(mapManager.map);
-    this.layerStore.bind(mapManager.layers);
-    this.toolStore.bind(mapManager.draw);
-    this.drawStore.bind(mapManager.draw);
-    this.isBound = true;
+  private bindStores(): void {
+    this.mapStore.bind(this.mapManager.map);
+    this.layerStore.bind(this.mapManager.layers);
+    this.toolStore.bind(this.mapManager.draw);
+    this.drawStore.bind(this.mapManager.draw);
   }
 
   /**
    * Gets the current map manager.
    */
-  getMapManager(): IMapManager | null {
+  getMapManager(): IMapManager {
     return this.mapManager;
   }
 
@@ -65,7 +55,7 @@ export class WorkspaceStore {
    * Checks if stores are bound to a map manager.
    */
   get isReady(): boolean {
-    return this.isBound && (this.mapManager?.isReady() ?? false);
+    return this.mapManager.isReady();
   }
 
   /**
@@ -76,8 +66,6 @@ export class WorkspaceStore {
     this.layerStore.destroy();
     this.toolStore.destroy();
     this.drawStore.destroy();
-    this.mapManager?.destroy();
-    this.mapManager = null;
-    this.isBound = false;
+    this.mapManager.destroy();
   }
 }

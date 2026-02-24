@@ -1,5 +1,5 @@
 import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
-import { useDeleteDatasetNode } from "api/web-gis";
+import { DATASET_TYPES, useDeleteDatasetNode } from "api/web-gis";
 import { useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
@@ -88,7 +88,7 @@ export const DatasetTreeNode = ({
       <Flex align="center" flex={1}>
         {isFolder ? (
           renderFolderIcon(node.isOpen)
-        ) : dataset?.type === "raster" ? (
+        ) : dataset?.type === DATASET_TYPES.RASTER ? (
           <Box as="span" mx={2} color={"green.400"} fontSize="sm">
             <TbMap2 />
           </Box>

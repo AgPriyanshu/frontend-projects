@@ -94,6 +94,9 @@ export const useDeleteDatasetNode = () => {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.datasets,
       });
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.layers,
+      });
     },
   });
 };

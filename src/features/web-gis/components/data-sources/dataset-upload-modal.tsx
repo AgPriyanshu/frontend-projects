@@ -103,8 +103,8 @@ export const DatasetUploadModal = ({
             <Dialog.Body>
               <VStack align="stretch" gap={4}>
                 <Text fontSize="sm" color="text.secondary">
-                  Select dataset files (e.g., GeoTIFF, Shapefiles, GeoJSON,
-                  etc.) to upload.
+                  Select dataset files (e.g., GeoTIFF, Shapefiles, etc.) to
+                  upload.
                 </Text>
 
                 <Box
@@ -160,7 +160,7 @@ export const DatasetUploadModal = ({
                     </Text>
                     <Progress.Root value={multipartProgress} size="sm">
                       <Progress.Track>
-                        <Progress.Range />
+                        <Progress.Range color={"intent.primary"} />
                       </Progress.Track>
                     </Progress.Root>
                   </Box>

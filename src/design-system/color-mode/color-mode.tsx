@@ -1,37 +1,15 @@
 import type { SpanProps } from "@chakra-ui/react";
 import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react";
-import { ThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 import * as React from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
-import type {
-  ColorMode,
-  ColorModeButtonProps,
-  ColorModeProviderProps,
-  UseColorModeReturn,
-} from "./types";
+import type { ColorModeButtonProps, ColorModeProviderProps } from "./types";
+import { useColorMode } from "./use-color-mode";
 
 export const ColorModeProvider = (props: ColorModeProviderProps) => {
   return (
     <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
   );
-};
-
-export const useColorMode = (): UseColorModeReturn => {
-  const { resolvedTheme, setTheme, forcedTheme } = useTheme();
-  const colorMode = forcedTheme || resolvedTheme;
-  const toggleColorMode = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
-  };
-  return {
-    colorMode: colorMode as ColorMode,
-    setColorMode: setTheme,
-    toggleColorMode,
-  };
-};
-
-export const useColorModeValue = <T,>(light: T, dark: T) => {
-  const { colorMode } = useColorMode();
-  return colorMode === "dark" ? dark : light;
 };
 
 export const ColorModeIcon = () => {

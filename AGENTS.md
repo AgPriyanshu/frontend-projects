@@ -15,6 +15,8 @@
 ## Folder Structure
 
 - This repository uses a feature-based folder structure, so use it for new features.
+- All the API hooks live in api folder.
+- Shared folder stores all the functions, hooks, components etc. which are shared by the features
 
 ## Testing
 

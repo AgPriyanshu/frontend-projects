@@ -1,105 +1,92 @@
 import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
-import type { LayerResponse } from "api/web-gis";
 import {
-  buildTileUrl,
-  fetchLayerGeoJSON,
+  DATASET_TYPES,
+  RASTER_KINDS,
   useDeleteLayer,
   useLayers,
 } from "api/web-gis";
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { FiEye, FiEyeOff, FiTrash2, FiZoomIn } from "react-icons/fi";
 import { TbMap2, TbVector } from "react-icons/tb";
 
-import { LayerModel } from "../domain";
+import { LayerFactory } from "../services";
 import { workspaceManager } from "../stores";
 
 export const LayerPanel = observer(() => {
-  // Get workspace.
-  const workspace = workspaceManager.activeWorkspace;
-  const layerStore = workspace?.layerStore;
-
-  // API hooks.
+  // APIs.
   const { data: layersData, isLoading, error } = useLayers();
   const { mutate: deleteLayer, isPending: isDeleting } = useDeleteLayer();
 
-  const apiLayers: LayerResponse[] = useMemo(
-    () => layersData?.data ?? [],
-    [layersData?.data]
+  // Variables
+  const workspace = workspaceManager.activeWorkspace;
+  const apiLayers = useMemo(() => layersData?.data ?? [], [layersData?.data]);
+  const storeLayers = useMemo(
+    () => workspace?.layerStore?.layersArray ?? [],
+    [workspace?.layerStore?.layersArray]
   );
 
-  // Sync API layers to LayerStore (for map rendering).
-  useEffect(() => {
-    if (!layerStore || apiLayers.length === 0) return;
+  // Helpers.
+  const syncLayers = useCallback(() => {
+    const apiLayerIds = new Set(apiLayers.map((layer) => layer.id));
 
-    const syncLayers = async () => {
-      for (const apiLayer of apiLayers) {
-        // Skip if layer already exists in store.
-        if (layerStore.getLayer(apiLayer.id)) continue;
-
-        try {
-          // Raster layers: use XYZ tile URL.
-          if (apiLayer.datasetType === "raster") {
-            if (!apiLayer.tileset || apiLayer.tileset.status !== "ready") {
-              console.info(
-                `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
-                  apiLayer.tileset?.status ?? "missing"
-                })`
-              );
-              continue;
-            }
-
-            const tileUrl = buildTileUrl(apiLayer.source, {
-              terrain: apiLayer.rasterKind === "elevation",
-            });
-            const rasterBbox =
-              apiLayer.bbox ??
-              (apiLayer.tileset?.bounds as
-                | [number, number, number, number]
-                | null) ??
-              undefined;
-            const layer = new LayerModel({
-              id: apiLayer.id,
-              type: "raster",
-              name: apiLayer.name,
-              source: [tileUrl],
-              rasterKind: apiLayer.rasterKind ?? "raster",
-              bbox: rasterBbox,
-            });
-
-            layerStore.addLayer(layer);
-            continue;
-          }
-
-          // Vector/GeoJSON layers: fetch features.
-          const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
-
-          // Skip if no features.
-          if (!geojson?.features || geojson.features.length === 0) {
-            console.warn(`No features found for layer ${apiLayer.name}`);
-            continue;
-          }
-
-          // Create LayerModel and add to store.
-          const layer = new LayerModel({
-            id: apiLayer.id,
-            type: "geojson",
-            name: apiLayer.name,
-            source: geojson,
-            bbox: apiLayer.bbox || undefined,
-          });
-
-          layerStore.addLayer(layer);
-        } catch (err) {
-          console.error(`Error loading layer ${apiLayer.name}:`, err);
-        }
+    for (const apiLayer of apiLayers) {
+      if (workspace?.layerStore.getLayer(apiLayer.id)) {
+        continue;
       }
-    };
+
+      try {
+        if (apiLayer.datasetType === DATASET_TYPES.RASTER) {
+          const layer = LayerFactory.createRasterLayer(apiLayer);
+
+          if (layer) {
+            workspace?.layerStore.addLayer(layer);
+          }
+        } else {
+          console.info(`Skipping non-raster layer: ${apiLayer.name}`);
+        }
+      } catch (err) {
+        console.error(`Error loading layer ${apiLayer.name}:`, err);
+      }
+    }
+
+    // Remove stale layers from the store if they no longer exist in API.
+    for (const storeLayer of storeLayers) {
+      if (!apiLayerIds.has(storeLayer.id)) {
+        workspace?.layerStore?.removeLayer(storeLayer.id);
+      }
+    }
+  }, [apiLayers, storeLayers, workspace]);
+
+  // useEffects.
+  useEffect(() => {
+    if (!workspace?.layerStore || apiLayers.length === 0) {
+      return;
+    }
 
     syncLayers();
-  }, [apiLayers, layerStore]);
+  }, [apiLayers.length, syncLayers, workspace?.layerStore]);
 
-  // Loading state.
+  // Handlers.
+  const handleDelete = (layerId: string) => {
+    deleteLayer(layerId);
+    workspace?.layerStore?.removeLayer(layerId);
+  };
+
+  const handleToggleVisibility = (layerId: string) => {
+    workspace?.layerStore?.toggleVisibility(layerId);
+  };
+
+  const handleFitToLayer = (layerId: string) => {
+    const storeLayer = workspace?.layerStore?.getLayer(layerId);
+    if (storeLayer?.bbox) {
+      workspace?.layerStore?.fitToBounds(storeLayer.bbox);
+    } else {
+      workspace?.layerStore?.fitToLayer(layerId);
+    }
+  };
+
+  // Renderers.
   if (isLoading) {
     return (
       <Box p="1rem" color="fg.muted" textAlign="center">
@@ -108,7 +95,6 @@ export const LayerPanel = observer(() => {
     );
   }
 
-  // Error state.
   if (error) {
     return (
       <Box p="1rem" color="fg.error" textAlign="center">
@@ -117,8 +103,7 @@ export const LayerPanel = observer(() => {
     );
   }
 
-  // Empty state.
-  if (apiLayers.length === 0) {
+  if (storeLayers.length === 0) {
     return (
       <Box p="1rem" color="fg.muted" textAlign="center">
         <Text fontSize="sm">No layers added yet.</Text>
@@ -129,40 +114,17 @@ export const LayerPanel = observer(() => {
     );
   }
 
-  // Handlers.
-  const handleDelete = (layerId: string) => {
-    // Delete from API.
-    deleteLayer(layerId);
-    // Remove from local store.
-    layerStore?.removeLayer(layerId);
-  };
-
-  const handleToggleVisibility = (layerId: string) => {
-    layerStore?.toggleVisibility(layerId);
-  };
-
-  const handleFitToLayer = (layerId: string) => {
-    // Try to use bbox from API layer (more efficient).
-    const apiLayer = apiLayers.find((l) => l.id === layerId);
-
-    if (apiLayer?.bbox) {
-      layerStore?.fitToBounds(apiLayer.bbox);
-    } else {
-      // Fallback to calculating from GeoJSON data.
-      layerStore?.fitToLayer(layerId);
-    }
-  };
-
   return (
     <VStack gap="0.5rem" p="0.5rem" align="stretch">
-      {apiLayers.map((apiLayer) => {
-        // Get MobX model for visibility state (if synced).
-        const storeLayer = layerStore?.getLayer(apiLayer.id);
-        const isVisible = storeLayer?.visible ?? true;
+      {storeLayers.map((storeLayer) => {
+        const isVisible = storeLayer.visible;
+        const isRasterLayer = storeLayer.type === DATASET_TYPES.RASTER;
+        const isElevationRaster =
+          isRasterLayer && storeLayer.rasterKind === RASTER_KINDS.ELEVATION;
 
         return (
           <Flex
-            key={apiLayer.id}
+            key={storeLayer.id}
             p="0.5rem"
             borderRadius="md"
             bg="bg.subtle"
@@ -175,7 +137,7 @@ export const LayerPanel = observer(() => {
               aria-label={isVisible ? "Hide layer" : "Show layer"}
               size="xs"
               variant="ghost"
-              onClick={() => handleToggleVisibility(apiLayer.id)}
+              onClick={() => handleToggleVisibility(storeLayer.id)}
             >
               {isVisible ? <FiEye /> : <FiEyeOff />}
             </IconButton>
@@ -184,13 +146,11 @@ export const LayerPanel = observer(() => {
             <Flex align="center" gap="0.375rem" flex={1}>
               <Box
                 as="span"
-                color={
-                  apiLayer.datasetType === "raster" ? "green.400" : "blue.400"
-                }
+                color={isRasterLayer ? "green.400" : "blue.400"}
                 fontSize="sm"
                 flexShrink={0}
               >
-                {apiLayer.datasetType === "raster" ? <TbMap2 /> : <TbVector />}
+                {isRasterLayer ? <TbMap2 /> : <TbVector />}
               </Box>
               <Text
                 fontSize="sm"
@@ -198,7 +158,7 @@ export const LayerPanel = observer(() => {
                 truncate
                 opacity={isVisible ? 1 : 0.5}
               >
-                {apiLayer.name}
+                {storeLayer.name}
               </Text>
             </Flex>
 
@@ -207,29 +167,30 @@ export const LayerPanel = observer(() => {
               aria-label="Zoom to layer"
               size="xs"
               variant="ghost"
-              onClick={() => handleFitToLayer(apiLayer.id)}
+              onClick={() => handleFitToLayer(storeLayer.id)}
             >
               <FiZoomIn />
             </IconButton>
 
-            {apiLayer.datasetType === "raster" &&
-              apiLayer.rasterKind === "elevation" && (
-                <IconButton
-                  aria-label={
-                    storeLayer?.terrainEnabled
-                      ? "Disable terrain"
-                      : "Enable terrain"
-                  }
-                  size="xs"
-                  variant="ghost"
-                  colorPalette={storeLayer?.terrainEnabled ? "green" : "gray"}
-                  onClick={() => layerStore?.toggleTerrain(apiLayer.id)}
-                >
-                  <Text fontSize="2xs" fontWeight="bold">
-                    3D
-                  </Text>
-                </IconButton>
-              )}
+            {isElevationRaster && (
+              <IconButton
+                aria-label={
+                  storeLayer.terrainEnabled
+                    ? "Disable terrain"
+                    : "Enable terrain"
+                }
+                size="xs"
+                variant="ghost"
+                colorPalette={storeLayer.terrainEnabled ? "green" : "gray"}
+                onClick={() =>
+                  workspace?.layerStore?.toggleTerrain(storeLayer.id)
+                }
+              >
+                <Text fontSize="2xs" fontWeight="bold">
+                  3D
+                </Text>
+              </IconButton>
+            )}
 
             {/* Remove layer. */}
             <IconButton
@@ -237,7 +198,7 @@ export const LayerPanel = observer(() => {
               size="xs"
               variant="ghost"
               colorPalette="red"
-              onClick={() => handleDelete(apiLayer.id)}
+              onClick={() => handleDelete(storeLayer.id)}
               loading={isDeleting}
             >
               <FiTrash2 />

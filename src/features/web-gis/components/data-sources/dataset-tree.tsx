@@ -20,8 +20,8 @@ export const DatasetTree = () => {
 
   // Handlers.
   const disableDropForSameFolder = (args: {
-    dragNodes: any;
-    parentNode: any;
+    dragNodes: Array<{ parent?: { id?: string | null } | null }>;
+    parentNode?: { id?: string | null } | null;
   }) => {
     const { dragNodes, parentNode } = args;
     const draggedNode = dragNodes[0];

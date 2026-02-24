@@ -11,7 +11,6 @@ import {
   TerraDrawRenderMode,
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter as TerraDrawMapLibreGLBridge } from "terra-draw-maplibre-gl-adapter";
-import type { GeoJSON } from "geojson";
 
 import type { DrawMode, Unsubscribe } from "../../domain";
 import type { IDrawEngine } from "../ports";
@@ -70,7 +69,7 @@ export class MapLibreDrawEngine implements IDrawEngine {
             },
           },
         }),
-        new TerraDrawRenderMode({ modeName: "static" }),
+        new TerraDrawRenderMode({ styles: {} }),
       ],
     });
 

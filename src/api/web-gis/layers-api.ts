@@ -10,9 +10,7 @@ export const useLayers = () => {
   return useQuery({
     queryKey: QueryKeys.layers,
     queryFn: async () => {
-      return await api.get<ApiResponse<LayerResponse[]>>(
-        `${QueryKeys.layers[0]}`
-      );
+      return await api.get<ApiResponse<LayerResponse[]>>(QueryKeys.layers[0]);
     },
     select: (response: AxiosResponse<ApiResponse<LayerResponse[]>>) =>
       response.data,
@@ -23,7 +21,7 @@ export const useAddLayer = () => {
   return useMutation({
     mutationFn: async (payload: CreateLayerPayload) => {
       return await api.post<ApiResponse<LayerResponse>>(
-        `${QueryKeys.layers[0]}`,
+        QueryKeys.layers[0],
         payload
       );
     },
@@ -31,6 +29,10 @@ export const useAddLayer = () => {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.layers,
       });
+    },
+    onError: (error) => {
+      console.error("Error creating layer:", error);
+      alert("Failed to create layer. Please try again.");
     },
   });
 };
@@ -49,43 +51,6 @@ export const useDeleteLayer = () => {
 };
 
 /**
- * Loosely-typed GeoJSON response from the API.
- */
-interface GeoJSONResponse {
-  type?: string;
-  features?: Record<string, unknown>[];
-  [key: string]: unknown;
-}
-
-/**
- * Fetches GeoJSON data for a layer.
- * Tries PostGIS features first, falls back to dataset file download.
- */
-export const fetchLayerGeoJSON = async (
-  layerId: string,
-  datasetId: string
-): Promise<GeoJSONResponse | null> => {
-  return queryClient.fetchQuery({
-    queryKey: QueryKeys.layerGeoJson(layerId),
-    queryFn: async () => {
-      // Try fetching GeoJSON from PostGIS features.
-      const response = await api.get(`/web-gis/layers/${layerId}/geojson/`);
-      let geojson = response.data;
-
-      // Fallback: if no features in PostGIS, try the original file.
-      if (!geojson?.features || geojson.features.length === 0) {
-        const fallbackResponse = await api.get(
-          `/web-gis/datasets/${datasetId}/download`
-        );
-        geojson = fallbackResponse.data;
-      }
-
-      return geojson;
-    },
-  });
-};
-
-/**
  * Builds the XYZ tile URL template for a raster dataset.
  * Used by MapLibre to request individual tiles from the backend.
  */
@@ -94,12 +59,14 @@ export const buildTileUrl = (
   options?: { terrain?: boolean }
 ): string => {
   const baseUrl = api.defaults.baseURL ?? "";
+  const tilesPath = QueryKeys.datasetTiles(datasetId)[0];
   const params = new URLSearchParams();
+
   if (options?.terrain) {
     params.set("terrain", "true");
   }
 
   const query = params.toString();
   const suffix = query ? `?${query}` : "";
-  return `${baseUrl}/web-gis/datasets/${datasetId}/tiles/{z}/{x}/{y}.png${suffix}`;
+  return `${baseUrl}${tilesPath}${suffix}`;
 };

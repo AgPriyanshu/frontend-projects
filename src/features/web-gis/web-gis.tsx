@@ -17,7 +17,6 @@ export const WebGIS = () => {
 
   // useEffects.
   useEffect(() => {
-    // Initialize default workspace.
     workspaceManager.getOrCreateWorkspace(DEFAULT_WORKSPACE_ID);
     workspaceManager.setActiveWorkspace(DEFAULT_WORKSPACE_ID);
   }, []);

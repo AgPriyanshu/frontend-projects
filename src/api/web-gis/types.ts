@@ -1,11 +1,31 @@
 import type { DatasetNodeType } from "src/features/web-gis/types";
 
-export type DatasetType = "vector" | "raster" | "text";
-export type RasterKind = "elevation" | "ortho" | "raster";
+export const DATASET_TYPES = {
+  VECTOR: "vector",
+  RASTER: "raster",
+  TEXT: "text",
+} as const;
+
+export type DatasetType = (typeof DATASET_TYPES)[keyof typeof DATASET_TYPES];
+
+export const RASTER_KINDS = {
+  ELEVATION: "elevation",
+  ORTHO: "ortho",
+  RASTER: "raster",
+} as const;
+
+export type RasterKind = (typeof RASTER_KINDS)[keyof typeof RASTER_KINDS];
+
+export const TILESET_STATUSES = {
+  PENDING: "pending",
+  PROCESSING: "processing",
+  READY: "ready",
+  FAILED: "failed",
+} as const;
 
 export interface TileSetResponse {
   id: string;
-  status: "pending" | "processing" | "ready" | "failed";
+  status: (typeof TILESET_STATUSES)[keyof typeof TILESET_STATUSES];
   storagePath: string;
   fileSize: number;
   minZoom: number;

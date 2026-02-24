@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import type { ApiResponse } from "../types";
 import api from "../api";
+import type { DatasetType, DatasetResponse } from "./types";
 
 interface MultipartCompleteResponse {
   status: string;
-  dataset: any;
+  dataset: DatasetResponse;
+}
+
+interface MultipartInitResponse {
+  uploadId: string;
+  key: string;
+}
+
+interface MultipartSignResponse {
+  url: string;
 }
 
 interface UseMultipartUploadOptions {
   onSuccess?: (data: MultipartCompleteResponse) => void;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 }
 
 export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
@@ -22,11 +33,11 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
       name: string;
       type: string;
       parent: string | null;
-      dataset_type?: string;
+      dataset_type?: DatasetType;
     }) => {
       // Use the correct endpoint path. Ensure it matches your API routing.
       // Assuming /web-gis/api/dataset-nodes/ based on previous context.
-      const response = await api.post<any>(
+      const response = await api.post<ApiResponse<MultipartInitResponse>>(
         "/web-gis/datasets/?multipart=init",
         payload
       );
@@ -42,7 +53,7 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
       part_number: number;
     }) => {
       console.log("Signing payload:", payload);
-      const response = await api.post<any>(
+      const response = await api.post<ApiResponse<MultipartSignResponse>>(
         "/web-gis/datasets/?multipart=sign",
         payload
       );
@@ -56,7 +67,7 @@ export const useMultipartUpload = (options?: UseMultipartUploadOptions) => {
       key: string;
       parts: { ETag: string; PartNumber: number }[];
     }) => {
-      const response = await api.post<any>(
+      const response = await api.post<ApiResponse<MultipartCompleteResponse>>(
         "/web-gis/datasets/?multipart=complete",
         payload
       );

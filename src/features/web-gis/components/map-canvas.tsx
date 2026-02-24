@@ -3,42 +3,36 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ApiResponse } from "api/types";
-import type { LayerResponse } from "api/web-gis";
-import { buildTileUrl, fetchLayerGeoJSON, useAddLayer } from "api/web-gis";
-import { LayerModel } from "../domain";
-import { MapLibreMapManager } from "../engines/maplibre";
+import { DATASET_TYPES, useAddLayer, type LayerResponse } from "api/web-gis";
+import { LayerFactory } from "../services";
 import { workspaceManager } from "../stores";
 
 interface MapCanvasProps {
-  /** Workspace ID this canvas belongs to. */
   workspaceId: string;
-  /** Called when the map manager is mounted and ready. */
   onReady?: () => void;
 }
 
-/**
- * Map canvas component that mounts the MapLibre map manager.
- * Handles drag-and-drop for dataset nodes from the data-sources panel.
- */
 export const MapCanvas = observer(
   ({ workspaceId, onReady }: MapCanvasProps) => {
+    // Refs.
     const containerRef = useRef<HTMLDivElement>(null);
-    const mapManagerRef = useRef<MapLibreMapManager | null>(null);
 
+    // States.
     const [isDragging, setIsDragging] = useState(false);
 
-    // Get or create the workspace.
+    // Variables.
     const workspace = workspaceManager.getOrCreateWorkspace(workspaceId);
 
-    // API hooks.
+    // APIs.
     const { mutate: createLayer } = useAddLayer();
 
     useEffect(() => {
-      if (!containerRef.current) return;
+      if (!containerRef.current) {
+        return;
+      }
 
-      // Create and mount the map manager.
-      const mapManager = new MapLibreMapManager();
-      mapManagerRef.current = mapManager;
+      // Get and mount the workspace map manager.
+      const mapManager = workspace.getMapManager();
 
       mapManager.mount(containerRef.current);
 
@@ -46,7 +40,6 @@ export const MapCanvas = observer(
       const checkReady = setInterval(() => {
         if (mapManager.isReady()) {
           clearInterval(checkReady);
-          workspace.bindMapManager(mapManager);
           onReady?.();
         }
       }, 100);
@@ -54,86 +47,44 @@ export const MapCanvas = observer(
       return () => {
         clearInterval(checkReady);
         mapManager.destroy();
-        mapManagerRef.current = null;
       };
     }, [workspace, onReady]);
 
-    /**
-     * Fetches GeoJSON for a layer and adds it to the MobX LayerStore.
-     */
-    const fetchAndAddLayer = useCallback(
+    // Handlers.
+    const addLayerToMap = useCallback(
       async (apiLayer: LayerResponse) => {
         try {
-          // Raster layers: use XYZ tile URL instead of GeoJSON.
-          if (apiLayer.datasetType === "raster") {
-            if (!apiLayer.tileset || apiLayer.tileset.status !== "ready") {
-              console.info(
-                `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
-                  apiLayer.tileset?.status ?? "missing"
-                })`
-              );
-              return;
+          switch (apiLayer.datasetType) {
+            case DATASET_TYPES.RASTER: {
+              const layer = LayerFactory.createRasterLayer(apiLayer);
+
+              if (!layer) {
+                console.info(
+                  `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
+                    apiLayer.tileset?.status ?? "missing"
+                  })`
+                );
+                return;
+              }
+
+              workspace.layerStore.addLayer(layer);
+
+              if (apiLayer.tileset?.bounds) {
+                workspace.layerStore.fitToBounds(
+                  apiLayer.tileset.bounds as [number, number, number, number]
+                );
+              }
+              break;
             }
 
-            const tileUrl = buildTileUrl(apiLayer.source, {
-              terrain: apiLayer.rasterKind === "elevation",
-            });
-            const rasterBbox =
-              apiLayer.bbox ??
-              (apiLayer.tileset?.bounds as
-                | [number, number, number, number]
-                | null) ??
-              undefined;
-            const layer = new LayerModel({
-              id: apiLayer.id,
-              type: "raster",
-              name: apiLayer.name,
-              source: [tileUrl],
-              rasterKind: apiLayer.rasterKind ?? "raster",
-              bbox: rasterBbox,
-            });
-
-            workspace.layerStore.addLayer(layer);
-
-            // Fit to tileset bounds if available.
-            if (apiLayer.tileset?.bounds) {
-              workspace.layerStore.fitToBounds(
-                apiLayer.tileset.bounds as [number, number, number, number]
-              );
-            }
-
-            console.log(
-              `raster layer loaded on map: ${apiLayer.name} (${apiLayer.rasterKind ?? "raster"})`
-            );
-            return;
+            default:
+              break;
           }
-
-          // Vector/GeoJSON layers: fetch features.
-          const geojson = await fetchLayerGeoJSON(apiLayer.id, apiLayer.source);
-
-          // Skip if no features.
-          if (!geojson?.features || geojson.features.length === 0) {
-            console.warn(`No features found for layer ${apiLayer.name}`);
-            return;
-          }
-
-          // Create LayerModel and add to store.
-          const layer = new LayerModel({
-            id: apiLayer.id,
-            type: "geojson",
-            name: apiLayer.name,
-            source: geojson,
-          });
-
-          workspace.layerStore.addLayer(layer);
-          workspace.layerStore.fitToLayer(apiLayer.id);
-
-          console.log(`Layer loaded on map: ${apiLayer.name}`);
         } catch (err) {
           console.error(`Error loading layer ${apiLayer.name}:`, err);
         }
       },
-      [workspace.layerStore]
+      [workspace]
     );
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -172,18 +123,14 @@ export const MapCanvas = observer(
               onSuccess: async (response) => {
                 const apiLayer = (response.data as ApiResponse<LayerResponse>)
                   .data;
-                await fetchAndAddLayer(apiLayer);
-              },
-              onError: (error) => {
-                console.error("Error creating layer:", error);
-                alert("Failed to create layer. Please try again.");
+                await addLayerToMap(apiLayer);
               },
             }
           );
           return;
         }
       },
-      [workspace, createLayer, fetchAndAddLayer]
+      [addLayerToMap, createLayer]
     );
 
     return (

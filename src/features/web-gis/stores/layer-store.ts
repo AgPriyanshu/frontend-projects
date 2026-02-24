@@ -1,4 +1,4 @@
-import { makeAutoObservable, computed, reaction } from "mobx";
+import { makeAutoObservable, reaction } from "mobx";
 
 import { LayerModel, type SerializedLayer } from "../domain";
 import type { ILayerEngine } from "../engines/ports";
@@ -14,9 +14,7 @@ export class LayerStore {
   private disposeReaction: (() => void) | null = null;
 
   constructor() {
-    makeAutoObservable(this, {
-      serializedLayers: computed,
-    });
+    makeAutoObservable(this);
   }
 
   /**
@@ -35,11 +33,6 @@ export class LayerStore {
     );
   }
 
-  // ... (omitted)
-
-  /**
-   * Fits the map to specified bounds.
-   */
   /**
    * Fits the map to specified bounds.
    */
@@ -114,18 +107,24 @@ export class LayerStore {
    */
   moveLayer(layerId: string, newOrder: number): void {
     const layer = this.layers.get(layerId);
-    if (!layer) return;
+    if (!layer) {
+      return;
+    }
 
     const sortedLayers = this.layersArray;
-    const currentIndex = sortedLayers.findIndex((l) => l.id === layerId);
-    if (currentIndex === -1) return;
+    const currentIndex = sortedLayers.findIndex(
+      (layer) => layer.id === layerId
+    );
+    if (currentIndex === -1) {
+      return;
+    }
 
     // Remove from current position and insert at new position.
     sortedLayers.splice(currentIndex, 1);
     sortedLayers.splice(newOrder, 0, layer);
 
     // Update order values.
-    sortedLayers.forEach((l, index) => l.setOrder(index));
+    sortedLayers.forEach((layer, index) => layer.setOrder(index));
   }
 
   /**

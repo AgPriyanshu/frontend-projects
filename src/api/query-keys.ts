@@ -2,9 +2,11 @@ export const QueryKeys = {
   todoList: ["/tasks"],
   datasets: ["/web-gis/datasets"],
   datasetDownload: (id: string) => [`/web-gis/datasets/${id}/download`],
+  datasetTiles: (id: string) => [
+    `/web-gis/datasets/${id}/tiles/{z}/{x}/{y}.png`,
+  ],
   // Layers.
   layer: (id: string) => [`/web-gis/layers/${id}`],
-  layerGeoJson: (id: string) => [`/web-gis/layers/${id}/geojson`],
   layers: ["/web-gis/layers"],
   // Notifications.
   notification: (id: string) => [`/notifications/${id}`],

@@ -20,11 +20,13 @@ export class MapLibreMapEngine implements IMapEngine {
   }
 
   private setupEventListeners(): void {
-    if (!this.map) return;
+    if (!this.map) {
+      return;
+    }
 
     const handleViewChange = () => {
       const view = this.getView();
-      this.viewChangeCallbacks.forEach((cb) => cb(view));
+      this.viewChangeCallbacks.forEach((callback) => callback(view));
     };
 
     this.map.on("moveend", handleViewChange);
@@ -39,6 +41,7 @@ export class MapLibreMapEngine implements IMapEngine {
     }
 
     const center = this.map.getCenter();
+
     return {
       center: [center.lng, center.lat],
       zoom: this.map.getZoom(),
@@ -48,7 +51,9 @@ export class MapLibreMapEngine implements IMapEngine {
   }
 
   setView(view: Partial<MapView>): void {
-    if (!this.map) return;
+    if (!this.map) {
+      return;
+    }
 
     this.map.jumpTo({
       center: view.center,
@@ -60,6 +65,7 @@ export class MapLibreMapEngine implements IMapEngine {
 
   onViewChange(callback: (view: MapView) => void): Unsubscribe {
     this.viewChangeCallbacks.add(callback);
+
     return () => {
       this.viewChangeCallbacks.delete(callback);
     };
@@ -69,7 +75,9 @@ export class MapLibreMapEngine implements IMapEngine {
     bounds: [[number, number], [number, number]],
     options?: { padding?: number }
   ): void {
-    if (!this.map) return;
+    if (!this.map) {
+      return;
+    }
     this.map.fitBounds(bounds, { padding: options?.padding ?? 50 });
   }
 

@@ -14,10 +14,17 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 10,
 
       // Custom retry logic that handles token refresh on 401
-      retry: (_, error: any) => {
-        //es
+      retry: (_, error: unknown) => {
         // If it's a 401 error, attempt token refresh
-        if (error?.data?.status === 401) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "data" in error &&
+          typeof error.data === "object" &&
+          error.data !== null &&
+          "status" in error.data &&
+          error.data.status === 401
+        ) {
           return true; // Retry after token refresh
         }
 

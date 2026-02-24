@@ -47,8 +47,6 @@ export class MapLibreMapManager implements IMapManager {
       zoom: this.initialView.zoom,
       bearing: this.initialView.bearing,
       pitch: this.initialView.pitch,
-      // Increase tile cache size for better performance during zoom.
-      maxTileCacheSize: 200,
     });
 
     // Add controls.

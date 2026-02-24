@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toaster } from "design-system/toaster";
+import { toaster } from "design-system/toaster-instance";
 import { useForm } from "react-hook-form";
 import { MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from "react-router";

@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
+import { MapLibreMapManager } from "../engines/maplibre";
 import { WorkspaceStore } from "./workspace-store";
 
 /**
@@ -25,7 +26,7 @@ class WorkspaceManager {
       return this.workspaces.get(id)!;
     }
 
-    const workspace = new WorkspaceStore(id);
+    const workspace = new WorkspaceStore(id, () => new MapLibreMapManager());
 
     this.workspaces.set(id, workspace);
 

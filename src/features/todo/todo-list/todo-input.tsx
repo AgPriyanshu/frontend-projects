@@ -2,7 +2,7 @@ import { Box, Flex, Input } from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { useAddTodo } from "api/todo";
-import { toaster } from "design-system/toaster";
+import { toaster } from "design-system/toaster-instance";
 import { useState } from "react";
 import { LuPenLine } from "react-icons/lu";
 
