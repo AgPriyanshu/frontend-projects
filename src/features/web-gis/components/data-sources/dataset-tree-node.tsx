@@ -115,12 +115,13 @@ export const DatasetTreeNode = ({
         {isFolder && (
           <IconButton
             size="xs"
-            variant="ghost"
+            variant="plain"
             aria-label={`Upload file to ${node.data.name}`}
             onClick={(e) => {
               e.stopPropagation();
               onUpload?.();
             }}
+            _hover={{ scale: 1.1, transition: "0.2s" }}
           >
             <AiOutlineFileAdd />
           </IconButton>
@@ -128,11 +129,12 @@ export const DatasetTreeNode = ({
 
         <IconButton
           size="xs"
-          variant="ghost"
+          variant="plain"
           colorPalette="red"
           aria-label={`Delete ${node.data.name}`}
           onClick={(e) => handleDelete(e)}
           loading={isDeleting}
+          _hover={{ scale: 1.1 }}
         >
           <FiTrash2 />
         </IconButton>

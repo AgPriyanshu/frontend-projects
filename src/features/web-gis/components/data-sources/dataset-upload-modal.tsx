@@ -6,15 +6,18 @@ import {
   Portal,
   Text,
   VStack,
-  Progress,
+  Center,
 } from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { useUploadDatasets, useMultipartUpload } from "api/web-gis";
+import { toaster } from "design-system/toaster-instance";
 import { DatasetNodeType } from "../../types";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiTrash2, FiUploadCloud } from "react-icons/fi";
 import { FileUploader } from "shared/components";
+
+const UPLOAD_TOAST_ID = "dataset-upload-progress";
 
 interface DatasetUploadModalProps {
   isOpen: boolean;
@@ -29,6 +32,7 @@ export const DatasetUploadModal = ({
 }: DatasetUploadModalProps) => {
   // State.
   const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // API.
   const { mutateAsync: uploadDataset, isPending: isStandardPending } =
@@ -41,6 +45,19 @@ export const DatasetUploadModal = ({
 
   const isPending = isStandardPending || isMultipartPending;
 
+  useEffect(() => {
+    if (!isMultipartPending) {
+      return;
+    }
+
+    toaster.update(UPLOAD_TOAST_ID, {
+      title: "Uploading datasets",
+      description: `Uploading large files... ${multipartProgress}%`,
+      type: "loading",
+      closable: true,
+    });
+  }, [isMultipartPending, multipartProgress]);
+
   // Handlers.
   const handleFileSelect = (fileList: FileList) => {
     setFiles((prev) => [...prev, ...Array.from(fileList)]);
@@ -52,6 +69,7 @@ export const DatasetUploadModal = ({
 
   const handleUpload = async () => {
     if (files.length === 0) return;
+    const totalFiles = files.length;
 
     // Threshold for multipart upload (e.g., 50MB)
     const MULTIPART_THRESHOLD = 50 * 1024 * 1024;
@@ -59,9 +77,26 @@ export const DatasetUploadModal = ({
     const smallFiles = files.filter((f) => f.size <= MULTIPART_THRESHOLD);
     const largeFiles = files.filter((f) => f.size > MULTIPART_THRESHOLD);
 
+    handleClose();
+
     try {
+      toaster.create({
+        id: UPLOAD_TOAST_ID,
+        title: "Uploading datasets",
+        description: "Preparing upload...",
+        type: "loading",
+        closable: true,
+      });
+
       // Upload small files in batch
       if (smallFiles.length > 0) {
+        toaster.update(UPLOAD_TOAST_ID, {
+          title: "Uploading datasets",
+          description: `Uploading ${smallFiles.length} standard file(s)...`,
+          type: "loading",
+          closable: true,
+        });
+
         await uploadDataset({
           name: "",
           type: DatasetNodeType.DATASET,
@@ -72,16 +107,34 @@ export const DatasetUploadModal = ({
 
       // Upload large files individually using multipart
       for (const file of largeFiles) {
+        toaster.update(UPLOAD_TOAST_ID, {
+          title: "Uploading datasets",
+          description: `Uploading large file: ${file.name}`,
+          type: "loading",
+          closable: true,
+        });
+
         await uploadMultipart(file, parentId);
       }
 
       // Success
       queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
-      setFiles([]);
-      onClose();
+
+      toaster.update(UPLOAD_TOAST_ID, {
+        title: "Upload complete",
+        description: `${totalFiles} file(s) uploaded successfully.`,
+        type: "success",
+        closable: true,
+      });
     } catch (error) {
       console.error("Upload failed", error);
-      // Toast error?
+
+      toaster.update(UPLOAD_TOAST_ID, {
+        title: "Upload failed",
+        description: "Some files could not be uploaded. Please try again.",
+        type: "error",
+        closable: true,
+      });
     }
   };
 
@@ -91,7 +144,11 @@ export const DatasetUploadModal = ({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && handleClose()}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(e) => !e.open && handleClose()}
+      placement={"center"}
+    >
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -107,7 +164,9 @@ export const DatasetUploadModal = ({
                   upload.
                 </Text>
 
-                <Box
+                <Center
+                  role="button"
+                  tabIndex={0}
                   borderWidth="2px"
                   borderStyle="dashed"
                   borderColor="border.default"
@@ -115,9 +174,22 @@ export const DatasetUploadModal = ({
                   p={6}
                   textAlign="center"
                   bg="bg.surface"
+                  cursor="pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  _hover={{ borderColor: "intent.primaryHover" }}
                 >
-                  <FileUploader onFileSelect={handleFileSelect} multiple />
-                </Box>
+                  <FileUploader
+                    onFileSelect={handleFileSelect}
+                    multiple
+                    inputRef={fileInputRef}
+                  />
+                </Center>
 
                 {files.length > 0 && (
                   <Box>
@@ -152,19 +224,6 @@ export const DatasetUploadModal = ({
                     </List.Root>
                   </Box>
                 )}
-
-                {isMultipartPending && (
-                  <Box>
-                    <Text fontSize="xs" mb={1} color="text.secondary">
-                      Uploading large file... {multipartProgress}%
-                    </Text>
-                    <Progress.Root value={multipartProgress} size="sm">
-                      <Progress.Track>
-                        <Progress.Range color={"intent.primary"} />
-                      </Progress.Track>
-                    </Progress.Root>
-                  </Box>
-                )}
               </VStack>
             </Dialog.Body>
 
@@ -175,8 +234,9 @@ export const DatasetUploadModal = ({
                 </Button>
               </Dialog.ActionTrigger>
               <Button
-                type="button"
-                colorPalette="blue"
+                bgColor={"intent.primary"}
+                color={"white"}
+                colorPalette={"palette.brand"}
                 onClick={handleUpload}
                 loading={isPending && multipartProgress === 0}
                 disabled={files.length === 0 || isPending}

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Box, Input } from "@chakra-ui/react";
+import { Box, Button, Input } from "@chakra-ui/react";
 import { FaPlus, FaUpload } from "react-icons/fa";
 
 export interface FileUploaderProps {
@@ -8,6 +8,7 @@ export interface FileUploaderProps {
   multiple?: boolean;
   maxSize?: number; // in bytes
   disabled?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export const FileUploader = ({
@@ -16,11 +17,13 @@ export const FileUploader = ({
   multiple = false,
   maxSize,
   disabled = false,
+  inputRef,
 }: FileUploaderProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = inputRef ?? internalInputRef;
 
   const handleClick = () => {
-    inputRef.current?.click();
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,15 +48,15 @@ export const FileUploader = ({
 
     onFileSelect(files);
     // Reset input value to allow selecting the same file again
-    if (inputRef.current) {
-      inputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
   return (
     <Box>
       <Input
-        ref={inputRef}
+        ref={fileInputRef}
         type="file"
         accept={accept}
         multiple={multiple}
@@ -61,27 +64,22 @@ export const FileUploader = ({
         display="none"
         disabled={disabled}
       />
-      <Box
-        as="button"
+      <Button
+        variant={"plain"}
         onClick={handleClick}
         px={3}
         py={2}
         borderRadius="md"
-        bg="transparent"
-        color="text.primary"
         fontSize="sm"
         cursor={disabled ? "not-allowed" : "pointer"}
         opacity={disabled ? 0.5 : 1}
         transition="all 0.2s"
-        _hover={!disabled ? { bg: "intent.primaryHover" } : {}}
-        display="flex"
-        alignItems="center"
         gap={2}
         pointerEvents={disabled ? "none" : "auto"}
       >
         <FaUpload />
         Upload
-      </Box>
+      </Button>
     </Box>
   );
 };
@@ -150,13 +148,18 @@ export const InlineFileUploader = ({
         as="button"
         onClick={handleClick}
         aria-label={ariaLabel}
-        color="text.primary"
         fontSize="sm"
         cursor={disabled ? "not-allowed" : "pointer"}
         opacity={disabled ? 0.5 : 1}
         transition="all 0.2s"
         _hover={
-          !disabled ? { color: "text.success", transform: "scale(1.1)" } : {}
+          !disabled
+            ? {
+                color: "text.success",
+                transform: "scale(1.1)",
+                borderColor: "intent.primaryHover",
+              }
+            : {}
         }
         p={1}
         borderRadius="sm"

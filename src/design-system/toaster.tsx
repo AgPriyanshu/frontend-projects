@@ -12,7 +12,7 @@ export const Toaster = () => {
     <Portal>
       <ChakraToaster toaster={toaster} insetInline={{ mdDown: "4" }}>
         {(toast) => (
-          <Toast.Root width={{ md: "sm" }}>
+          <Toast.Root width={{ md: "sm" }} borderRadius={"md"}>
             {toast.type === "loading" ? (
               <Spinner size="sm" color="info" />
             ) : (

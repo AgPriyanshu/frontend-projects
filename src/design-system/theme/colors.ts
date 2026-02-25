@@ -1,4 +1,17 @@
 export const colors = {
+  brand: {
+    50: { value: "#FFF7ED" },
+    100: { value: "#FFEDD5" },
+    200: { value: "#FED7AA" },
+    300: { value: "#FDBA74" }, // soft amber
+    400: { value: "#FB923C" },
+    500: { value: "#F97316" }, // primary accent
+    600: { value: "#EA580C" }, // hover / active
+    700: { value: "#C2410C" },
+    800: { value: "#9A3412" },
+    900: { value: "#7C2D12" },
+  },
+
   palette: {
     brand: {
       50: { value: "#FFF7ED" },
