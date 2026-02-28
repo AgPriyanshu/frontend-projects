@@ -111,6 +111,14 @@ docker build -t world-of-apps-frontend .
 docker run -p 8080:80 world-of-apps-frontend
 ```
 
+## Screenshots
+
+- [Screenshot 2026-02-28 at 12.41.40 PM](<screenshots/Screenshot 2026-02-28 at 12.41.40 PM.png>)
+- [Screenshot 2026-02-28 at 12.42.02 PM](<screenshots/Screenshot 2026-02-28 at 12.42.02 PM.png>)
+- [Screenshot 2026-02-28 at 12.56.00 PM](<screenshots/Screenshot 2026-02-28 at 12.56.00 PM.png>)
+- [Screenshot 2026-02-28 at 12.56.22 PM](<screenshots/Screenshot 2026-02-28 at 12.56.22 PM.png>)
+- [Screenshot 2026-02-28 at 12.57.00 PM](<screenshots/Screenshot 2026-02-28 at 12.57.00 PM.png>)
+
 ## Notes
 
 - Package manager is `pnpm` (do not use npm/yarn).
