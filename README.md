@@ -1,73 +1,118 @@
-# React + TypeScript + Vite
+# World of Apps Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend monorepo app built with React, TypeScript, Vite, Chakra UI, and React Query.
 
-Currently, two official plugins are available:
+This project provides a single authenticated workspace with multiple feature apps, including:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Home app launcher.
+- Todo management.
+- Web GIS workspace (MapLibre + Terra Draw).
+- Notification streaming via Server-Sent Events.
 
-## React Compiler
+## Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Authentication flow with protected routes.
+- Reusable design system built on Chakra UI.
+- API layer with Axios + request/response mappers.
+- React Query for server state and caching.
+- Feature-based folder structure for scalability.
+- Storybook for isolated UI development.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 + TypeScript.
+- Vite 7.
+- Chakra UI 3.
+- React Router 7.
+- TanStack React Query 5.
+- MobX (used in Web GIS domain stores).
+- MapLibre GL + Terra Draw.
+- pnpm.
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+## Available Routes
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- `/login` - Public login page.
+- `/` - Home app launcher (protected).
+- `/todo` - Todo app (protected).
+- `/map` - Web GIS workspace (protected).
+- `/device-classifier`, `/store`, `/whiteboard` - Placeholder apps (protected).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+## Prerequisites
+
+- Node.js 22+.
+- pnpm 10+.
+
+## Getting Started
+
+1. Install dependencies:
+
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Create environment file (from sample):
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+cp env-files/.env.sample .env
 ```
+
+3. Start development server:
+
+```bash
+pnpm dev
+```
+
+The app runs on the default Vite port (usually `http://localhost:5173`).
+
+## Environment Variables
+
+Required variables:
+
+- `VITE_API_BASE_URL`: Backend API base URL.
+
+Examples in this repo:
+
+- `env-files/.env.sample`.
+- `env-files/.env.development.local`.
+- `env-files/.env.production`.
+
+## Scripts
+
+- `pnpm dev` - Start Vite dev server.
+- `pnpm build` - Type-check and build production bundle.
+- `pnpm preview` - Preview built app locally.
+- `pnpm lint` - Run ESLint with fixes and Prettier.
+- `pnpm lint:ci` - Run ESLint checks without fixing.
+- `pnpm storybook` - Start Storybook.
+- `pnpm build-storybook` - Build Storybook static output.
+
+## Project Structure
+
+```text
+src/
+  api/            # API clients, hooks, query setup, shared request logic
+  app/            # App config and routing
+  design-system/  # Chakra theme, color mode, navbar, shared UI primitives
+  features/       # Feature modules (auth, home, todo, web-gis)
+  shared/         # Cross-feature components, utils, local storage, enums
+```
+
+## Docker
+
+A multi-stage Dockerfile is included:
+
+- Build stage: installs dependencies with pnpm and runs production build.
+- Runtime stage: serves `dist/` with Nginx and SPA fallback routing.
+
+Build and run:
+
+```bash
+docker build -t world-of-apps-frontend .
+docker run -p 8080:80 world-of-apps-frontend
+```
+
+## Notes
+
+- Package manager is `pnpm` (do not use npm/yarn).
+- API auth token is stored in local storage and attached to API requests.
+- Notifications are updated in real time using SSE (`/events/`).
