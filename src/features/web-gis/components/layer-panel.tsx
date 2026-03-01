@@ -7,9 +7,10 @@ import {
 } from "api/web-gis";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useMemo } from "react";
-import { FiEye, FiEyeOff, FiTrash2, FiZoomIn } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiZoomIn } from "react-icons/fi";
 import { TbMap2, TbVector } from "react-icons/tb";
 
+import { DeleteIconButton } from "shared/components";
 import { LayerFactory } from "../services";
 import { workspaceManager } from "../stores";
 
@@ -193,16 +194,10 @@ export const LayerPanel = observer(() => {
             )}
 
             {/* Remove layer. */}
-            <IconButton
-              aria-label="Remove layer"
-              size="xs"
-              variant="ghost"
-              colorPalette="red"
+            <DeleteIconButton
               onClick={() => handleDelete(storeLayer.id)}
               loading={isDeleting}
-            >
-              <FiTrash2 />
-            </IconButton>
+            />
           </Flex>
         );
       })}

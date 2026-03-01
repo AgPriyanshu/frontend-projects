@@ -87,30 +87,37 @@ export const MapCanvas = observer(
       [workspace]
     );
 
-    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-    }, []);
+    const handleDragOver = useCallback(
+      (dragEvent: React.DragEvent<HTMLDivElement>) => {
+        dragEvent.preventDefault();
+        dragEvent.stopPropagation();
+        setIsDragging(true);
+      },
+      []
+    );
 
     const handleDragLeave = useCallback(
-      (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
+      (dragEvent: React.DragEvent<HTMLDivElement>) => {
+        dragEvent.preventDefault();
+        dragEvent.stopPropagation();
         setIsDragging(false);
       },
       []
     );
 
     const handleDrop = useCallback(
-      async (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
+      async (dragEvent: React.DragEvent<HTMLDivElement>) => {
+        dragEvent.preventDefault();
+        dragEvent.stopPropagation();
         setIsDragging(false);
 
         // Check if it's a dataset node being dropped.
-        const datasetId = e.dataTransfer.getData("application/dataset-id");
-        const datasetName = e.dataTransfer.getData("application/dataset-name");
+        const datasetId = dragEvent.dataTransfer.getData(
+          "application/dataset-id"
+        );
+        const datasetName = dragEvent.dataTransfer.getData(
+          "application/dataset-name"
+        );
 
         if (datasetId) {
           // Handle dataset node drop — create layer via API, then load on map.

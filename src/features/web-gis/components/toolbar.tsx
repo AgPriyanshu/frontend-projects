@@ -6,9 +6,9 @@ import {
   FiMinus,
   FiMousePointer,
   FiSquare,
-  FiTrash2,
 } from "react-icons/fi";
 
+import { DeleteIconButton } from "shared/components";
 import type { DrawMode } from "../domain";
 import { workspaceManager, type ToolStore } from "../stores";
 
@@ -104,15 +104,10 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
       {drawStore.hasFeatures && (
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
-            <IconButton
+            <DeleteIconButton
               aria-label="Clear drawings"
-              size="sm"
-              variant="ghost"
-              colorPalette="red"
               onClick={() => drawStore.clearGeometry()}
-            >
-              <FiTrash2 />
-            </IconButton>
+            />
           </Tooltip.Trigger>
           <Tooltip.Positioner>
             <Tooltip.Content>Clear all drawings</Tooltip.Content>

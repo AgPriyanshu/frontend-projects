@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { FiTrash2 } from "react-icons/fi";
 import { TbMap2, TbVector } from "react-icons/tb";
+import { DeleteIconButton } from "shared/components";
 import { type DatasetNode, DatasetNodeType } from "../../types";
 
 interface DatasetTreeNodeProps extends NodeRendererProps<DatasetNode> {
@@ -29,16 +29,21 @@ export const DatasetTreeNode = ({
   const dataset = node.data.dataset;
 
   // Handlers.
-  const handleDragStart = (e: React.DragEvent) => {
-    if (isFolder || !dataset) return;
+  const handleDragStart = (dragStartEvent: React.DragEvent) => {
+    if (isFolder || !dataset) {
+      return;
+    }
 
-    e.dataTransfer.setData("application/dataset-id", dataset.id);
-    e.dataTransfer.setData(
+    dragStartEvent.dataTransfer.setData("application/dataset-id", dataset.id);
+    dragStartEvent.dataTransfer.setData(
       "application/dataset-name",
       dataset.fileName || node.data.name
     );
-    e.dataTransfer.setData("application/dataset-type", dataset.type ?? "");
-    e.dataTransfer.effectAllowed = "copy";
+    dragStartEvent.dataTransfer.setData(
+      "application/dataset-type",
+      dataset.type ?? ""
+    );
+    dragStartEvent.dataTransfer.effectAllowed = "copy";
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -126,18 +131,7 @@ export const DatasetTreeNode = ({
             <AiOutlineFileAdd />
           </IconButton>
         )}
-
-        <IconButton
-          size="xs"
-          variant="plain"
-          colorPalette="red"
-          aria-label={`Delete ${node.data.name}`}
-          onClick={(e) => handleDelete(e)}
-          loading={isDeleting}
-          _hover={{ scale: 1.1 }}
-        >
-          <FiTrash2 />
-        </IconButton>
+        <DeleteIconButton onClick={handleDelete} isLoading={isDeleting} />
       </Flex>
     </Flex>
   );

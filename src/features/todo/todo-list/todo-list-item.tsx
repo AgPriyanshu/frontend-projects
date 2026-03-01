@@ -1,15 +1,14 @@
-import { CheckboxCard, Flex, IconButton, List } from "@chakra-ui/react";
+import { CheckboxCard, Flex, List } from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { useDeleteTodo, useUpdateTodo } from "api/todo";
 import { useState } from "react";
-import { FaRegTrashCan } from "react-icons/fa6";
 import type { CheckedChangeDetails, TodoListItemProps } from "./types";
+import { DeleteIconButton } from "shared/components";
 
 export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
   // States.
   const [checked, setChecked] = useState(task.isCompleted);
-  const [isDeleteHovered, setIsDeleteHovered] = useState(false);
 
   // APIs.
   const { mutate: updateTodoItem } = useUpdateTodo(task.id);
@@ -44,7 +43,6 @@ export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
           checked={checked}
           onCheckedChange={onCheckChangeHandler}
           _checked={{ borderColor: "inherit", boxShadow: "none" }}
-          borderColor={isDeleteHovered ? "red.500" : undefined}
           transition="border-color 0.2s ease-in-out"
           cursor={"pointer"}
         >
@@ -68,21 +66,13 @@ export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
             >
               {task.description}
             </CheckboxCard.Label>
+            <DeleteIconButton
+              aria-label="Delete todo"
+              onClick={onClickDelete}
+              loading={isPending}
+            />
           </CheckboxCard.Control>
         </CheckboxCard.Root>
-
-        {/* Delete Button - Outside CheckboxCard */}
-        <IconButton
-          aria-label="Delete todo"
-          colorPalette="red"
-          onClick={onClickDelete}
-          size="sm"
-          loading={isPending}
-          onMouseEnter={() => setIsDeleteHovered(true)}
-          onMouseLeave={() => setIsDeleteHovered(false)}
-        >
-          <FaRegTrashCan />
-        </IconButton>
       </Flex>
     </List.Item>
   );

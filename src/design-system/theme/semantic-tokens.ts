@@ -200,6 +200,13 @@ export const semanticTokens = {
       warning: {
         value: "{colors.intent.warning}",
       },
+
+      danger: {
+        value: "{colors.palette.red.400}",
+      },
+      dangerHover: {
+        value: "{colors.palette.red.500}",
+      },
     },
 
     // Objects.

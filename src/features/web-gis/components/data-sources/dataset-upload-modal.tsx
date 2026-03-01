@@ -1,28 +1,32 @@
 import {
   Box,
   Button,
+  Center,
   Dialog,
   List,
   Portal,
   Text,
   VStack,
-  Center,
 } from "@chakra-ui/react";
+import type { DialogOpenChangeDetails } from "@chakra-ui/react/dialog";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
-import { useUploadDatasets, useMultipartUpload } from "api/web-gis";
-import { toaster } from "design-system/toaster-instance";
-import { DatasetNodeType } from "../../types";
+import { useMultipartUpload, useUploadDatasets } from "api/web-gis";
+import { toaster } from "design-system/toaster";
 import { useEffect, useRef, useState } from "react";
-import { FiTrash2, FiUploadCloud } from "react-icons/fi";
-import { FileUploader } from "shared/components";
+import { FiUploadCloud } from "react-icons/fi";
+import { DeleteIconButton, FileUploader } from "shared/components";
+import { DatasetNodeType } from "../../types";
 
 const UPLOAD_TOAST_ID = "dataset-upload-progress";
+const MULTIPART_THRESHOLD_IN_BYTES = 50 * 1024 * 1024;
+const UPLOAD_TOAST_TITLE = "Uploading datasets";
+const TOAST_OPTIONS = { closable: true } as const;
 
 interface DatasetUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  parentId?: string | null; // Optional: specific parent folder ID.
+  parentId?: string | null;
 }
 
 export const DatasetUploadModal = ({
@@ -30,13 +34,12 @@ export const DatasetUploadModal = ({
   onClose,
   parentId = null,
 }: DatasetUploadModalProps) => {
-  // State.
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // API.
   const { mutateAsync: uploadDataset, isPending: isStandardPending } =
     useUploadDatasets();
+
   const {
     uploadFile: uploadMultipart,
     progress: multipartProgress,
@@ -45,20 +48,23 @@ export const DatasetUploadModal = ({
 
   const isPending = isStandardPending || isMultipartPending;
 
+  const updateUploadToast = (description: string) => {
+    toaster.update(UPLOAD_TOAST_ID, {
+      title: UPLOAD_TOAST_TITLE,
+      description,
+      type: "loading",
+      ...TOAST_OPTIONS,
+    });
+  };
+
   useEffect(() => {
     if (!isMultipartPending) {
       return;
     }
 
-    toaster.update(UPLOAD_TOAST_ID, {
-      title: "Uploading datasets",
-      description: `Uploading large files... ${multipartProgress}%`,
-      type: "loading",
-      closable: true,
-    });
+    updateUploadToast(`Uploading large files... ${multipartProgress}%`);
   }, [isMultipartPending, multipartProgress]);
 
-  // Handlers.
   const handleFileSelect = (fileList: FileList) => {
     setFiles((prev) => [...prev, ...Array.from(fileList)]);
   };
@@ -67,35 +73,50 @@ export const DatasetUploadModal = ({
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleClose = () => {
+    setFiles([]);
+    onClose();
+  };
+
+  const handleOpenFilePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFilePickerKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    handleOpenFilePicker();
+  };
+
   const handleUpload = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      return;
+    }
+
     const totalFiles = files.length;
-
-    // Threshold for multipart upload (e.g., 50MB)
-    const MULTIPART_THRESHOLD = 50 * 1024 * 1024;
-
-    const smallFiles = files.filter((f) => f.size <= MULTIPART_THRESHOLD);
-    const largeFiles = files.filter((f) => f.size > MULTIPART_THRESHOLD);
+    const smallFiles = files.filter(
+      (file) => file.size <= MULTIPART_THRESHOLD_IN_BYTES
+    );
+    const largeFiles = files.filter(
+      (file) => file.size > MULTIPART_THRESHOLD_IN_BYTES
+    );
 
     handleClose();
 
     try {
       toaster.create({
         id: UPLOAD_TOAST_ID,
-        title: "Uploading datasets",
+        title: UPLOAD_TOAST_TITLE,
         description: "Preparing upload...",
         type: "loading",
-        closable: true,
+        ...TOAST_OPTIONS,
       });
 
-      // Upload small files in batch
       if (smallFiles.length > 0) {
-        toaster.update(UPLOAD_TOAST_ID, {
-          title: "Uploading datasets",
-          description: `Uploading ${smallFiles.length} standard file(s)...`,
-          type: "loading",
-          closable: true,
-        });
+        updateUploadToast(`Uploading ${smallFiles.length} standard file(s)...`);
 
         await uploadDataset({
           name: "",
@@ -105,19 +126,12 @@ export const DatasetUploadModal = ({
         });
       }
 
-      // Upload large files individually using multipart
       for (const file of largeFiles) {
-        toaster.update(UPLOAD_TOAST_ID, {
-          title: "Uploading datasets",
-          description: `Uploading large file: ${file.name}`,
-          type: "loading",
-          closable: true,
-        });
+        updateUploadToast(`Uploading large file: ${file.name}`);
 
         await uploadMultipart(file, parentId);
       }
 
-      // Success
       queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
 
       toaster.update(UPLOAD_TOAST_ID, {
@@ -133,20 +147,21 @@ export const DatasetUploadModal = ({
         title: "Upload failed",
         description: "Some files could not be uploaded. Please try again.",
         type: "error",
-        closable: true,
+        ...TOAST_OPTIONS,
       });
     }
   };
 
-  const handleClose = () => {
-    setFiles([]);
-    onClose();
+  const onDialogOpenChange = (details: DialogOpenChangeDetails) => {
+    if (details.open === false) {
+      handleClose();
+    }
   };
 
   return (
     <Dialog.Root
       open={isOpen}
-      onOpenChange={(e) => !e.open && handleClose()}
+      onOpenChange={onDialogOpenChange}
       placement={"center"}
     >
       <Portal>
@@ -175,13 +190,8 @@ export const DatasetUploadModal = ({
                   textAlign="center"
                   bg="bg.surface"
                   cursor="pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      fileInputRef.current?.click();
-                    }
-                  }}
+                  onClick={handleOpenFilePicker}
+                  onKeyDown={handleFilePickerKeyDown}
                   _hover={{ borderColor: "intent.primaryHover" }}
                 >
                   <FileUploader
@@ -211,14 +221,9 @@ export const DatasetUploadModal = ({
                           <Text fontSize="sm" truncate maxW="80%">
                             {file.name}
                           </Text>
-                          <Box
-                            as="button"
+                          <DeleteIconButton
                             onClick={() => handleRemoveFile(index)}
-                            color="text.danger"
-                            _hover={{ opacity: 0.8 }}
-                          >
-                            <FiTrash2 />
-                          </Box>
+                          />
                         </List.Item>
                       ))}
                     </List.Root>
