@@ -131,7 +131,7 @@ export const DatasetTreeNode = ({
             <AiOutlineFileAdd />
           </IconButton>
         )}
-        <DeleteIconButton onClick={handleDelete} isLoading={isDeleting} />
+        <DeleteIconButton onClick={handleDelete} loading={isDeleting} />
       </Flex>
     </Flex>
   );
