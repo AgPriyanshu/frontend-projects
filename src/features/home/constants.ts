@@ -1,6 +1,7 @@
 import { RoutePath } from "app/router/constants";
 import {
   FaLightbulb,
+  FaLink,
   FaMapMarkedAlt,
   FaRegListAlt,
   FaStoreAlt,
@@ -23,6 +24,13 @@ export const apps: AppCard[] = [
     icon: FaMapMarkedAlt,
     route: RoutePath.Map,
     category: AppCategory.GIS,
+  },
+  {
+    title: "URL Shortner",
+    description: "Shorten your long URLs",
+    icon: FaLink,
+    route: RoutePath.URLShortner,
+    category: AppCategory.Productivity,
   },
   {
     title: "Device Classifier",

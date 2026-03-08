@@ -1,5 +1,7 @@
 export const QueryKeys = {
+  // Todo List.
   todoList: ["/tasks"],
+  // Datasets.
   datasets: ["/web-gis/datasets"],
   datasetDownload: (id: string) => [`/web-gis/datasets/${id}/download`],
   datasetTiles: (id: string) => [
@@ -12,4 +14,6 @@ export const QueryKeys = {
   notification: (id: string) => [`/notifications/${id}`],
   notifications: ["/notifications"],
   notificationsBulk: ["/notifications/bulk"],
+  // URL Shortner.
+  urls: ["/url-shortner/urls/"],
 };

@@ -7,6 +7,7 @@ import {
   HomePage,
   LoginPage,
   TodoPage,
+  URLShortner,
   WebGIS,
 } from "src/features";
 
@@ -24,6 +25,7 @@ export const AppRouter = () => {
         <Route index element={<HomePage />} />
         <Route path={RoutePath.Todo} element={<TodoPage />} />
         <Route path={RoutePath.Map} element={<WebGIS />} />
+        <Route path={RoutePath.URLShortner} element={<URLShortner />} />
         <Route
           path={RoutePath.DeviceClassifier}
           element={<AppItemPlaceholder />}

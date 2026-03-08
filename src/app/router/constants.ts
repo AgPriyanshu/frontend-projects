@@ -1,10 +1,11 @@
 export const RoutePath = {
-  Home: "/",
-  Todo: "/todo",
-  Map: "/map",
-  Login: "/login",
   DeviceClassifier: "/device-classifier",
+  Home: "/",
+  Login: "/login",
+  Map: "/map",
   Store: "/store",
+  Todo: "/todo",
+  URLShortner: "/url-shortner",
   WhiteBoard: "/whiteboard",
 } as const;
 
