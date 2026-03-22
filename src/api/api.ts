@@ -39,7 +39,6 @@ api.interceptors.request.use(
         delete config.headers["Content-Type"];
       }
     } else {
-      // Only apply mapper for non-FormData requests
       if (config.data) {
         config.data = apiRequestMapper(config.data);
       }
