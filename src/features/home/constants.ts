@@ -9,6 +9,7 @@ import {
 import { MdDevicesOther } from "react-icons/md";
 import { AppCategory } from "./enums";
 import type { AppCard } from "./types";
+import { AiFillThunderbolt } from "react-icons/ai";
 
 export const apps: AppCard[] = [
   {
@@ -50,6 +51,13 @@ export const apps: AppCard[] = [
     title: "Live board",
     description: "Live Collaboration white board",
     icon: FaLightbulb,
+    route: RoutePath.WhiteBoard,
+    category: AppCategory.Productivity,
+  },
+  {
+    title: "Level Up",
+    description: "Character development score card",
+    icon: AiFillThunderbolt,
     route: RoutePath.WhiteBoard,
     category: AppCategory.Productivity,
   },

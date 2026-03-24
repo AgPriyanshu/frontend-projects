@@ -1,6 +1,7 @@
 export const RoutePath = {
   DeviceClassifier: "/device-classifier",
   Home: "/",
+  LevelUp: "/level-up",
   Login: "/login",
   Map: "/map",
   Store: "/store",
