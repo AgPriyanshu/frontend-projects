@@ -33,7 +33,7 @@ graph TD
     Map -->|Vector Tiles| BackendAPI((Atlas Backend API))
     Core -->|REST/JSON| BackendAPI
     Task -->|REST/JSON| BackendAPI
-    Client <--|SSE Events| RedisBridge((Redis / Django Channels))
+    RedisBridge(("Redis / Django Channels")) -->|SSE Events| Client
 ```
 
 ## 🛠️ Technology Stack
