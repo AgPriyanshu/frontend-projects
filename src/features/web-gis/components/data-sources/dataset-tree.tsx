@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { useDatasets } from "api/web-gis";
 import { useState } from "react";
 import { Tree } from "react-arborist";
@@ -44,6 +44,25 @@ export const DatasetTree = () => {
             <Text fontSize="sm" color="text.primary" p={2}>
               Loading datasets...
             </Text>
+          ) : data.data.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              h="full"
+              p={4}
+            >
+              <Text fontSize="sm" color="text.secondary" mb={4}>
+                No datasets found
+              </Text>
+              <Button
+                size="sm"
+                colorScheme="blue"
+                onClick={() => handleOpenUpload(null)}
+              >
+                Upload Dataset
+              </Button>
+            </Flex>
           ) : (
             <Tree
               data={data.data}
