@@ -16,4 +16,6 @@ export const QueryKeys = {
   notificationsBulk: ["/notifications/bulk"],
   // URL Shortner.
   urls: ["/url-shortner/urls/"],
+  // Chat.
+  chatSessions: ["/ai/chat-sessions"],
 };

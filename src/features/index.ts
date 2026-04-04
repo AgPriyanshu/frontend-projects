@@ -3,3 +3,4 @@ export * from "./home";
 export * from "./todo";
 export * from "./web-gis";
 export * from "./url-shortner";
+export * from "./chat";
