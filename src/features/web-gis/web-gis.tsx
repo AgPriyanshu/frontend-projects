@@ -2,7 +2,7 @@ import { Box, Flex, VStack } from "@chakra-ui/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ResizableBox } from "react-resizable";
 
-import { LayerPanel, MapCanvas, Toolbar } from "./components";
+import { LayerPanel, MapCanvas, MapControls, Toolbar } from "./components";
 import { DatasetTree } from "./components/data-sources";
 import { DEFAULT_WORKSPACE_ID } from "./domain";
 import { workspaceManager } from "./stores";
@@ -107,9 +107,18 @@ export const WebGIS = () => {
         overflow={"hidden"}
         position="relative"
       >
-        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
-
-        <Box position="absolute" top="30%" left="1rem" zIndex={100}>
+        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />\{" "}
+        <Flex
+          direction={"column"}
+          position="absolute"
+          top="0.75rem"
+          right="0.75rem"
+          zIndex={100}
+          gap={"0.5rem"}
+        >
+          <MapControls workspaceId={DEFAULT_WORKSPACE_ID} />
+        </Flex>
+        <Box position={"absolute"} top={"1rem"} left={"1rem"}>
           <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
         </Box>
       </Box>

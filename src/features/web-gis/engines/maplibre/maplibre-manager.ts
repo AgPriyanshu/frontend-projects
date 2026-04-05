@@ -1,10 +1,4 @@
-import {
-  FullscreenControl,
-  GlobeControl,
-  Map as MapLibreMap,
-  NavigationControl,
-  ScaleControl,
-} from "maplibre-gl";
+import { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { DEFAULT_MAP_VIEW, type MapView } from "../../domain";
@@ -48,21 +42,6 @@ export class MapLibreMapManager implements IMapManager {
       bearing: this.initialView.bearing,
       pitch: this.initialView.pitch,
     });
-
-    // Add controls.
-    this.mapInstance.addControl(
-      new FullscreenControl({
-        container,
-      })
-    );
-    this.mapInstance.addControl(new GlobeControl());
-    this.mapInstance.addControl(new NavigationControl(), "top-left");
-    this.mapInstance.addControl(
-      new ScaleControl({
-        maxWidth: 80,
-        unit: "metric",
-      })
-    );
 
     // Bind engines when map is ready.
     this.mapInstance.on("load", () => {

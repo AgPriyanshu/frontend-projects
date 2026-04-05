@@ -27,4 +27,16 @@ export interface IMapEngine {
     bounds: [[number, number], [number, number]],
     options?: { padding?: number }
   ): void;
+
+  /** Zooms in one step. */
+  zoomIn(): void;
+
+  /** Zooms out one step. */
+  zoomOut(): void;
+
+  /** Resets map bearing to north (0°). */
+  resetNorth(): void;
+
+  /** Toggles between globe and flat (mercator) projection. */
+  toggleProjection(): void;
 }

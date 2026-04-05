@@ -77,6 +77,22 @@ export class MapStore {
     this.engine?.fitBounds(bounds, options);
   }
 
+  zoomIn(): void {
+    this.engine?.zoomIn();
+  }
+
+  zoomOut(): void {
+    this.engine?.zoomOut();
+  }
+
+  resetNorth(): void {
+    this.engine?.resetNorth();
+  }
+
+  toggleProjection(): void {
+    this.engine?.toggleProjection();
+  }
+
   /**
    * Cleans up subscriptions.
    */

@@ -69,7 +69,7 @@ export class MapLibreDrawEngine implements IDrawEngine {
             },
           },
         }),
-        new TerraDrawRenderMode({ styles: {} }),
+        new TerraDrawRenderMode({ modeName: "render", styles: {} }),
       ],
     });
 

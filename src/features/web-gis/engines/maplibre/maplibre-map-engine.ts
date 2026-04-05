@@ -10,6 +10,7 @@ import type { IMapEngine } from "../ports";
 export class MapLibreMapEngine implements IMapEngine {
   private map: MapLibreMap | null = null;
   private viewChangeCallbacks: Set<(view: MapView) => void> = new Set();
+  private isGlobe = true;
 
   /**
    * Binds the engine to a MapLibre map instance.
@@ -75,10 +76,29 @@ export class MapLibreMapEngine implements IMapEngine {
     bounds: [[number, number], [number, number]],
     options?: { padding?: number }
   ): void {
+    if (!this.map) return;
+    this.map.fitBounds(bounds, { padding: options?.padding ?? 50 });
+  }
+
+  zoomIn(): void {
+    this.map?.zoomIn();
+  }
+
+  zoomOut(): void {
+    this.map?.zoomOut();
+  }
+
+  resetNorth(): void {
+    this.map?.resetNorth();
+  }
+
+  toggleProjection(): void {
     if (!this.map) {
       return;
     }
-    this.map.fitBounds(bounds, { padding: options?.padding ?? 50 });
+    this.isGlobe = !this.isGlobe;
+    // @ts-expect-error -- setProjection is available in MapLibre GL JS v3+.
+    this.map.setProjection(this.isGlobe ? "globe" : "mercator");
   }
 
   /**
