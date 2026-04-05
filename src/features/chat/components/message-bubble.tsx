@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { FaRobot, FaUser } from "react-icons/fa";
+import { observer } from "mobx-react-lite";
 import type { ChatMessageResponse } from "api/chat/types";
 import { MessageContent } from "./message-content";
 
@@ -7,7 +8,7 @@ interface MessageBubbleProps {
   message: ChatMessageResponse;
 }
 
-export const MessageBubble = ({ message }: MessageBubbleProps) => {
+export const MessageBubble = observer(({ message }: MessageBubbleProps) => {
   const isUser = message.role === "user";
 
   return (
@@ -69,4 +70,4 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
       </Flex>
     </Flex>
   );
-};
+});

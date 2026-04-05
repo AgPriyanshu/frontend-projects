@@ -1,5 +1,5 @@
 import { Box, Flex, HStack, IconButton, Heading, Menu } from "@chakra-ui/react";
-import { FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaSignOutAlt, FaMagic } from "react-icons/fa";
 import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage";
@@ -7,8 +7,10 @@ import { RoutePath } from "app/router/constants";
 import { queryClient } from "api/query-client";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
+import { chatStore } from "src/features/chat";
+import { observer } from "mobx-react-lite";
 
-export const Navbar = () => {
+export const Navbar = observer(() => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -42,6 +44,16 @@ export const Navbar = () => {
         <HStack gap={4}>
           <ColorModeButton />
           <NotificationDropdown />
+          <IconButton
+            variant="ghost"
+            aria-label="Toggle AI Chat"
+            onClick={() => chatStore.togglePanel()}
+            color={chatStore.isPanelOpen ? "intent.primary" : "text.primary"}
+            _hover={{ bgColor: "surface.subtle" }}
+          >
+            <FaMagic size={20} />
+          </IconButton>
+
           <Menu.Root>
             <Menu.Trigger asChild>
               <IconButton
@@ -66,4 +78,4 @@ export const Navbar = () => {
       </Flex>
     </Box>
   );
-};
+});

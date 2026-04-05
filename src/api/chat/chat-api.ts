@@ -6,6 +6,7 @@ import type {
   ChatSessionListResponse,
   ChatSessionResponse,
   CreateChatSessionPayload,
+  LLMListResponse,
 } from "./types";
 import { QueryKeys } from "api/query-keys";
 
@@ -18,6 +19,17 @@ export const useChatSessions = () => {
       );
     },
     select: (response: AxiosResponse<ApiResponse<ChatSessionListResponse>>) =>
+      response.data,
+  });
+};
+
+export const useLLMs = () => {
+  return useQuery({
+    queryKey: QueryKeys.llms,
+    queryFn: async () => {
+      return await api.get<ApiResponse<LLMListResponse>>("/ai/llms/");
+    },
+    select: (response: AxiosResponse<ApiResponse<LLMListResponse>>) =>
       response.data,
   });
 };

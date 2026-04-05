@@ -18,4 +18,5 @@ export const QueryKeys = {
   urls: ["/url-shortner/urls/"],
   // Chat.
   chatSessions: ["/ai/chat-sessions"],
+  llms: ["/ai/llms"],
 };

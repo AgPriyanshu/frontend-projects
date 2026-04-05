@@ -10,6 +10,7 @@ export class ChatStore {
   messages: ChatMessageResponse[] = [];
   activeSessionId: string | null = null;
   isPanelOpen = false;
+  isSessionListOpen = false;
   isWaitingForResponse = false;
   connectionStatus: ConnectionStatus = "disconnected";
 
@@ -27,6 +28,10 @@ export class ChatStore {
 
   closePanel() {
     this.isPanelOpen = false;
+  }
+
+  toggleSessionList() {
+    this.isSessionListOpen = !this.isSessionListOpen;
   }
 
   setActiveSession(sessionId: string | null) {
@@ -77,7 +82,32 @@ export class ChatStore {
         }
       }
 
-      // For assistant messages, append and stop waiting
+      // Handle assistant message (chunked or whole)
+      if (data.role === "assistant") {
+        this.isWaitingForResponse = false;
+
+        const existingMessage = this.messages.find((m) => m.id === data.id);
+
+        if (existingMessage) {
+          if (data.message) {
+            existingMessage.message += data.message; // Append chunk
+          }
+        } else {
+          // Only push if there's content or it's not a chunk
+          if (data.message || !data.isChunk) {
+            this.messages.push({
+              id: data.id,
+              sessionId: data.sessionId,
+              message: data.message,
+              userId: data.userId,
+              role: data.role,
+            });
+          }
+        }
+        return;
+      }
+
+      // Standard non-chunk append for any other roles
       this.messages.push({
         id: data.id,
         sessionId: data.sessionId,
@@ -85,10 +115,6 @@ export class ChatStore {
         userId: data.userId,
         role: data.role,
       });
-
-      if (data.role === "assistant") {
-        this.isWaitingForResponse = false;
-      }
     });
   }
 

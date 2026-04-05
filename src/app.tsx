@@ -2,7 +2,7 @@ import { Center, Flex, VStack } from "@chakra-ui/react";
 import "react-resizable/css/styles.css";
 import { Outlet } from "react-router";
 import { Navbar } from "src/design-system/navbar";
-import { ChatFab, ChatPanel } from "src/features/chat";
+import { ChatPanel } from "src/features/chat";
 
 export const App = () => {
   return (
@@ -23,7 +23,6 @@ export const App = () => {
         {/* Chat panel — inline, pushes content left */}
         <ChatPanel />
       </Flex>
-      <ChatFab />
     </VStack>
   );
 };

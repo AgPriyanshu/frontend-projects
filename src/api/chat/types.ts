@@ -10,8 +10,19 @@ export type ChatSessionListResponse = ChatSessionResponse[];
 
 export interface CreateChatSessionPayload {
   name: string;
-  llm: string;
+  llm: string | null;
 }
+
+export interface LLMResponse {
+  id: string;
+  name: string;
+  modelName: string;
+  url: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type LLMListResponse = LLMResponse[];
 
 export interface ChatMessageResponse {
   id: string;
@@ -27,6 +38,7 @@ export interface WebSocketIncomingMessage {
   message: string;
   userId: number;
   role: "user" | "assistant";
+  isChunk?: boolean;
 }
 
 export interface WebSocketOutgoingMessage {

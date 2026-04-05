@@ -5,6 +5,7 @@ import {
   useChatSessions,
   useCreateChatSession,
   useDeleteChatSession,
+  useLLMs,
 } from "api/chat";
 import type { ChatSessionResponse } from "api/chat/types";
 import { chatStore } from "../store/chat-store";
@@ -79,13 +80,16 @@ const SessionItem = ({
 
 export const SessionList = observer(() => {
   const { data, isLoading } = useChatSessions();
+  const { data: llmData } = useLLMs();
   const createSession = useCreateChatSession();
 
   const sessions = data?.data ?? [];
+  const llms = llmData?.data ?? [];
 
   const handleCreateSession = () => {
+    const firstLlm = llms[0]?.id ?? null;
     createSession.mutate(
-      { name: `Chat ${sessions.length + 1}`, llm: "" },
+      { name: `Chat ${sessions.length + 1}`, llm: firstLlm },
       {
         onSuccess: (response) => {
           queryClient.invalidateQueries({
