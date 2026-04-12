@@ -6,7 +6,7 @@ import type { ApiResponse } from "api/types";
 import type { AxiosResponse } from "axios";
 import type { DatasetNodeResponse, DatasetNodeUploadPayload } from "./types";
 
-export const useDatasets = () => {
+export const useDatasetsNodes = () => {
   return useQuery({
     queryKey: QueryKeys.datasets,
     queryFn: async () => {
@@ -16,6 +16,34 @@ export const useDatasets = () => {
     },
     select: (response: AxiosResponse<ApiResponse<DatasetNodeResponse[]>>) =>
       response.data,
+  });
+};
+
+export const useCreateEmptyDataset = () => {
+  return useMutation({
+    mutationFn: async (payload: { name: string; parent?: string | null }) => {
+      return await api.post<ApiResponse<DatasetNodeResponse>>(
+        QueryKeys.datasets[0],
+        { ...payload, is_empty: true, type: "dataset" }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
+    },
+  });
+};
+
+export const useCreateFolder = () => {
+  return useMutation({
+    mutationFn: async (payload: { name: string; parent?: string | null }) => {
+      return await api.post<ApiResponse<DatasetNodeResponse>>(
+        QueryKeys.datasets[0],
+        { ...payload, type: "folder" }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
+    },
   });
 };
 

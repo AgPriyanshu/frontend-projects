@@ -6,6 +6,7 @@ import { LayerPanel, MapCanvas, MapControls, Toolbar } from "./components";
 import { DatasetTree } from "./components/data-sources";
 import { DEFAULT_WORKSPACE_ID } from "./domain";
 import { workspaceManager } from "./stores";
+import { ResizeHandle } from "./components/resize-handle";
 
 export const WebGIS = () => {
   // States.
@@ -41,24 +42,10 @@ export const WebGIS = () => {
       alignItems={"center"}
     >
       <ResizableBox
-        className="web-gis-container-resizable"
+        className="web-gis-resizable"
         width={layerPanelWidth}
         height={containerHeight}
-        handle={
-          <Box
-            position="absolute"
-            right="-10px"
-            top="0"
-            bgColor={"border.default"}
-            w={"5px"}
-            h={"full"}
-            justifyContent={"center"}
-            alignItems={"center"}
-            cursor="col-resize"
-            opacity={"0"}
-            _hover={{ opacity: "1" }}
-          />
-        }
+        handle={ResizeHandle}
         resizeHandles={["e"]}
         onResize={(_, { size: newSize }) => {
           setLayerPanelWidth(newSize.width);
@@ -68,19 +55,7 @@ export const WebGIS = () => {
         axis="x"
       >
         <VStack h="full">
-          <Box
-            className="dataset-tree-container"
-            w={"full"}
-            flex={0.5}
-            borderColor={"border.default"}
-            borderWidth={"1px"}
-            borderRadius={"lg"}
-            py={"0.5rem"}
-            overflow={"hidden"}
-          >
-            <DatasetTree />
-          </Box>
-
+          <DatasetTree />
           <Box
             className="layers-panel-container"
             w={"full"}
@@ -99,6 +74,7 @@ export const WebGIS = () => {
 
       {/* Map area with toolbar. */}
       <Box
+        className="web-gis-map-area"
         flex={1}
         h={"full"}
         borderColor={"border.default"}
@@ -107,20 +83,9 @@ export const WebGIS = () => {
         overflow={"hidden"}
         position="relative"
       >
-        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />\{" "}
-        <Flex
-          direction={"column"}
-          position="absolute"
-          top="0.75rem"
-          right="0.75rem"
-          zIndex={100}
-          gap={"0.5rem"}
-        >
-          <MapControls workspaceId={DEFAULT_WORKSPACE_ID} />
-        </Flex>
-        <Box position={"absolute"} top={"1rem"} left={"1rem"}>
-          <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
-        </Box>
+        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
+        <MapControls workspaceId={DEFAULT_WORKSPACE_ID} />
+        <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
       </Box>
     </Flex>
   );

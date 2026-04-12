@@ -1,5 +1,6 @@
 import { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { getAccessToken } from "shared/local-storage/token";
 
 import { DEFAULT_MAP_VIEW, type MapView } from "../../domain";
 import type { IMapManager } from "../ports";
@@ -41,7 +42,20 @@ export class MapLibreMapManager implements IMapManager {
       zoom: this.initialView.zoom,
       bearing: this.initialView.bearing,
       pitch: this.initialView.pitch,
-    });
+      trackResize: true,
+      crossSourceCollisions: false,
+      maxParallelImageRequests: 16,
+      transformRequest: (url: any) => {
+        if (url.includes("/web-gis/") || url.includes("/api/")) {
+          const token = getAccessToken();
+          return {
+            url,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          };
+        }
+        return { url };
+      },
+    } as any);
 
     // Bind engines when map is ready.
     this.mapInstance.on("load", () => {

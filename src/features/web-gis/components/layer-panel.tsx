@@ -1,12 +1,13 @@
 import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
 import {
-  DATASET_TYPES,
-  RASTER_KINDS,
+  DatasetType,
+  RasterKind,
+  fetchFeaturesAsGeoJSON,
   useDeleteLayer,
   useLayers,
 } from "api/web-gis";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { FiEye, FiEyeOff, FiZoomIn } from "react-icons/fi";
 import { TbMap2, TbVector } from "react-icons/tb";
 
@@ -27,37 +28,57 @@ export const LayerPanel = observer(() => {
     [workspace?.layerStore?.layersArray]
   );
 
+  // Refs.
+  const isSyncingRef = useRef(false);
+
   // Helpers.
-  const syncLayers = useCallback(() => {
-    const apiLayerIds = new Set(apiLayers.map((layer) => layer.id));
+  const syncLayers = useCallback(async () => {
+    if (!workspace?.layerStore || isSyncingRef.current) {
+      return;
+    }
 
-    for (const apiLayer of apiLayers) {
-      if (workspace?.layerStore.getLayer(apiLayer.id)) {
-        continue;
-      }
+    isSyncingRef.current = true;
 
-      try {
-        if (apiLayer.datasetType === DATASET_TYPES.RASTER) {
-          const layer = LayerFactory.createRasterLayer(apiLayer);
+    try {
+      const apiLayerIds = new Set(apiLayers.map((layer) => layer.id));
 
-          if (layer) {
-            workspace?.layerStore.addLayer(layer);
-          }
-        } else {
-          console.info(`Skipping non-raster layer: ${apiLayer.name}`);
+      for (const apiLayer of apiLayers) {
+        if (workspace.layerStore.getLayer(apiLayer.id)) {
+          continue;
         }
-      } catch (err) {
-        console.error(`Error loading layer ${apiLayer.name}:`, err);
-      }
-    }
 
-    // Remove stale layers from the store if they no longer exist in API.
-    for (const storeLayer of storeLayers) {
-      if (!apiLayerIds.has(storeLayer.id)) {
-        workspace?.layerStore?.removeLayer(storeLayer.id);
+        try {
+          if (apiLayer.datasetType === DatasetType.RASTER) {
+            const layer = LayerFactory.createRasterLayer(apiLayer);
+
+            if (layer) {
+              workspace.layerStore.addLayer(layer);
+            }
+          } else if (apiLayer.datasetType === DatasetType.VECTOR) {
+            const data = await fetchFeaturesAsGeoJSON(apiLayer.source);
+            const layer = LayerFactory.createVectorLayer(apiLayer, data);
+
+            if (layer) {
+              workspace.layerStore.addLayer(layer);
+            }
+          } else {
+            console.info(`Skipping unsupported layer: ${apiLayer.name}`);
+          }
+        } catch (err) {
+          console.error(`Error loading layer ${apiLayer.name}:`, err);
+        }
       }
+
+      // Remove stale layers from the store if they no longer exist in API.
+      for (const storeLayer of workspace.layerStore.layersArray) {
+        if (!apiLayerIds.has(storeLayer.id)) {
+          workspace.layerStore.removeLayer(storeLayer.id);
+        }
+      }
+    } finally {
+      isSyncingRef.current = false;
     }
-  }, [apiLayers, storeLayers, workspace]);
+  }, [apiLayers, workspace]);
 
   // useEffects.
   useEffect(() => {
@@ -65,8 +86,8 @@ export const LayerPanel = observer(() => {
       return;
     }
 
-    syncLayers();
-  }, [apiLayers.length, syncLayers, workspace?.layerStore]);
+    void syncLayers();
+  }, [apiLayers.length, syncLayers]);
 
   // Handlers.
   const handleDelete = (layerId: string) => {
@@ -80,6 +101,7 @@ export const LayerPanel = observer(() => {
 
   const handleFitToLayer = (layerId: string) => {
     const storeLayer = workspace?.layerStore?.getLayer(layerId);
+
     if (storeLayer?.bbox) {
       workspace?.layerStore?.fitToBounds(storeLayer.bbox);
     } else {
@@ -90,7 +112,12 @@ export const LayerPanel = observer(() => {
   // Renderers.
   if (isLoading) {
     return (
-      <Box p="1rem" color="fg.muted" textAlign="center">
+      <Box
+        className="layer-panel layer-panel-loading"
+        p="1rem"
+        color="fg.muted"
+        textAlign="center"
+      >
         <Text fontSize="sm">Loading layers...</Text>
       </Box>
     );
@@ -98,7 +125,12 @@ export const LayerPanel = observer(() => {
 
   if (error) {
     return (
-      <Box p="1rem" color="fg.error" textAlign="center">
+      <Box
+        className="layer-panel layer-panel-error"
+        p="1rem"
+        color="fg.error"
+        textAlign="center"
+      >
         <Text fontSize="sm">Failed to load layers.</Text>
       </Box>
     );
@@ -106,7 +138,12 @@ export const LayerPanel = observer(() => {
 
   if (storeLayers.length === 0) {
     return (
-      <Box p="1rem" color="fg.muted" textAlign="center">
+      <Box
+        className="layer-panel layer-panel-empty"
+        p="1rem"
+        color="fg.muted"
+        textAlign="center"
+      >
         <Text fontSize="sm">No layers added yet.</Text>
         <Text fontSize="xs" mt="0.5rem">
           Drag a dataset onto the map to create a layer.
@@ -116,16 +153,17 @@ export const LayerPanel = observer(() => {
   }
 
   return (
-    <VStack gap="0.5rem" p="0.5rem" align="stretch">
+    <VStack className="layer-panel" gap="0.5rem" p="0.5rem" align="stretch">
       {storeLayers.map((storeLayer) => {
         const isVisible = storeLayer.visible;
-        const isRasterLayer = storeLayer.type === DATASET_TYPES.RASTER;
+        const isRasterLayer = storeLayer.type === DatasetType.RASTER;
         const isElevationRaster =
-          isRasterLayer && storeLayer.rasterKind === RASTER_KINDS.ELEVATION;
+          isRasterLayer && storeLayer.rasterKind === RasterKind.ELEVATION;
 
         return (
           <Flex
             key={storeLayer.id}
+            className="layer-panel-item"
             p="0.5rem"
             borderRadius="md"
             bg="bg.subtle"

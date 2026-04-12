@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction, observable } from "mobx";
 
 import type { Unsubscribe } from "../domain";
 import type { IDrawEngine } from "../engines/ports";
@@ -9,12 +9,16 @@ import type { IDrawEngine } from "../engines/ports";
  */
 export class DrawStore {
   geometry: GeoJSON.FeatureCollection | null = null;
+  featureCount: number = 0;
+  hasFeatures: boolean = false;
 
   private engine: IDrawEngine | null = null;
   private unsubscribeEngine: Unsubscribe | null = null;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      geometry: observable.ref,
+    });
   }
 
   /**
@@ -25,22 +29,12 @@ export class DrawStore {
 
     // Engine → MobX: Update geometry when draw changes.
     this.unsubscribeEngine = engine.onChange((features) => {
-      this.geometry = features;
+      runInAction(() => {
+        this.geometry = features;
+        this.featureCount = features?.features?.length || 0;
+        this.hasFeatures = this.featureCount > 0;
+      });
     });
-  }
-
-  /**
-   * Gets the current feature count.
-   */
-  get featureCount(): number {
-    return this.geometry?.features.length ?? 0;
-  }
-
-  /**
-   * Checks if there are any drawn features.
-   */
-  get hasFeatures(): boolean {
-    return this.featureCount > 0;
   }
 
   /**
@@ -48,7 +42,11 @@ export class DrawStore {
    */
   clearGeometry(): void {
     this.engine?.clear();
-    this.geometry = null;
+    runInAction(() => {
+      this.geometry = null;
+      this.featureCount = 0;
+      this.hasFeatures = false;
+    });
   }
 
   /**
@@ -68,7 +66,11 @@ export class DrawStore {
    */
   destroy(): void {
     this.unsubscribeEngine?.();
-    this.geometry = null;
+    runInAction(() => {
+      this.geometry = null;
+      this.featureCount = 0;
+      this.hasFeatures = false;
+    });
     this.engine = null;
   }
 }

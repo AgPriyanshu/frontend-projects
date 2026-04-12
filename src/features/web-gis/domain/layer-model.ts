@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, toJS } from "mobx";
 
 import {
   DEFAULT_LAYER_STYLE,
@@ -18,6 +18,7 @@ export class LayerModel {
 
   name: string;
   source: unknown;
+  datasetId?: string;
   rasterKind?: RasterKind;
   terrainEnabled: boolean;
   style: LayerStyle;
@@ -30,6 +31,7 @@ export class LayerModel {
     type: LayerType;
     name: string;
     source: unknown;
+    datasetId?: string;
     rasterKind?: RasterKind;
     terrainEnabled?: boolean;
     style?: LayerStyle;
@@ -41,6 +43,7 @@ export class LayerModel {
     this.type = params.type;
     this.name = params.name;
     this.source = params.source;
+    this.datasetId = params.datasetId;
     this.rasterKind = params.rasterKind;
     this.terrainEnabled =
       params.terrainEnabled ?? this.rasterKind === "elevation";
@@ -64,7 +67,7 @@ export class LayerModel {
       type: this.type,
       rasterKind: this.rasterKind,
       terrainEnabled: this.terrainEnabled,
-      data: this.source,
+      data: toJS(this.source),
       style: { ...this.style },
       visible: this.visible,
       order: this.order,
@@ -112,6 +115,13 @@ export class LayerModel {
    */
   setOrder(order: number): void {
     this.order = order;
+  }
+
+  /**
+   * Replaces the GeoJSON source data, triggering a map re-render.
+   */
+  updateSource(data: GeoJSON.FeatureCollection): void {
+    this.source = data;
   }
 
   /**

@@ -1,8 +1,8 @@
 import {
   buildTileUrl,
-  DATASET_TYPES,
-  RASTER_KINDS,
-  TILESET_STATUSES,
+  DatasetType,
+  RasterKind,
+  TilesetStatus,
   type LayerResponse,
 } from "api/web-gis";
 
@@ -11,9 +11,9 @@ import { LayerModel } from "../domain";
 export class LayerFactory {
   static isReadyRasterLayer(apiLayer: LayerResponse): boolean {
     return (
-      apiLayer.datasetType === DATASET_TYPES.RASTER &&
+      apiLayer.datasetType === DatasetType.RASTER &&
       !!apiLayer.tileset &&
-      apiLayer.tileset.status === TILESET_STATUSES.READY
+      apiLayer.tileset.status === TilesetStatus.READY
     );
   }
 
@@ -23,7 +23,7 @@ export class LayerFactory {
     }
 
     const tileUrl = buildTileUrl(apiLayer.source, {
-      terrain: apiLayer.rasterKind === RASTER_KINDS.ELEVATION,
+      terrain: apiLayer.rasterKind === RasterKind.ELEVATION,
     });
 
     const bbox =
@@ -33,11 +33,25 @@ export class LayerFactory {
 
     return new LayerModel({
       id: apiLayer.id,
-      type: DATASET_TYPES.RASTER,
+      type: DatasetType.RASTER,
       name: apiLayer.name,
       source: [tileUrl],
-      rasterKind: apiLayer.rasterKind ?? RASTER_KINDS.RASTER,
+      rasterKind: apiLayer.rasterKind ?? RasterKind.RASTER,
       bbox,
+    });
+  }
+
+  static createVectorLayer(
+    apiLayer: LayerResponse,
+    data: GeoJSON.FeatureCollection
+  ): LayerModel | null {
+    return new LayerModel({
+      id: apiLayer.id,
+      type: DatasetType.VECTOR,
+      name: apiLayer.name,
+      source: data,
+      datasetId: apiLayer.source,
+      bbox: apiLayer.bbox ?? undefined,
     });
   }
 }

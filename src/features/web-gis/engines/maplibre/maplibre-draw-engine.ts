@@ -1,14 +1,11 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import {
   TerraDraw,
-  TerraDrawPointMode,
   TerraDrawLineStringMode,
+  TerraDrawPointMode,
   TerraDrawPolygonMode,
-  TerraDrawRectangleMode,
-  TerraDrawCircleMode,
-  TerraDrawFreehandMode,
-  TerraDrawSelectMode,
   TerraDrawRenderMode,
+  TerraDrawSelectMode,
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter as TerraDrawMapLibreGLBridge } from "terra-draw-maplibre-gl-adapter";
 
@@ -44,9 +41,6 @@ export class MapLibreDrawEngine implements IDrawEngine {
         new TerraDrawPointMode(),
         new TerraDrawLineStringMode(),
         new TerraDrawPolygonMode(),
-        new TerraDrawRectangleMode(),
-        new TerraDrawCircleMode(),
-        new TerraDrawFreehandMode(),
         new TerraDrawSelectMode({
           flags: {
             point: {
@@ -87,6 +81,11 @@ export class MapLibreDrawEngine implements IDrawEngine {
 
   private notifyChange(): void {
     const features = this.getFeatures();
+    console.log(
+      "TerraDraw emitted change event: ",
+      features.features.length,
+      "features"
+    );
     this.changeCallbacks.forEach((cb) => cb(features));
   }
 

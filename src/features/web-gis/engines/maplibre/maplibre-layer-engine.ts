@@ -1,4 +1,4 @@
-import type { Map as MapLibreMap } from "maplibre-gl";
+import { LngLatBounds, type Map as MapLibreMap } from "maplibre-gl";
 
 import type { SerializedLayer } from "../../domain";
 import type { ILayerEngine } from "../ports";
@@ -51,6 +51,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
     // Add or update layers.
     for (const layer of layers) {
       const existing = this.currentLayers.get(layer.id);
+
       if (!existing) {
         this.addLayer(layer);
       } else if (this.hasLayerChanged(existing, layer)) {
@@ -65,8 +66,64 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
   fitToLayer(layerId: string): void {
     const layer = this.currentLayers.get(layerId);
-    if (!layer?.bbox) return;
-    this.fitToBounds(layer.bbox);
+
+    if (!layer) {
+      return;
+    }
+
+    if (layer.bbox) {
+      this.fitToBounds(layer.bbox);
+      return;
+    }
+
+    if (layer.type === "vector" && layer.data) {
+      const bbox = this.computeGeoJSONBBox(
+        layer.data as GeoJSON.FeatureCollection
+      );
+
+      if (bbox) {
+        this.fitToBounds(bbox);
+      }
+    }
+  }
+
+  private computeGeoJSONBBox(
+    collection: GeoJSON.FeatureCollection
+  ): [number, number, number, number] | null {
+    const bounds = new LngLatBounds();
+
+    const extendWithCoords = (coords: unknown): void => {
+      if (!Array.isArray(coords)) return;
+
+      if (typeof coords[0] === "number") {
+        bounds.extend([coords[0], coords[1]] as [number, number]);
+      } else {
+        coords.forEach(extendWithCoords);
+      }
+    };
+
+    for (const feature of collection.features) {
+      if (!feature.geometry) continue;
+
+      if (feature.geometry.type === "GeometryCollection") {
+        for (const geom of feature.geometry.geometries) {
+          if ("coordinates" in geom) {
+            extendWithCoords(geom.coordinates);
+          }
+        }
+      } else {
+        extendWithCoords(feature.geometry.coordinates);
+      }
+    }
+
+    if (bounds.isEmpty()) return null;
+
+    return [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth(),
+    ];
   }
 
   fitToBounds(bbox: [number, number, number, number]): void {
@@ -129,6 +186,13 @@ export class MapLibreLayerEngine implements ILayerEngine {
         });
         break;
 
+      case "vector":
+        this.map.addSource(sourceId, {
+          type: "geojson",
+          data: layer.data as string,
+        });
+        break;
+
       default:
         console.warn(`Unsupported layer type: ${layer.type}`);
         break;
@@ -155,6 +219,58 @@ export class MapLibreLayerEngine implements ILayerEngine {
         type: "raster",
         source: sourceId,
         layout: { visibility },
+      });
+      return;
+    }
+
+    if (layer.type === "vector") {
+      // Add polygon fill
+      this.map.addLayer({
+        id: `${layerId}-fill`,
+        type: "fill",
+        source: sourceId,
+        filter: [
+          "in",
+          ["geometry-type"],
+          ["literal", ["Polygon", "MultiPolygon"]],
+        ],
+        layout: { visibility },
+        paint: {
+          "fill-color": layer.style?.fillColor || "#3182ce",
+          "fill-opacity": layer.style?.fillOpacity ?? 0.4,
+        },
+      });
+
+      // Add line borders and LineStrings
+      this.map.addLayer({
+        id: `${layerId}-line`,
+        type: "line",
+        source: sourceId,
+        filter: [
+          "match",
+          ["geometry-type"],
+          ["Polygon", "MultiPolygon", "LineString", "MultiLineString"],
+          true,
+          false,
+        ],
+        layout: { visibility },
+        paint: {
+          "line-color": layer.style?.strokeColor || "#2b6cb0",
+          "line-width": layer.style?.strokeWidth ?? 2,
+        },
+      });
+
+      // Add point markers
+      this.map.addLayer({
+        id: `${layerId}-circle`,
+        type: "circle",
+        source: sourceId,
+        filter: ["==", ["geometry-type"], "Point"],
+        layout: { visibility },
+        paint: {
+          "circle-color": layer.style?.pointColor || "#e53e3e",
+          "circle-radius": layer.style?.pointRadius ?? 5,
+        },
       });
       return;
     }
@@ -235,6 +351,9 @@ export class MapLibreLayerEngine implements ILayerEngine {
     }
     if (layer.type === "wms") {
       return ["raster"];
+    }
+    if (layer.type === "vector") {
+      return ["fill", "line", "circle"];
     }
     return [];
   }

@@ -191,7 +191,7 @@ export const DatasetUploadModal = ({
       <Dialog.Trigger />
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content>
+        <Dialog.Content className="dataset-upload-modal-content">
           <Dialog.CloseTrigger>
             <CloseButton mt="11px" mr="7px" size="sm" />
           </Dialog.CloseTrigger>

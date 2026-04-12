@@ -1,22 +1,22 @@
 import type { DatasetNodeType } from "src/features/web-gis/types";
 
-export const DATASET_TYPES = {
+export const DatasetType = {
   VECTOR: "vector",
   RASTER: "raster",
   TEXT: "text",
 } as const;
 
-export type DatasetType = (typeof DATASET_TYPES)[keyof typeof DATASET_TYPES];
+export type DatasetType = (typeof DatasetType)[keyof typeof DatasetType];
 
-export const RASTER_KINDS = {
+export const RasterKind = {
   ELEVATION: "elevation",
   ORTHO: "ortho",
   RASTER: "raster",
 } as const;
 
-export type RasterKind = (typeof RASTER_KINDS)[keyof typeof RASTER_KINDS];
+export type RasterKind = (typeof RasterKind)[keyof typeof RasterKind];
 
-export const TILESET_STATUSES = {
+export const TilesetStatus = {
   PENDING: "pending",
   PROCESSING: "processing",
   READY: "ready",
@@ -25,7 +25,7 @@ export const TILESET_STATUSES = {
 
 export interface TileSetResponse {
   id: string;
-  status: (typeof TILESET_STATUSES)[keyof typeof TILESET_STATUSES];
+  status: (typeof TilesetStatus)[keyof typeof TilesetStatus];
   storagePath: string;
   fileSize: number;
   minZoom: number;
@@ -79,7 +79,7 @@ export interface LayerStyleSpec {
 export interface LayerResponse {
   id: string;
   name: string;
-  source: string; // Dataset ID.
+  source: string;
   style: LayerStyleSpec;
   bbox: [number, number, number, number] | null; // [minLng, minLat, maxLng, maxLat].
   datasetType: DatasetType | null; // Type of the source dataset.
@@ -90,8 +90,6 @@ export interface LayerResponse {
 
 export interface CreateLayerPayload {
   name: string;
-  source: string; // Dataset ID.
+  source: string;
   style?: LayerStyleSpec;
 }
-
-// Multipart Upload Dataset.

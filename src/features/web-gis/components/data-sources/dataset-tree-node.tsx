@@ -1,5 +1,5 @@
 import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
-import { DATASET_TYPES, useDeleteDatasetNode } from "api/web-gis";
+import { DatasetType, useDeleteDatasetNode } from "api/web-gis";
 import { useState } from "react";
 import type { NodeRendererProps } from "react-arborist";
 import { AiOutlineFileAdd } from "react-icons/ai";
@@ -68,6 +68,7 @@ export const DatasetTreeNode = ({
 
   return (
     <Flex
+      className="dataset-tree-node"
       ref={dragHandle}
       draggable={!isFolder && !!dataset}
       onDragStart={handleDragStart}
@@ -90,10 +91,10 @@ export const DatasetTreeNode = ({
       }}
       _active={{ bgColor: "intent.primaryActive" }}
     >
-      <Flex align="center" flex={1}>
+      <Flex className="dataset-tree-node-content" align="center" flex={1}>
         {isFolder ? (
           renderFolderIcon(node.isOpen)
-        ) : dataset?.type === DATASET_TYPES.RASTER ? (
+        ) : dataset?.type === DatasetType.RASTER ? (
           <Box as="span" mx={2} color={"green.400"} fontSize="sm">
             <TbMap2 />
           </Box>
@@ -110,6 +111,7 @@ export const DatasetTreeNode = ({
 
       {/* Actions: Upload & Delete */}
       <Flex
+        className="dataset-tree-node-actions"
         align="center"
         gap="0.25rem"
         opacity={isHovered ? 1 : 0}

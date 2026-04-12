@@ -9,6 +9,7 @@ import type { ILayerEngine } from "../engines/ports";
  */
 export class LayerStore {
   layers: Map<string, LayerModel> = new Map();
+  activeLayerId: string | null = null;
 
   private engine: ILayerEngine | null = null;
   private disposeReaction: (() => void) | null = null;
@@ -60,7 +61,6 @@ export class LayerStore {
    * Adds a new layer.
    */
   addLayer(layer: LayerModel): void {
-    // Set order to be at the top.
     layer.setOrder(this.layers.size);
     this.layers.set(layer.id, layer);
   }
@@ -139,6 +139,26 @@ export class LayerStore {
    */
   clear(): void {
     this.layers.clear();
+    this.activeLayerId = null;
+  }
+
+  /**
+   * Sets the active layer for drawing or editing.
+   */
+  setActiveLayer(layerId: string | null): void {
+    if (layerId && this.layers.has(layerId)) {
+      this.activeLayerId = layerId;
+    } else {
+      this.activeLayerId = null;
+    }
+  }
+
+  /**
+   * Gets the currently active layer, if any.
+   */
+  get activeLayer(): LayerModel | undefined {
+    if (!this.activeLayerId) return undefined;
+    return this.layers.get(this.activeLayerId);
   }
 
   private reorderLayers(): void {

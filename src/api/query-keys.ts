@@ -7,6 +7,8 @@ export const QueryKeys = {
   datasetTiles: (id: string) => [
     `/web-gis/datasets/${id}/tiles/{z}/{x}/{y}.png`,
   ],
+  // Features.
+  features: (datasetId: string) => [`/web-gis/features/?dataset=${datasetId}`],
   // Layers.
   layer: (id: string) => [`/web-gis/layers/${id}`],
   layers: ["/web-gis/layers"],
