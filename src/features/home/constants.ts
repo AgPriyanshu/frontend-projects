@@ -58,7 +58,7 @@ export const apps: AppCard[] = [
     title: "Level Up",
     description: "Character development score card",
     icon: AiFillThunderbolt,
-    route: RoutePath.WhiteBoard,
+    route: RoutePath.LevelUp,
     category: AppCategory.Productivity,
   },
 ];

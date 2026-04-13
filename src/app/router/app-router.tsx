@@ -5,6 +5,7 @@ import { RoutePath } from "./constants";
 import {
   AppItemPlaceholder,
   HomePage,
+  LevelUpPage,
   LoginPage,
   TodoPage,
   URLShortner,
@@ -31,6 +32,7 @@ export const AppRouter = () => {
           element={<AppItemPlaceholder />}
         />
         <Route path={RoutePath.Store} element={<AppItemPlaceholder />} />
+        <Route path={RoutePath.LevelUp} element={<LevelUpPage />} />
         <Route path={RoutePath.WhiteBoard} element={<AppItemPlaceholder />} />
       </Route>
 
