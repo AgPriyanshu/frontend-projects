@@ -37,7 +37,7 @@ export const TodoListItem: React.FC<TodoListItemProps> = ({ task }) => {
     });
 
   return (
-    <List.Item>
+    <List.Item data-testid="todo-item">
       <Flex gap={3} align="center" w={"full"}>
         <CheckboxCard.Root
           checked={checked}

@@ -4,6 +4,7 @@ import { ResizableBox } from "react-resizable";
 
 import { LayerPanel, MapCanvas, MapControls, Toolbar } from "./components";
 import { DatasetTree } from "./components/data-sources";
+import { ProcessingBar } from "./components/processing";
 import { DEFAULT_WORKSPACE_ID } from "./domain";
 import { workspaceManager } from "./stores";
 import { ResizeHandle } from "./components/resize-handle";
@@ -45,7 +46,7 @@ export const WebGIS = () => {
         className="web-gis-resizable"
         width={layerPanelWidth}
         height={containerHeight}
-        handle={ResizeHandle}
+        handle={(_, ref) => <ResizeHandle ref={ref} />}
         resizeHandles={["e"]}
         onResize={(_, { size: newSize }) => {
           setLayerPanelWidth(newSize.width);
@@ -72,21 +73,25 @@ export const WebGIS = () => {
         </VStack>
       </ResizableBox>
 
-      {/* Map area with toolbar. */}
-      <Box
-        className="web-gis-map-area"
-        flex={1}
-        h={"full"}
-        borderColor={"border.default"}
-        borderWidth={"1px"}
-        borderRadius={"lg"}
-        overflow={"hidden"}
-        position="relative"
-      >
-        <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
-        <MapControls workspaceId={DEFAULT_WORKSPACE_ID} />
-        <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
-      </Box>
+      {/* Right side: processing bar + map area. */}
+      <VStack flex={1} h={"full"} gap={0} overflow="hidden">
+        <ProcessingBar />
+
+        <Box
+          className="web-gis-map-area"
+          flex={1}
+          w={"full"}
+          borderColor={"border.default"}
+          borderWidth={"1px"}
+          borderRadius={"lg"}
+          overflow={"hidden"}
+          position="relative"
+        >
+          <MapCanvas workspaceId={DEFAULT_WORKSPACE_ID} />
+          <MapControls workspaceId={DEFAULT_WORKSPACE_ID} />
+          <Toolbar workspaceId={DEFAULT_WORKSPACE_ID} />
+        </Box>
+      </VStack>
     </Flex>
   );
 };

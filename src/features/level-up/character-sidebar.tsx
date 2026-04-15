@@ -39,6 +39,7 @@ export const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
 
       <Box p={3} borderTopWidth="1px" borderColor="border.muted">
         <Button
+          data-testid="add-character-button"
           w="full"
           size="sm"
           variant="ghost"

@@ -91,3 +91,54 @@ Built on Chakra UI v3. Theme customization lives in `design-system/theme/` (sema
 - `shared/utils/type-utils.ts` — `toCamelCase` / `toSnakeCase` used by the API interceptors.
 - `shared/local-storage/` — Typed helpers for reading/writing tokens and other persisted values.
 - `shared/enums.ts`, `shared/types.ts` — App-wide enums and types.
+
+---
+
+## UI Patterns
+
+### Page layout — full-width vs centred card
+
+Most feature pages (`Todo`, `Home`, `WebGIS`) stretch to fill the outlet with `w="full" h="full"`. When a feature calls for a focused, card-style layout (like `LevelUp`), centre it inside the outlet instead:
+
+```tsx
+<Flex
+  w="full"
+  maxW="960px"
+  h="600px"
+  borderRadius="2xl"
+  borderWidth="1px"
+  borderColor="border.default"
+  overflow="hidden"
+  shadow="lg"
+  mx="auto"
+>
+```
+
+The outlet is already wrapped in `<Center>` inside `App`, so `mx="auto"` + `maxW` is all that is needed.
+
+### Inline editing with Chakra Editable
+
+Use `Editable.Root / Editable.Preview / Editable.Input` for click-to-edit fields. Always set `key={record.id}` so the component resets its internal value when the selected record changes.
+
+```tsx
+<Editable.Root
+  key={`field-${record.id}`}
+  defaultValue={record.field}
+  onValueCommit={(e) => onUpdate(e.value)}
+>
+  <Editable.Preview _hover={{ cursor: "text", color: "intent.primary" }} />
+  <Editable.Input _focus={{ outlineColor: "intent.primary" }} />
+</Editable.Root>
+```
+
+### Avatar upload (image or emoji)
+
+`AvatarDisplay` (`src/features/level-up/avatar-display.tsx`) detects whether `avatar` is an image src (`data:` / `http`) or an emoji and renders accordingly. `AvatarUpload` wraps it with a hidden `<input type="file">` and a hover camera overlay that calls `FileReader.readAsDataURL` and fires `onUpload(dataUrl)`. This pattern can be reused for any feature that needs user-supplied images stored locally in state.
+
+### Level Up feature (`src/features/level-up/`)
+
+RPG-style character development scorecard. All state is local (no backend). Key decisions:
+
+- `avatar` field on `Character` holds either an emoji string or a `data:` URL — `AvatarDisplay` handles both.
+- `key={character.id}` on every `Editable.Root` is required; without it, switching characters leaves stale values in the inputs.
+- The `updateSelected` helper in `LevelUpPage` avoids repeating the `prev.map(char => char.id === selectedId ? {...} : char)` pattern across every handler.

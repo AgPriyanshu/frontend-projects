@@ -1,8 +1,8 @@
 import { HStack, Skeleton } from "@chakra-ui/react";
 
-const TodoListItemSkeleton = () => {
+const TodoListItemSkeleton = ({ testId }: { testId?: string }) => {
   return (
-    <HStack flex="1" gap={"3"} width={"full"}>
+    <HStack data-testid={testId} flex="1" gap={"3"} width={"full"}>
       <Skeleton
         height="54px"
         flex="1"
@@ -23,6 +23,9 @@ export const TodoListSkeleton = () => {
   return Array(20)
     .fill(0)
     .map((_, index) => (
-      <TodoListItemSkeleton key={"todoListSkeleton-" + index} />
+      <TodoListItemSkeleton
+        key={"todoListSkeleton-" + index}
+        testId={index === 0 ? "todo-skeleton" : undefined}
+      />
     ));
 };

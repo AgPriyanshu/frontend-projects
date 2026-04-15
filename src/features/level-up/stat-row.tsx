@@ -16,6 +16,7 @@ export const StatRow: React.FC<StatRowProps> = ({ stat, onUpdate }) => {
 
   return (
     <Flex
+      data-testid={`stat-row-${stat.name.toLowerCase()}`}
       align="center"
       py={4}
       px={6}

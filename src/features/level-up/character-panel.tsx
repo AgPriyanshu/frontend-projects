@@ -71,6 +71,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
         <VStack align="start" gap={1} flex={1}>
           {/* Editable name — key resets when switching characters. */}
           <Editable.Root
+            data-testid="character-name"
             key={`name-${character.id}`}
             defaultValue={character.name}
             onValueCommit={(e) => onNameUpdate(e.value)}
@@ -89,6 +90,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
 
           {/* Editable occupation/class. */}
           <Editable.Root
+            data-testid="character-class"
             key={`class-${character.id}`}
             defaultValue={character.class}
             onValueCommit={(e) => onClassUpdate(e.value)}
@@ -107,6 +109,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
           <Flex align="center" gap={3} mt={1}>
             {/* Editable level badge. */}
             <Editable.Root
+              data-testid="character-level"
               key={`level-${character.id}`}
               defaultValue={String(character.level)}
               onValueCommit={(e) => handleLevelChange(e.value)}

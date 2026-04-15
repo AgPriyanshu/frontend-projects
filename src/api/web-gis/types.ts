@@ -93,3 +93,83 @@ export interface CreateLayerPayload {
   source: string;
   style?: LayerStyleSpec;
 }
+
+// Processing (geoprocessing tool) API types.
+export const ProcessingJobStatus = {
+  PENDING: "pending",
+  PROCESSING: "processing",
+  COMPLETED: "completed",
+  FAILED: "failed",
+} as const;
+
+export type ProcessingJobStatus =
+  (typeof ProcessingJobStatus)[keyof typeof ProcessingJobStatus];
+
+export const ProcessingToolCategory = {
+  RASTER: "raster",
+  VECTOR: "vector",
+} as const;
+
+export type ProcessingToolCategory =
+  (typeof ProcessingToolCategory)[keyof typeof ProcessingToolCategory];
+
+export type ProcessingToolParamType =
+  | "number"
+  | "string"
+  | "boolean"
+  | "select"
+  | "dataset"
+  | "expression";
+
+export interface ProcessingToolParamOption {
+  value: string;
+  label: string;
+}
+
+export interface ProcessingToolParam {
+  name: string;
+  label: string;
+  type: ProcessingToolParamType;
+  required?: boolean;
+  default?: string | number | boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  placeholder?: string;
+  options?: ProcessingToolParamOption[];
+  datasetType?: DatasetType;
+}
+
+export interface ProcessingToolDefinition {
+  toolName: string;
+  label: string;
+  description: string;
+  category: ProcessingToolCategory;
+  inputTypes: DatasetType[];
+  outputType: DatasetType;
+  parameters: ProcessingToolParam[];
+}
+
+export interface ProcessingJobResponse {
+  id: string;
+  toolName: string;
+  status: ProcessingJobStatus;
+  progress: number;
+  parameters: Record<string, unknown>;
+  inputDatasetIds: string[];
+  outputDataset: string | null;
+  outputNode: string | null;
+  errorMessage: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProcessingJobPayload {
+  toolName: string;
+  inputDatasetIds: string[];
+  parameters: Record<string, unknown>;
+  outputName?: string;
+  outputParentId?: string | null;
+}

@@ -15,6 +15,7 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
 }) => {
   return (
     <Flex
+      data-testid="character-card"
       direction="column"
       align="center"
       py={5}

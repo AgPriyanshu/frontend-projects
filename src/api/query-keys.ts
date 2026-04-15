@@ -21,4 +21,7 @@ export const QueryKeys = {
   // Chat.
   chatSessions: ["/ai/chat-sessions"],
   llms: ["/ai/llms"],
+  // Processing jobs.
+  processingJobs: ["/web-gis/processing"],
+  processingTools: ["/web-gis/processing/tools"],
 };
