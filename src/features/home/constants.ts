@@ -6,7 +6,7 @@ import {
   FaRegListAlt,
   FaStoreAlt,
 } from "react-icons/fa";
-import { MdDevicesOther } from "react-icons/md";
+import { MdDevicesOther, MdOutlineInventory2 } from "react-icons/md";
 import { AppCategory } from "./enums";
 import type { AppCard } from "./types";
 import { AiFillThunderbolt } from "react-icons/ai";
@@ -34,6 +34,13 @@ export const apps: AppCard[] = [
     category: AppCategory.Productivity,
   },
   {
+    title: "Inventory",
+    description: "Manage your inventory efficiently",
+    icon: MdOutlineInventory2,
+    route: RoutePath.Inventory,
+    category: AppCategory.Business,
+  },
+  {
     title: "Device Classifier",
     description: "Classify your gadget image",
     icon: MdDevicesOther,
@@ -45,7 +52,7 @@ export const apps: AppCard[] = [
     description: "Browse and purchase products from our online store",
     icon: FaStoreAlt,
     route: RoutePath.Store,
-    category: AppCategory.Ecommerce,
+    category: AppCategory.Business,
   },
   {
     title: "Live board",

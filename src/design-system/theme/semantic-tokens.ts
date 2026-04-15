@@ -120,20 +120,20 @@ export const semanticTokens = {
     intent: {
       primary: {
         value: {
-          _light: "{colors.palette.brand.600}",
-          _dark: "{colors.palette.brand.500}",
-        },
-      },
-      primaryHover: {
-        value: {
           _light: "{colors.palette.brand.700}",
           _dark: "{colors.palette.brand.600}",
         },
       },
-      primaryActive: {
+      primaryHover: {
         value: {
           _light: "{colors.palette.brand.800}",
           _dark: "{colors.palette.brand.700}",
+        },
+      },
+      primaryActive: {
+        value: {
+          _light: "{colors.palette.brand.900}",
+          _dark: "{colors.palette.brand.800}",
         },
       },
 

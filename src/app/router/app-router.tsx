@@ -34,6 +34,7 @@ export const AppRouter = () => {
         <Route path={RoutePath.Store} element={<AppItemPlaceholder />} />
         <Route path={RoutePath.LevelUp} element={<LevelUpPage />} />
         <Route path={RoutePath.WhiteBoard} element={<AppItemPlaceholder />} />
+        <Route path={RoutePath.Inventory} element={<AppItemPlaceholder />} />
       </Route>
 
       {/* Public routes - no authentication required */}
