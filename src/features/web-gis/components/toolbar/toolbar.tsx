@@ -76,8 +76,7 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
   };
 
   const handleModalComplete = async (apiLayer: LayerResponse) => {
-    const data = await fetchFeaturesAsGeoJSON(apiLayer.source);
-    const layer = LayerFactory.createVectorLayer(apiLayer, data);
+    const layer = LayerFactory.createVectorLayer(apiLayer);
 
     if (layer) {
       layerStore.addLayer(layer);

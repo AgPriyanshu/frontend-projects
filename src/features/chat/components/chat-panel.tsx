@@ -177,9 +177,6 @@ export const ChatPanel = observer(() => {
 
           {/* Body */}
           <Flex flex={1} overflow="hidden" w="full">
-            {/* Collapsible session sidebar */}
-            {isSessionListOpen && <SessionList />}
-
             {/* Chat area */}
             <Flex direction="column" flex={1} minW={0}>
               {activeSessionId ? (
@@ -210,6 +207,8 @@ export const ChatPanel = observer(() => {
                 </Flex>
               )}
             </Flex>
+            {/* Collapsible session sidebar */}
+            {isSessionListOpen && <SessionList />}
           </Flex>
         </VStack>
       </ResizableBox>

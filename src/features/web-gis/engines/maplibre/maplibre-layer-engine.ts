@@ -1,4 +1,4 @@
-import { LngLatBounds, type Map as MapLibreMap } from "maplibre-gl";
+import { type Map as MapLibreMap } from "maplibre-gl";
 
 import type { SerializedLayer } from "../../domain";
 import type { ILayerEngine } from "../ports";
@@ -73,57 +73,7 @@ export class MapLibreLayerEngine implements ILayerEngine {
 
     if (layer.bbox) {
       this.fitToBounds(layer.bbox);
-      return;
     }
-
-    if (layer.type === "vector" && layer.data) {
-      const bbox = this.computeGeoJSONBBox(
-        layer.data as GeoJSON.FeatureCollection
-      );
-
-      if (bbox) {
-        this.fitToBounds(bbox);
-      }
-    }
-  }
-
-  private computeGeoJSONBBox(
-    collection: GeoJSON.FeatureCollection
-  ): [number, number, number, number] | null {
-    const bounds = new LngLatBounds();
-
-    const extendWithCoords = (coords: unknown): void => {
-      if (!Array.isArray(coords)) return;
-
-      if (typeof coords[0] === "number") {
-        bounds.extend([coords[0], coords[1]] as [number, number]);
-      } else {
-        coords.forEach(extendWithCoords);
-      }
-    };
-
-    for (const feature of collection.features) {
-      if (!feature.geometry) continue;
-
-      if (feature.geometry.type === "GeometryCollection") {
-        for (const geom of feature.geometry.geometries) {
-          if ("coordinates" in geom) {
-            extendWithCoords(geom.coordinates);
-          }
-        }
-      } else {
-        extendWithCoords(feature.geometry.coordinates);
-      }
-    }
-
-    if (bounds.isEmpty()) return null;
-
-    return [
-      bounds.getWest(),
-      bounds.getSouth(),
-      bounds.getEast(),
-      bounds.getNorth(),
-    ];
   }
 
   fitToBounds(bbox: [number, number, number, number]): void {
@@ -187,9 +137,12 @@ export class MapLibreLayerEngine implements ILayerEngine {
         break;
 
       case "vector":
+        // MVT source: data is a tile URL template string.
         this.map.addSource(sourceId, {
-          type: "geojson",
-          data: layer.data as string,
+          type: "vector",
+          tiles: [layer.data as string],
+          minzoom: 0,
+          maxzoom: 22,
         });
         break;
 
@@ -224,11 +177,12 @@ export class MapLibreLayerEngine implements ILayerEngine {
     }
 
     if (layer.type === "vector") {
-      // Add polygon fill
+      // Add polygon fill.
       this.map.addLayer({
         id: `${layerId}-fill`,
         type: "fill",
         source: sourceId,
+        "source-layer": "features",
         filter: [
           "in",
           ["geometry-type"],
@@ -241,11 +195,12 @@ export class MapLibreLayerEngine implements ILayerEngine {
         },
       });
 
-      // Add line borders and LineStrings
+      // Add line borders and LineStrings.
       this.map.addLayer({
         id: `${layerId}-line`,
         type: "line",
         source: sourceId,
+        "source-layer": "features",
         filter: [
           "match",
           ["geometry-type"],
@@ -260,11 +215,12 @@ export class MapLibreLayerEngine implements ILayerEngine {
         },
       });
 
-      // Add point markers
+      // Add point markers.
       this.map.addLayer({
         id: `${layerId}-circle`,
         type: "circle",
         source: sourceId,
+        "source-layer": "features",
         filter: ["==", ["geometry-type"], "Point"],
         layout: { visibility },
         paint: {

@@ -4,6 +4,7 @@ import { getAccessToken } from "shared/local-storage/token";
 import { chatStore } from "../store/chat-store";
 import type {
   WebSocketIncomingMessage,
+  WebSocketUIActionMessage,
   WebSocketErrorMessage,
 } from "api/chat/types";
 
@@ -51,6 +52,7 @@ export const useWebSocket = (sessionId: string | null) => {
       try {
         const data = JSON.parse(event.data) as
           | WebSocketIncomingMessage
+          | WebSocketUIActionMessage
           | WebSocketErrorMessage;
 
         if ("error" in data) {
@@ -58,7 +60,14 @@ export const useWebSocket = (sessionId: string | null) => {
           return;
         }
 
-        chatStore.handleIncomingMessage(data);
+        if ("type" in data && data.type === "ui_action") {
+          chatStore.setPendingUIActions(
+            (data as WebSocketUIActionMessage).actions
+          );
+          return;
+        }
+
+        chatStore.handleIncomingMessage(data as WebSocketIncomingMessage);
       } catch {
         console.error("[WebSocket] Failed to parse message:", event.data);
       }

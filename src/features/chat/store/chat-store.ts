@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import type {
   ChatMessageResponse,
+  UIAction,
   WebSocketIncomingMessage,
 } from "api/chat/types";
 
@@ -13,6 +14,7 @@ export class ChatStore {
   isSessionListOpen = false;
   isWaitingForResponse = false;
   connectionStatus: ConnectionStatus = "disconnected";
+  pendingUIActions: UIAction[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -116,6 +118,14 @@ export class ChatStore {
         role: data.role,
       });
     });
+  }
+
+  setPendingUIActions(actions: UIAction[]) {
+    this.pendingUIActions = actions;
+  }
+
+  clearPendingUIActions() {
+    this.pendingUIActions = [];
   }
 
   clearMessages() {

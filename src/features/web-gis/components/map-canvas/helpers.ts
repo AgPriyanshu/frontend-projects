@@ -1,12 +1,9 @@
-import {
-  type LayerResponse,
-  DatasetType,
-  fetchFeaturesAsGeoJSON,
-} from "api/web-gis";
+import { type LayerResponse, DatasetType } from "api/web-gis";
+import { toaster } from "design-system/toaster";
 import { LayerFactory } from "../../services";
 import type { WorkspaceStore } from "../../stores";
 
-export const addLayerToMap = async (
+export const addLayerToMap = (
   apiLayer: LayerResponse,
   workspace: WorkspaceStore
 ) => {
@@ -16,11 +13,12 @@ export const addLayerToMap = async (
         const layer = LayerFactory.createRasterLayer(apiLayer);
 
         if (!layer) {
-          console.info(
-            `Skipping raster layer until tiles are ready: ${apiLayer.name} (status: ${
-              apiLayer.tileset?.status ?? "missing"
-            })`
-          );
+          toaster.create({
+            title: "Layer not ready",
+            description: `Tiles for "${apiLayer.name}" are still processing. Try again shortly.`,
+            type: "error",
+          });
+
           return;
         }
 
@@ -35,15 +33,19 @@ export const addLayerToMap = async (
       }
 
       case DatasetType.VECTOR: {
-        console.log({ apiLayer });
-        const data = await fetchFeaturesAsGeoJSON(apiLayer.source);
-        const layer = LayerFactory.createVectorLayer(apiLayer, data);
+        const layer = LayerFactory.createVectorLayer(apiLayer);
 
         if (!layer) {
           return;
         }
 
         workspace.layerStore.addLayer(layer);
+
+        if (apiLayer.bbox) {
+          workspace.layerStore.fitToBounds(
+            apiLayer.bbox as [number, number, number, number]
+          );
+        }
         break;
       }
 

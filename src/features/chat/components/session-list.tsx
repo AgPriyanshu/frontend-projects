@@ -1,5 +1,5 @@
 import { Flex, Text, IconButton, VStack, Spinner } from "@chakra-ui/react";
-import { FiPlus, FiTrash2, FiMessageSquare } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import {
   useChatSessions,
@@ -12,6 +12,7 @@ import { chatStore } from "../store/chat-store";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { useState } from "react";
+import { DeleteIconButton } from "shared/components";
 
 const SessionItem = ({
   session,
@@ -39,11 +40,12 @@ const SessionItem = ({
 
   return (
     <Flex
+      className="session-item"
+      w={"full"}
+      h={"2rem"}
       px={3}
       py={2}
       cursor="pointer"
-      borderRadius="lg"
-      alignItems="center"
       gap={2.5}
       bg={isActive ? "surface.hover" : "transparent"}
       _hover={{ bg: "surface.hover" }}
@@ -51,8 +53,8 @@ const SessionItem = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       transition="all 0.15s ease"
+      alignItems={"center"}
     >
-      <FiMessageSquare size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
       <Text
         fontSize="xs"
         flex={1}
@@ -62,18 +64,7 @@ const SessionItem = ({
       >
         {session.name}
       </Text>
-      {isHovered && (
-        <IconButton
-          aria-label="Delete session"
-          size="2xs"
-          variant="ghost"
-          color="icon.danger"
-          _hover={{ color: "icon.dangerHover", bg: "transparent" }}
-          onClick={handleDelete}
-        >
-          <FiTrash2 size={12} />
-        </IconButton>
-      )}
+      {isHovered && <DeleteIconButton size={"2xs"} onClick={handleDelete} />}
     </Flex>
   );
 };
@@ -104,11 +95,17 @@ export const SessionList = observer(() => {
     );
   };
 
+  const handleSelectSession = (sessionId: string) => {
+    chatStore.setActiveSession(sessionId);
+    chatStore.toggleSessionList();
+  };
+
   return (
     <VStack
+      className="session-list"
       w="200px"
       minW="200px"
-      borderRightWidth="1px"
+      borderLeftWidth="1px"
       borderColor="border.default"
       bg="surface.container"
       gap={0}
@@ -152,7 +149,6 @@ export const SessionList = observer(() => {
         w="full"
         overflowY="auto"
         gap={0.5}
-        p={1.5}
         css={{
           "&::-webkit-scrollbar": { width: "3px" },
           "&::-webkit-scrollbar-track": { bg: "transparent" },
@@ -172,7 +168,7 @@ export const SessionList = observer(() => {
             key={session.id}
             session={session}
             isActive={chatStore.activeSessionId === session.id}
-            onSelect={() => chatStore.setActiveSession(session.id)}
+            onSelect={() => handleSelectSession(session.id)}
           />
         ))}
         {!isLoading && sessions.length === 0 && (

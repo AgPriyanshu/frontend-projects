@@ -156,6 +156,7 @@ export const semanticTokens = {
           _dark: "#ef4444",
         },
       },
+
       errorHover: {
         value: {
           _light: "#b91c1c",
@@ -174,6 +175,19 @@ export const semanticTokens = {
         value: {
           _light: "#2563eb",
           _dark: "#3b82f6",
+        },
+      },
+
+      danger: {
+        value: {
+          _light: "{colors.palette.red.700}",
+          _dark: "{colors.palette.red.600}",
+        },
+      },
+      dangerHover: {
+        value: {
+          _light: "{colors.palette.red.700}",
+          _dark: "{colors.palette.red.600}",
         },
       },
     },

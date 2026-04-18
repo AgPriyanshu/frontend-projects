@@ -80,6 +80,7 @@
 - Avoid inline functions inside JSX when possible.
 - Make components reusable through proper prop design.
 - Use TypeScript interfaces or types for props definition.
+- Always add a `className` to every container element (the outermost element of a component) using a descriptive kebab-case name matching the component name (e.g. `className="dataset-tree"`, `className="layer-panel"`). This aids debugging and visual identification in DevTools.
 
 ---
 

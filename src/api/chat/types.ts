@@ -48,3 +48,15 @@ export interface WebSocketOutgoingMessage {
 export interface WebSocketErrorMessage {
   error: string;
 }
+
+export interface UIAction {
+  app: string;
+  action_type: string;
+  payload: Record<string, unknown>;
+}
+
+export interface WebSocketUIActionMessage {
+  type: "ui_action";
+  sessionId: string;
+  actions: UIAction[];
+}

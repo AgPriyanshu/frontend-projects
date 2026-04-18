@@ -2,7 +2,6 @@ import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
 import {
   DatasetType,
   RasterKind,
-  fetchFeaturesAsGeoJSON,
   useDeleteLayer,
   useLayers,
 } from "api/web-gis";
@@ -55,8 +54,7 @@ export const LayerPanel = observer(() => {
               workspace.layerStore.addLayer(layer);
             }
           } else if (apiLayer.datasetType === DatasetType.VECTOR) {
-            const data = await fetchFeaturesAsGeoJSON(apiLayer.source);
-            const layer = LayerFactory.createVectorLayer(apiLayer, data);
+            const layer = LayerFactory.createVectorLayer(apiLayer);
 
             if (layer) {
               workspace.layerStore.addLayer(layer);

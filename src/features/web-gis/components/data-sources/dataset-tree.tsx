@@ -1,14 +1,20 @@
 import { Box, Button, Flex, HStack, IconButton, Text } from "@chakra-ui/react";
-import { useDatasetsNodes } from "api/web-gis";
-import { useState } from "react";
+import { useDeleteDatasetNode, useDatasetsNodes } from "api/web-gis";
+import { ConfirmDialog } from "design-system/confirm-dialog";
+import { useMemo, useState } from "react";
 import { Tree } from "react-arborist";
-import { FaFolderPlus } from "react-icons/fa";
-import useResizeObserver from "use-resize-observer";
-
 import { AiOutlineFileAdd } from "react-icons/ai";
+import { FaFolderPlus } from "react-icons/fa";
+import { MdDeleteSweep } from "react-icons/md";
+import { useMultiSelect } from "shared/hooks/use-multi-select";
+import useResizeObserver from "use-resize-observer";
+import { type DatasetNode } from "../../types";
 import { CreateFolderModal } from "./create-folder-modal";
 import { DatasetTreeNode } from "./dataset-tree-node";
 import { DatasetUploadModal } from "./dataset-upload-modal";
+
+const flattenNodeIds = (nodes: DatasetNode[]): string[] =>
+  nodes.flatMap((n) => [n.id, ...flattenNodeIds(n.children)]);
 
 export const DatasetTree = () => {
   // States.
@@ -16,12 +22,32 @@ export const DatasetTree = () => {
   const [uploadParentId, setUploadParentId] = useState<string | null>(null);
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [folderParentId, setFolderParentId] = useState<string | null>(null);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   // Hooks.
   const { ref, height = 0, width = 0 } = useResizeObserver();
 
   // APIs.
   const { data, isLoading } = useDatasetsNodes();
+  const { mutateAsync: deleteNode, isPending: isDeleting } =
+    useDeleteDatasetNode();
+
+  // Variables.
+  const orderedIds = useMemo(
+    () => (data ? flattenNodeIds(data.data) : []),
+    [data]
+  );
+
+  const {
+    selectedIds,
+    handleToggleSelect,
+    handleSelectAll,
+    handleClearSelection,
+  } = useMultiSelect(orderedIds);
+
+  const isSelectMode = selectedIds.size > 0;
+  const allSelected =
+    orderedIds.length > 0 && orderedIds.every((id) => selectedIds.has(id));
 
   // Handlers.
   const disableDropForSameFolder = (args: {
@@ -43,6 +69,12 @@ export const DatasetTree = () => {
   const handleOpenCreateFolder = (parentId: string | null = null) => {
     setFolderParentId(parentId);
     setIsCreateFolderModalOpen(true);
+  };
+
+  const handleBulkDelete = async () => {
+    await Promise.all([...selectedIds].map((id) => deleteNode(id)));
+    handleClearSelection();
+    setIsBulkDeleteOpen(false);
   };
 
   // Render.
@@ -68,34 +100,78 @@ export const DatasetTree = () => {
           borderBottom="1px solid"
           borderColor="border.subtle"
           bg="bg.panel"
+          minH="40px"
         >
-          <Text
-            className="dataset-tree-title"
-            fontSize="sm"
-            fontWeight="semibold"
-            color="text.primary"
-            ml={"1rem"}
-          >
-            Datasets
-          </Text>
-          <HStack className="dataset-tree-actions" gap={1}>
-            <IconButton
-              size="sm"
-              variant="ghost"
-              aria-label="New folder"
-              onClick={() => handleOpenCreateFolder(null)}
-            >
-              <FaFolderPlus />
-            </IconButton>
-            <IconButton
-              size="sm"
-              variant="ghost"
-              aria-label="Upload dataset"
-              onClick={() => handleOpenUpload(null)}
-            >
-              <AiOutlineFileAdd />
-            </IconButton>
-          </HStack>
+          {isSelectMode ? (
+            <>
+              <HStack gap={2} ml={"1rem"}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="intent.primary"
+                >
+                  {selectedIds.size} selected
+                </Text>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  color="text.secondary"
+                  onClick={allSelected ? handleClearSelection : handleSelectAll}
+                >
+                  {allSelected ? "Deselect all" : "Select all"}
+                </Button>
+              </HStack>
+              <HStack gap={1}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  color="text.secondary"
+                  onClick={handleClearSelection}
+                >
+                  Cancel
+                </Button>
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  aria-label="Delete selected"
+                  color="intent.danger"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                >
+                  <MdDeleteSweep />
+                </IconButton>
+              </HStack>
+            </>
+          ) : (
+            <>
+              <Text
+                className="dataset-tree-title"
+                fontSize="sm"
+                fontWeight="semibold"
+                color="text.primary"
+                ml={"1rem"}
+              >
+                Datasets
+              </Text>
+              <HStack className="dataset-tree-actions" gap={1}>
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  aria-label="New folder"
+                  onClick={() => handleOpenCreateFolder(null)}
+                >
+                  <FaFolderPlus />
+                </IconButton>
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  aria-label="Upload dataset"
+                  onClick={() => handleOpenUpload(null)}
+                >
+                  <AiOutlineFileAdd />
+                </IconButton>
+              </HStack>
+            </>
+          )}
         </Flex>
 
         <Box
@@ -154,6 +230,8 @@ export const DatasetTree = () => {
                 <DatasetTreeNode
                   {...props}
                   onUpload={() => handleOpenUpload(props.node.data.id)}
+                  selectedIds={selectedIds}
+                  onToggleSelect={handleToggleSelect}
                 />
               )}
             </Tree>
@@ -177,6 +255,16 @@ export const DatasetTree = () => {
           setFolderParentId(null);
         }}
         parentId={folderParentId}
+      />
+
+      <ConfirmDialog
+        isOpen={isBulkDeleteOpen}
+        onClose={() => setIsBulkDeleteOpen(false)}
+        onConfirm={handleBulkDelete}
+        title={`Delete ${selectedIds.size} item${selectedIds.size !== 1 ? "s" : ""}?`}
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={isDeleting}
       />
     </Box>
   );

@@ -1,5 +1,6 @@
 import {
   buildTileUrl,
+  buildVectorTileUrl,
   DatasetType,
   RasterKind,
   TilesetStatus,
@@ -41,15 +42,12 @@ export class LayerFactory {
     });
   }
 
-  static createVectorLayer(
-    apiLayer: LayerResponse,
-    data: GeoJSON.FeatureCollection
-  ): LayerModel | null {
+  static createVectorLayer(apiLayer: LayerResponse): LayerModel | null {
     return new LayerModel({
       id: apiLayer.id,
       type: DatasetType.VECTOR,
       name: apiLayer.name,
-      source: data,
+      source: buildVectorTileUrl(apiLayer.source),
       datasetId: apiLayer.source,
       bbox: apiLayer.bbox ?? undefined,
     });

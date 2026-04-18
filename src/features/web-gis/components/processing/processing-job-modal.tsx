@@ -134,7 +134,11 @@ export const ProcessingJobModal = ({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(e) => !e.open && onClose()}
+      placement={"center"}
+    >
       <Dialog.Backdrop bg="blackAlpha.300" backdropFilter="blur(2px)" />
       <Dialog.Positioner>
         <Dialog.Content>

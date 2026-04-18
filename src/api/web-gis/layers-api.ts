@@ -51,6 +51,15 @@ export const useDeleteLayer = () => {
 };
 
 /**
+ * Builds the MVT tile URL template for a vector dataset.
+ * Used by MapLibre to request individual tiles from the backend.
+ */
+export const buildVectorTileUrl = (datasetId: string): string => {
+  const baseUrl = api.defaults.baseURL ?? "";
+  return `${baseUrl}${QueryKeys.datasetVectorTiles(datasetId)[0]}`;
+};
+
+/**
  * Builds the XYZ tile URL template for a raster dataset.
  * Used by MapLibre to request individual tiles from the backend.
  */

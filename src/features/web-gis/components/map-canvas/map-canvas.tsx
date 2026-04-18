@@ -82,7 +82,7 @@ export const MapCanvas = observer(({ workspaceId }: MapCanvasProps) => {
             onSuccess: async (response) => {
               const apiLayer = (response.data as ApiResponse<LayerResponse>)
                 .data;
-              await addLayerToMap(apiLayer, workspace);
+              addLayerToMap(apiLayer, workspace);
             },
           }
         );
