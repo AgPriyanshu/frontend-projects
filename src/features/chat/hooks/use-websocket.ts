@@ -21,6 +21,7 @@ export const useWebSocket = (sessionId: string | null) => {
     if (reconnectTimeout.current) {
       clearTimeout(reconnectTimeout.current);
     }
+
     if (wsRef.current) {
       wsRef.current.onopen = null;
       wsRef.current.onmessage = null;
@@ -32,7 +33,9 @@ export const useWebSocket = (sessionId: string | null) => {
   }, []);
 
   const connect = useCallback(() => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      return;
+    }
 
     cleanup();
     chatStore.setConnectionStatus("connecting");

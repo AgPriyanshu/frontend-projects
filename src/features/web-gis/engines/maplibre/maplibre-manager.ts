@@ -64,7 +64,7 @@ export class MapLibreMapManager implements IMapManager {
       // Add satellite base layer.
       this.mapInstance.addSource("satellite", {
         type: "raster",
-        tiles: ["https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"],
+        tiles: ["https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"],
         tileSize: 256,
       });
 

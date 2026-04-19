@@ -41,7 +41,9 @@ export const ChatPanel = observer(() => {
     []
   );
 
-  if (!isPanelOpen) return null;
+  if (!isPanelOpen) {
+    return null;
+  }
 
   return (
     <Box ref={containerRef} h="full" position="relative">

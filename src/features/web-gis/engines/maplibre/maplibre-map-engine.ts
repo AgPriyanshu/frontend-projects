@@ -92,6 +92,10 @@ export class MapLibreMapEngine implements IMapEngine {
     this.map?.resetNorth();
   }
 
+  flyTo(center: [number, number], zoom: number): void {
+    this.map?.flyTo({ center, zoom });
+  }
+
   toggleProjection(): void {
     if (!this.map) {
       return;

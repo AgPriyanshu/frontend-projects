@@ -89,6 +89,10 @@ export class MapStore {
     this.engine?.resetNorth();
   }
 
+  flyTo(center: [number, number], zoom: number): void {
+    this.engine?.flyTo(center, zoom);
+  }
+
   toggleProjection(): void {
     this.engine?.toggleProjection();
   }

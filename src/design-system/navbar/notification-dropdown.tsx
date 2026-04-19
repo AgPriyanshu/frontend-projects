@@ -18,7 +18,6 @@ import {
 } from "api/events";
 import { isEmpty } from "lodash";
 import { useState } from "react";
-import { FaBell } from "react-icons/fa";
 import {
   FcAbout,
   FcGlobe,
@@ -26,6 +25,7 @@ import {
   FcTemplate,
   FcTodoList,
 } from "react-icons/fc";
+import { GoBell } from "react-icons/go";
 import { TbWorldBolt } from "react-icons/tb";
 import { getRelativeTime } from "shared/utils";
 
@@ -91,7 +91,7 @@ export const NotificationDropdown = () => {
             color={"text.primary"}
             _hover={{ bgColor: "surface.subtle" }}
           >
-            <FaBell />
+            <GoBell />
           </IconButton>
 
           {unreadNotifications && !isEmpty(unreadNotifications) && (

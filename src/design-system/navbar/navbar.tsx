@@ -1,14 +1,15 @@
-import { Box, Flex, HStack, IconButton, Heading, Menu } from "@chakra-ui/react";
-import { FaUser, FaSignOutAlt, FaMagic } from "react-icons/fa";
+import { Box, Flex, Heading, HStack, IconButton, Menu } from "@chakra-ui/react";
+import { queryClient } from "api/query-client";
+import { RoutePath } from "app/router/constants";
+import { observer } from "mobx-react-lite";
+import { FaSignOutAlt, FaUser } from "react-icons/fa";
+import { RiChatAiLine } from "react-icons/ri";
 import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage";
-import { RoutePath } from "app/router/constants";
-import { queryClient } from "api/query-client";
+import { chatStore } from "src/features/chat";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
-import { chatStore } from "src/features/chat";
-import { observer } from "mobx-react-lite";
 
 export const Navbar = observer(() => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export const Navbar = observer(() => {
             color={chatStore.isPanelOpen ? "intent.primary" : "text.primary"}
             _hover={{ bgColor: "surface.subtle" }}
           >
-            <FaMagic size={20} />
+            <RiChatAiLine />
           </IconButton>
 
           <Menu.Root>

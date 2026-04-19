@@ -39,4 +39,7 @@ export interface IMapEngine {
 
   /** Toggles between globe and flat (mercator) projection. */
   toggleProjection(): void;
+
+  /** Smoothly flies to the given center and zoom with animation. */
+  flyTo(center: [number, number], zoom: number): void;
 }

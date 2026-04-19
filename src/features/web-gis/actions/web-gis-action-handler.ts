@@ -5,6 +5,7 @@ import type { ApiResponse } from "api/types";
 import type { DatasetNodeResponse } from "api/web-gis/types";
 import { Action, ActionHandler } from "../../chat/agent/action";
 import type { ActionResult, RawUIAction } from "../../chat/agent/types";
+import { workspaceManager } from "../stores/workspace-manager";
 
 // ---------------------------------------------------------------------------
 // Action classes
@@ -70,6 +71,24 @@ export class ToggleVisibilityAction extends Action {
   }
 }
 
+export class MapZoomToAction extends Action {
+  readonly app = "web_gis";
+  readonly actionType = "map_zoom_to";
+  readonly payload: { latitude: number; longitude: number };
+
+  constructor(latitude: number, longitude: number) {
+    super();
+    this.payload = { latitude, longitude };
+  }
+
+  validate(): boolean {
+    return (
+      typeof this.payload.latitude === "number" &&
+      typeof this.payload.longitude === "number"
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -107,6 +126,7 @@ export class WebGISActionHandler extends ActionHandler {
       "remove_layer",
       "fit_to_layer",
       "toggle_visibility",
+      "map_zoom_to",
     ];
   }
 
@@ -122,6 +142,11 @@ export class WebGISActionHandler extends ActionHandler {
         return new FitToLayerAction(datasetName);
       case "toggle_visibility":
         return new ToggleVisibilityAction(datasetName);
+      case "map_zoom_to":
+        return new MapZoomToAction(
+          raw.payload.latitude as number,
+          raw.payload.longitude as number
+        );
       default:
         return null;
     }
@@ -134,6 +159,8 @@ export class WebGISActionHandler extends ActionHandler {
           return await this.handleLoadDataset(action as LoadDatasetAction);
         case "remove_layer":
           return await this.handleRemoveLayer(action as RemoveLayerAction);
+        case "map_zoom_to":
+          return this.handleMapZoomTo(action as MapZoomToAction);
         default:
           return {
             app: this.app,
@@ -193,12 +220,30 @@ export class WebGISActionHandler extends ActionHandler {
   private async handleRemoveLayer(
     action: RemoveLayerAction
   ): Promise<ActionResult> {
-    // For remove_layer, we'd need to find the layer by dataset name
-    // and then delete it. For now, return success as a stub.
     return {
       app: this.app,
       actionType: action.actionType,
       success: true,
     };
+  }
+
+  private handleMapZoomTo(action: MapZoomToAction): ActionResult {
+    const workspace = workspaceManager.activeWorkspace;
+
+    if (!workspace) {
+      return {
+        app: this.app,
+        actionType: action.actionType,
+        success: false,
+        error: "No active workspace.",
+      };
+    }
+
+    workspace.mapStore.flyTo(
+      [action.payload.longitude, action.payload.latitude],
+      12
+    );
+
+    return { app: this.app, actionType: action.actionType, success: true };
   }
 }
