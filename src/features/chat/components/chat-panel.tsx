@@ -9,6 +9,7 @@ import { useWebSocket } from "../hooks/use-websocket";
 import { SessionList } from "./session-list";
 import { MessageList } from "./message-list";
 import { ChatInput } from "./chat-input";
+import { workspaceManager } from "../../web-gis/stores/workspace-manager";
 
 const MIN_WIDTH = 360;
 const MAX_WIDTH = 800;
@@ -30,8 +31,16 @@ export const ChatPanel = observer(() => {
   const { sendMessage } = useWebSocket(isPanelOpen ? activeSessionId : null);
 
   const handleSend = (message: string) => {
+    const workspace = workspaceManager.activeWorkspace;
+    const loadedLayers = workspace?.layerStore.layersArray.map((l) => ({
+      id: l.id,
+      name: l.name,
+      type: l.type,
+      datasetId: l.datasetId,
+    })) ?? [];
+
     chatStore.addOptimisticMessage(message, 0);
-    sendMessage(message);
+    sendMessage(message, { loaded_layers: loadedLayers });
   };
 
   const handleResize = useCallback(

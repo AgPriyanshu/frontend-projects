@@ -146,8 +146,12 @@ export interface ProcessingToolDefinition {
   description: string;
   category: ProcessingToolCategory;
   inputTypes: DatasetType[];
-  outputType: DatasetType;
+  outputType?: DatasetType;
   parameters: ProcessingToolParam[];
+}
+
+export interface ProcessingToolsResponse {
+  tools: ProcessingToolDefinition[];
 }
 
 export interface ProcessingJobResponse {

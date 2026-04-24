@@ -2,7 +2,7 @@ import api from "api/api";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
-import type { DatasetNodeResponse } from "api/web-gis/types";
+import type { DatasetNodeResponse, ProcessingToolDefinition, ProcessingToolsResponse } from "api/web-gis/types";
 import { Action, ActionHandler } from "../../chat/agent/action";
 import type { ActionResult, RawUIAction } from "../../chat/agent/types";
 import { workspaceManager } from "../stores/workspace-manager";
@@ -89,6 +89,21 @@ export class MapZoomToAction extends Action {
   }
 }
 
+export class OpenProcessingToolAction extends Action {
+  readonly app = "web_gis";
+  readonly actionType = "open_processing_tool";
+  readonly payload: { toolName: string; defaults: Record<string, unknown> };
+
+  constructor(toolName: string, defaults: Record<string, unknown>) {
+    super();
+    this.payload = { toolName, defaults };
+  }
+
+  validate(): boolean {
+    return Boolean(this.payload.toolName);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -127,6 +142,7 @@ export class WebGISActionHandler extends ActionHandler {
       "fit_to_layer",
       "toggle_visibility",
       "map_zoom_to",
+      "open_processing_tool",
     ];
   }
 
@@ -147,6 +163,11 @@ export class WebGISActionHandler extends ActionHandler {
           raw.payload.latitude as number,
           raw.payload.longitude as number
         );
+      case "open_processing_tool":{
+        const toolName = (raw.payload.tool_name as string) ?? "";
+        const defaults = (raw.payload.defaults as Record<string, unknown>) ?? {};
+        return new OpenProcessingToolAction(toolName, defaults);
+      }
       default:
         return null;
     }
@@ -161,6 +182,8 @@ export class WebGISActionHandler extends ActionHandler {
           return await this.handleRemoveLayer(action as RemoveLayerAction);
         case "map_zoom_to":
           return this.handleMapZoomTo(action as MapZoomToAction);
+        case "open_processing_tool":
+          return this.handleOpenProcessingTool(action as OpenProcessingToolAction);
         default:
           return {
             app: this.app,
@@ -244,6 +267,63 @@ export class WebGISActionHandler extends ActionHandler {
       12
     );
 
+    return { app: this.app, actionType: action.actionType, success: true };
+  }
+
+  private handleOpenProcessingTool(
+    action: OpenProcessingToolAction
+  ): ActionResult {
+    const workspace = workspaceManager.activeWorkspace;
+
+    if (!workspace) {
+      return {
+        app: this.app,
+        actionType: action.actionType,
+        success: false,
+        error: "No active workspace.",
+      };
+    }
+
+    const { toolName, defaults } = action.payload;
+
+    const inputDatasetId = defaults?.inputDatasetId as string | undefined;
+
+    if (inputDatasetId) {
+      const layer = workspace.layerStore.layersArray.find(
+        (l) => l.datasetId === inputDatasetId
+      );
+      if (layer) {
+        workspace.layerStore.fitToLayer(layer.id);
+      }
+    }
+
+    // Try to find the tool definition from React-Query cache first.
+    // The queryFn returns AxiosResponse<ApiResponse<ProcessingToolsResponse>>
+    const cached = queryClient.getQueryData<{ data: ApiResponse<ProcessingToolsResponse> }>(
+      QueryKeys.processingTools
+    );
+    const lowerName = toolName.toLowerCase();
+    const toolDef = cached?.data?.data?.tools?.find(
+      (t) =>
+        t.toolName.toLowerCase() === lowerName ||
+        t.label.toLowerCase() === lowerName
+    );
+
+    if (toolDef) {
+      workspace.processingUIStore.openTool(toolDef, defaults, true);
+      return { app: this.app, actionType: action.actionType, success: true };
+    }
+
+    // Cache miss: build a minimal stub so the modal still opens.
+    const stub: ProcessingToolDefinition = {
+      toolName,
+      label: toolName,
+      description: "",
+      category: "vector",
+      inputTypes: ["vector"],
+      parameters: [],
+    };
+    workspace.processingUIStore.openTool(stub, defaults, true);
     return { app: this.app, actionType: action.actionType, success: true };
   }
 }

@@ -9,11 +9,8 @@ import type {
   CreateProcessingJobPayload,
   ProcessingJobResponse,
   ProcessingToolDefinition,
+  ProcessingToolsResponse,
 } from "./types";
-
-interface ProcessingToolsResponse {
-  tools: ProcessingToolDefinition[];
-}
 
 export const useProcessingTools = () => {
   return useQuery({

@@ -1,19 +1,16 @@
 import { Button, HStack, Menu, Portal } from "@chakra-ui/react";
-import {
-  useProcessingJobs,
-  useProcessingTools,
-  type ProcessingToolDefinition,
-} from "api/web-gis";
-import { useState } from "react";
+import { useProcessingJobs, useProcessingTools } from "api/web-gis";
+import { observer } from "mobx-react-lite";
+import { workspaceManager } from "../../stores/workspace-manager";
 import { ProcessingJobModal } from "./processing-job-modal";
 import { ProcessingJobListPopover } from "./processing-job-list-popover";
 
-export const ProcessingBar = () => {
+export const ProcessingBar = observer(() => {
   const { data: toolsData } = useProcessingTools();
   const { data: jobsData } = useProcessingJobs();
 
-  const [selectedTool, setSelectedTool] =
-    useState<ProcessingToolDefinition | null>(null);
+  const workspace = workspaceManager.activeWorkspace;
+  const processingUIStore = workspace?.processingUIStore;
 
   const tools = toolsData?.data?.tools ?? [];
   const rasterTools = tools.filter((t) => t.category === "raster");
@@ -52,7 +49,7 @@ export const ProcessingBar = () => {
                     <Menu.Item
                       key={tool.toolName}
                       value={tool.toolName}
-                      onClick={() => setSelectedTool(tool)}
+                      onClick={() => processingUIStore?.openTool(tool)}
                     >
                       {tool.label}
                     </Menu.Item>
@@ -81,7 +78,7 @@ export const ProcessingBar = () => {
                     <Menu.Item
                       key={tool.toolName}
                       value={tool.toolName}
-                      onClick={() => setSelectedTool(tool)}
+                      onClick={() => processingUIStore?.openTool(tool)}
                     >
                       {tool.label}
                     </Menu.Item>
@@ -97,13 +94,15 @@ export const ProcessingBar = () => {
         </HStack>
       </HStack>
 
-      {selectedTool && (
+      {processingUIStore?.selectedTool && (
         <ProcessingJobModal
           isOpen={true}
-          onClose={() => setSelectedTool(null)}
-          tool={selectedTool}
+          onClose={() => processingUIStore.close()}
+          tool={processingUIStore.selectedTool}
+          defaultValues={processingUIStore.defaultValues}
+          autoSubmit={processingUIStore.autoSubmit}
         />
       )}
     </>
   );
-};
+});

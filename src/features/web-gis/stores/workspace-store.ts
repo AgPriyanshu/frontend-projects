@@ -4,6 +4,7 @@ import type { IMapManager } from "../engines/ports";
 import { DrawStore } from "./draw-store";
 import { LayerStore } from "./layer-store";
 import { MapStore } from "./map-store";
+import { ProcessingUIStore } from "./processing-ui-store";
 import { ToolStore } from "./tool-store";
 
 /**
@@ -16,6 +17,7 @@ export class WorkspaceStore {
   readonly layerStore: LayerStore;
   readonly toolStore: ToolStore;
   readonly drawStore: DrawStore;
+  readonly processingUIStore: ProcessingUIStore;
 
   private mapManager: IMapManager;
 
@@ -25,6 +27,7 @@ export class WorkspaceStore {
     this.layerStore = new LayerStore();
     this.toolStore = new ToolStore();
     this.drawStore = new DrawStore();
+    this.processingUIStore = new ProcessingUIStore();
     this.mapManager = createMapManager();
     this.bindStores();
 
@@ -34,6 +37,7 @@ export class WorkspaceStore {
       layerStore: false,
       toolStore: false,
       drawStore: false,
+      processingUIStore: false,
     });
   }
 

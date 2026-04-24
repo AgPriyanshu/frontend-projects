@@ -104,11 +104,14 @@ export const useWebSocket = (sessionId: string | null) => {
     connectRef.current = connect;
   }, [connect]);
 
-  const sendMessage = useCallback((message: string) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ message }));
-    }
-  }, []);
+  const sendMessage = useCallback(
+    (message: string, context?: Record<string, unknown>) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ message, ...(context ? { context } : {}) }));
+      }
+    },
+    []
+  );
 
   const disconnect = useCallback(() => {
     cleanup();
