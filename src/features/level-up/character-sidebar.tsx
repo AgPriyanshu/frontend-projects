@@ -8,6 +8,7 @@ type CharacterSidebarProps = {
   selectedId: string;
   onSelect: (id: string) => void;
   onAdd: () => void;
+  onDelete: (id: string) => void;
 };
 
 export const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
@@ -15,9 +16,11 @@ export const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
   selectedId,
   onSelect,
   onAdd,
+  onDelete,
 }) => {
   return (
     <Flex
+      className="character-sidebar"
       direction="column"
       w="180px"
       flexShrink={0}
@@ -33,6 +36,7 @@ export const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
             character={character}
             isSelected={character.id === selectedId}
             onClick={() => onSelect(character.id)}
+            onDelete={() => onDelete(character.id)}
           />
         ))}
       </Box>

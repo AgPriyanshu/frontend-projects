@@ -11,13 +11,14 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { AvatarUpload } from "./avatar-upload";
+import { AvatarCarousel } from "./avatar-carousel";
+import { StatDetailPanel } from "./stat-detail-panel";
 import { StatRow } from "./stat-row";
-import type { Character } from "./types";
+import type { Character, Stat } from "./types";
 
 type CharacterPanelProps = {
   character: Character;
-  onStatUpdate: (statName: string, value: number) => void;
+  onStatUpdate: (statId: string, value: number) => void;
   onAvatarUpdate: (dataUrl: string) => void;
   onNameUpdate: (name: string) => void;
   onClassUpdate: (className: string) => void;
@@ -35,6 +36,15 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
   onStatAdd,
 }) => {
   const [newStatName, setNewStatName] = useState("");
+  const [selectedStatId, setSelectedStatId] = useState<string | null>(null);
+
+  const selectedStat: Stat | undefined = character.stats.find(
+    (s) => s.id === selectedStatId
+  );
+
+  const handleStatSelect = (id: string) => {
+    setSelectedStatId((prev) => (prev === id ? null : id));
+  };
 
   const totalScore = character.stats.reduce((sum, s) => sum + s.value, 0);
   const maxScore = character.stats.reduce((sum, s) => sum + s.max, 0);
@@ -57,7 +67,14 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
   };
 
   return (
-    <Flex flex={1} direction="column" h="full" overflowY="auto" minW={0}>
+    <Flex
+      className="character-panel"
+      flex={1}
+      direction="column"
+      h="full"
+      overflowY="auto"
+      minW={0}
+    >
       {/* Character header */}
       <Flex
         align="center"
@@ -66,7 +83,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
         borderBottomWidth="1px"
         borderColor="border.default"
       >
-        <AvatarUpload avatar={character.avatar} onUpload={onAvatarUpdate} />
+        <AvatarCarousel avatar={character.avatar} onSelect={onAvatarUpdate} />
 
         <VStack align="start" gap={1} flex={1}>
           {/* Editable name — key resets when switching characters. */}
@@ -92,7 +109,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
           <Editable.Root
             data-testid="character-class"
             key={`class-${character.id}`}
-            defaultValue={character.class}
+            defaultValue={character.className}
             onValueCommit={(e) => onClassUpdate(e.value)}
             fontSize="sm"
             fontWeight="semibold"
@@ -118,12 +135,14 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
               <Editable.Preview asChild>
                 <Badge
                   colorPalette="orange"
-                  variant="solid"
+                  variant="outline"
                   px={2}
                   py={0.5}
                   borderRadius="md"
+                  borderWidth="1.5px"
                   cursor="text"
                   fontSize="xs"
+                  fontWeight="bold"
                   letterSpacing="wider"
                 >
                   LVL {character.level}
@@ -140,69 +159,89 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
                 _focus={{ outlineColor: "intent.primary" }}
               />
             </Editable.Root>
-
-            <Text fontSize="xs" color="text.muted">
-              Overall score:{" "}
-              <Text as="span" color="text.secondary" fontWeight="semibold">
-                {totalScore} / {maxScore}
-              </Text>
-            </Text>
           </Flex>
+
+          <Text fontSize="xs" color="text.muted" whiteSpace="nowrap">
+            Overall score:{" "}
+            <Text as="span" color="text.secondary" fontWeight="semibold">
+              {totalScore} / {maxScore}
+            </Text>
+          </Text>
         </VStack>
       </Flex>
 
-      {/* Stats table */}
-      <Box flex={1}>
-        {character.stats.map((stat) => (
-          <StatRow
-            key={stat.name}
-            stat={stat}
-            onUpdate={(value) => onStatUpdate(stat.name, value)}
-          />
-        ))}
+      {/* Stats body: list + optional detail panel side-by-side */}
+      <Flex flex={1} overflow="hidden">
+        {/* Stats list */}
+        <Flex direction="column" flex={1} minW={0} overflow="hidden">
+          <Box overflowY="auto" flex={1}>
+            {character.stats.map((stat) => (
+              <StatRow
+                key={stat.id}
+                stat={stat}
+                isSelected={stat.id === selectedStatId}
+                onUpdate={(value) => onStatUpdate(stat.id, value)}
+                onSelect={() => handleStatSelect(stat.id)}
+              />
+            ))}
+          </Box>
 
-        {/* Add stat row */}
-        <Flex
-          align="center"
-          py={3}
-          px={6}
-          gap={3}
-          borderTopWidth="1px"
-          borderColor="border.muted"
-          borderStyle="dashed"
-        >
-          <Input
-            placeholder="New stat name…"
-            value={newStatName}
-            size="sm"
-            w="180px"
-            borderRadius="md"
+          {/* Add stat row */}
+          <Flex
+            align="center"
+            py={3}
+            px={6}
+            gap={3}
+            borderTopWidth="1px"
             borderColor="border.muted"
-            color="text.primary"
-            _placeholder={{ color: "text.muted" }}
-            _focus={{
-              borderColor: "intent.primary",
-              outlineColor: "intent.primary",
-            }}
-            onChange={(e) => setNewStatName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddStat()}
-          />
-          <Button
-            size="sm"
-            variant="ghost"
-            color="text.muted"
-            borderRadius="md"
-            borderWidth="1px"
-            borderColor="border.muted"
-            _hover={{ color: "intent.primary", borderColor: "intent.primary" }}
-            onClick={handleAddStat}
-            disabled={!newStatName.trim()}
+            borderStyle="dashed"
+            flexShrink={0}
           >
-            <Icon as={FaPlus} boxSize={3} mr={1} />
-            Add stat
-          </Button>
+            <Input
+              placeholder="New stat name…"
+              value={newStatName}
+              size="sm"
+              w="180px"
+              borderRadius="md"
+              borderColor="border.muted"
+              color="text.primary"
+              _placeholder={{ color: "text.muted" }}
+              _focus={{
+                borderColor: "intent.primary",
+                outlineColor: "intent.primary",
+              }}
+              onChange={(e) => setNewStatName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddStat()}
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              color="text.muted"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="border.muted"
+              _hover={{
+                color: "intent.primary",
+                borderColor: "intent.primary",
+              }}
+              onClick={handleAddStat}
+              disabled={!newStatName.trim()}
+            >
+              <Icon as={FaPlus} boxSize={3} mr={1} />
+              Add stat
+            </Button>
+          </Flex>
         </Flex>
-      </Box>
+
+        {/* Stat detail panel */}
+        {selectedStat && (
+          <StatDetailPanel
+            key={selectedStat.id}
+            stat={selectedStat}
+            onClose={() => setSelectedStatId(null)}
+          />
+        )}
+      </Flex>
     </Flex>
   );
 };

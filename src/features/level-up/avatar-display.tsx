@@ -20,6 +20,7 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
 
   return (
     <Box
+      className="avatar-display"
       w={dimension}
       h={dimension}
       flexShrink={0}

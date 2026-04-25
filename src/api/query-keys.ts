@@ -27,4 +27,8 @@ export const QueryKeys = {
   // Processing jobs.
   processingJobs: ["/web-gis/processing"],
   processingTools: ["/web-gis/processing/tools"],
+  // Merged terrain tiles (SRTM baseline + user DEMs composited).
+  mergedTerrainTiles: ["/web-gis/terrain/tiles/{z}/{x}/{y}.png"],
+  // Level Up characters.
+  levelUpCharacters: ["/level-up/characters"],
 };

@@ -32,12 +32,13 @@ export const ChatPanel = observer(() => {
 
   const handleSend = (message: string) => {
     const workspace = workspaceManager.activeWorkspace;
-    const loadedLayers = workspace?.layerStore.layersArray.map((l) => ({
-      id: l.id,
-      name: l.name,
-      type: l.type,
-      datasetId: l.datasetId,
-    })) ?? [];
+    const loadedLayers =
+      workspace?.layerStore.layersArray.map((l) => ({
+        id: l.id,
+        name: l.name,
+        type: l.type,
+        datasetId: l.datasetId,
+      })) ?? [];
 
     chatStore.addOptimisticMessage(message, 0);
     sendMessage(message, { loaded_layers: loadedLayers });

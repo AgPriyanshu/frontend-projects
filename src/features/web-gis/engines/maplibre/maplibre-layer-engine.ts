@@ -1,7 +1,12 @@
 import { type Map as MapLibreMap } from "maplibre-gl";
+import { EnvVariable } from "app/config/env-variables";
 
 import type { SerializedLayer } from "../../domain";
 import type { ILayerEngine } from "../ports";
+
+// The merged terrain tile URL — SRTM baseline composited with any user DEM tilesets.
+const MERGED_TERRAIN_SOURCE_ID = "__merged-terrain-source__";
+const MERGED_TERRAIN_TILES_URL = `${EnvVariable.API_BASE_URL}/web-gis/terrain/tiles/{z}/{x}/{y}.png`;
 
 /**
  * MapLibre implementation of ILayerEngine.
@@ -24,22 +29,11 @@ export class MapLibreLayerEngine implements ILayerEngine {
       return;
     }
 
+    // Ensure the global merged terrain source is always registered.
+    this.ensureMergedTerrainSource();
+
     const newLayerIds = new Set(layers.map((layer) => layer.id));
     const currentLayerIds = new Set(this.currentLayers.keys());
-
-    // If the currently active terrain source is about to be removed,
-    // detach terrain before source removal.
-    if (this.activeTerrainSourceId) {
-      const activeTerrainLayerId = this.activeTerrainSourceId.replace(
-        "source-",
-        ""
-      );
-
-      if (!newLayerIds.has(activeTerrainLayerId)) {
-        this.map.setTerrain(null);
-        this.activeTerrainSourceId = null;
-      }
-    }
 
     // Remove layers that no longer exist.
     for (const layerId of currentLayerIds) {
@@ -317,34 +311,44 @@ export class MapLibreLayerEngine implements ILayerEngine {
   private syncTerrain(layers: SerializedLayer[]): void {
     if (!this.map) return;
 
-    const terrainLayer = [...layers]
-      .sort((a, b) => b.order - a.order)
-      .find(
-        (layer) =>
-          layer.type === "raster" &&
-          layer.rasterKind === "elevation" &&
-          layer.visible &&
-          layer.terrainEnabled
-      );
+    // Check whether any elevation layer has terrain rendering enabled.
+    const terrainEnabled = layers.some(
+      (layer) =>
+        layer.type === "raster" &&
+        layer.rasterKind === "elevation" &&
+        layer.visible &&
+        layer.terrainEnabled
+    );
 
-    if (!terrainLayer) {
+    if (!terrainEnabled) {
       this.map.setTerrain(null);
       this.activeTerrainSourceId = null;
       return;
     }
 
-    const sourceId = `source-${terrainLayer.id}`;
-    if (!this.map.getSource(sourceId)) {
-      this.map.setTerrain(null);
-      this.activeTerrainSourceId = null;
-      return;
+    // Always use the merged terrain source for the actual 3-D mesh so that
+    // the SRTM baseline fills areas outside the user's DEM coverage.
+    if (this.map.getSource(MERGED_TERRAIN_SOURCE_ID)) {
+      this.map.setTerrain({
+        source: MERGED_TERRAIN_SOURCE_ID,
+        exaggeration: 1,
+      });
+      this.activeTerrainSourceId = MERGED_TERRAIN_SOURCE_ID;
     }
+  }
 
-    this.map.setTerrain({
-      source: sourceId,
+  /** Register the global merged-terrain raster-dem source once per map instance. */
+  private ensureMergedTerrainSource(): void {
+    if (!this.map) return;
+    if (this.map.getSource(MERGED_TERRAIN_SOURCE_ID)) return;
+    this.map.addSource(MERGED_TERRAIN_SOURCE_ID, {
+      type: "raster-dem",
+      tiles: [MERGED_TERRAIN_TILES_URL],
+      tileSize: 256,
+      encoding: "mapbox",
+      minzoom: 0,
+      maxzoom: 12,
     });
-
-    this.activeTerrainSourceId = sourceId;
   }
 
   private hasLayerChanged(

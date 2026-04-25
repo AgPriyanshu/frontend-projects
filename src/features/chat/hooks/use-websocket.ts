@@ -107,7 +107,9 @@ export const useWebSocket = (sessionId: string | null) => {
   const sendMessage = useCallback(
     (message: string, context?: Record<string, unknown>) => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ message, ...(context ? { context } : {}) }));
+        wsRef.current.send(
+          JSON.stringify({ message, ...(context ? { context } : {}) })
+        );
       }
     },
     []

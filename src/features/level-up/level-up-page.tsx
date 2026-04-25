@@ -1,70 +1,102 @@
-import { Flex } from "@chakra-ui/react";
+import { Center, Flex, Spinner } from "@chakra-ui/react";
 import { useState } from "react";
+import {
+  useAddStat,
+  useCharacters,
+  useCreateCharacter,
+  useDeleteCharacter,
+  useUpdateCharacter,
+  useUpdateStat,
+} from "api/level-up/level-up-api";
 import { CharacterPanel } from "./character-panel";
 import { CharacterSidebar } from "./character-sidebar";
-import { DEFAULT_STATS, INITIAL_CHARACTERS, STAT_MAX } from "./constants";
-import type { Character } from "./types";
+import { DEFAULT_STATS, STAT_MAX } from "./constants";
 
 export const LevelUpPage = () => {
-  const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
-  const [selectedId, setSelectedId] = useState<string>(
-    INITIAL_CHARACTERS[0].id
-  );
+  const { data: characters = [], isLoading } = useCharacters();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const selectedCharacter = characters.find((c) => c.id === selectedId)!;
+  const createCharacter = useCreateCharacter();
+  const updateCharacter = useUpdateCharacter();
+  const deleteCharacter = useDeleteCharacter();
+  const addStat = useAddStat();
+  const updateStat = useUpdateStat();
 
-  const updateSelected = (patch: Partial<Character>) =>
-    setCharacters((prev) =>
-      prev.map((char) =>
-        char.id === selectedId ? { ...char, ...patch } : char
-      )
+  const effectiveId = selectedId ?? characters[0]?.id ?? null;
+  const selectedCharacter = characters.find((c) => c.id === effectiveId);
+
+  const handleAddCharacter = () => {
+    createCharacter.mutate(
+      {
+        name: `Character ${characters.length + 1}`,
+        avatar: "🧙",
+        className: "Wanderer",
+        level: 1,
+        stats: DEFAULT_STATS.map((s) => ({ ...s })),
+      },
+      {
+        onSuccess: (response) => {
+          setSelectedId(response.data.data.id);
+        },
+      }
     );
+  };
 
-  const handleStatUpdate = (statName: string, value: number) => {
-    updateSelected({
-      stats: selectedCharacter.stats.map((s) =>
-        s.name === statName ? { ...s, value } : s
-      ),
-    });
+  const handleStatUpdate = (statId: string, value: number) => {
+    updateStat.mutate({ id: statId, value });
   };
 
   const handleStatAdd = (name: string) => {
-    updateSelected({
-      stats: [...selectedCharacter.stats, { name, value: 0, max: STAT_MAX }],
-    });
+    if (!selectedId) return;
+    addStat.mutate({ characterId: selectedId, name, value: 0, max: STAT_MAX });
   };
 
   const handleNameUpdate = (name: string) => {
-    updateSelected({ name: name.trim() || selectedCharacter.name });
+    if (!selectedId || !selectedCharacter) return;
+    updateCharacter.mutate({
+      id: selectedId,
+      name: name.trim() || selectedCharacter.name,
+    });
   };
 
   const handleClassUpdate = (className: string) => {
-    updateSelected({ class: className.trim() || selectedCharacter.class });
+    if (!selectedId || !selectedCharacter) return;
+    updateCharacter.mutate({
+      id: selectedId,
+      className: className.trim() || selectedCharacter.className,
+    });
   };
 
   const handleLevelUpdate = (level: number) => {
-    updateSelected({ level });
+    if (!selectedId) return;
+    updateCharacter.mutate({ id: selectedId, level });
   };
 
   const handleAvatarUpdate = (dataUrl: string) => {
-    updateSelected({ avatar: dataUrl });
+    if (!selectedId) return;
+    updateCharacter.mutate({ id: selectedId, avatar: dataUrl });
   };
 
-  const handleAddCharacter = () => {
-    const newChar: Character = {
-      id: crypto.randomUUID(),
-      name: `Character ${characters.length + 1}`,
-      avatar: "🧙",
-      class: "Wanderer",
-      level: 1,
-      stats: DEFAULT_STATS.map((s) => ({ ...s })),
-    };
-    setCharacters((prev) => [...prev, newChar]);
-    setSelectedId(newChar.id);
+  const handleDeleteCharacter = (id: string) => {
+    deleteCharacter.mutate(id, {
+      onSuccess: () => {
+        const remaining = characters.filter((c) => c.id !== id);
+        setSelectedId(remaining.length > 0 ? remaining[0].id : "");
+      },
+    });
   };
+
+  if (isLoading) {
+    return (
+      <Center className="level-up-page" w="full" h="600px">
+        <Spinner size="lg" color="intent.primary" />
+      </Center>
+    );
+  }
 
   return (
     <Flex
+      className="level-up-page"
       w="full"
       maxW="960px"
       h="600px"
@@ -77,19 +109,22 @@ export const LevelUpPage = () => {
     >
       <CharacterSidebar
         characters={characters}
-        selectedId={selectedId}
+        selectedId={effectiveId ?? ""}
         onSelect={setSelectedId}
         onAdd={handleAddCharacter}
+        onDelete={handleDeleteCharacter}
       />
-      <CharacterPanel
-        character={selectedCharacter}
-        onStatUpdate={handleStatUpdate}
-        onStatAdd={handleStatAdd}
-        onAvatarUpdate={handleAvatarUpdate}
-        onNameUpdate={handleNameUpdate}
-        onClassUpdate={handleClassUpdate}
-        onLevelUpdate={handleLevelUpdate}
-      />
+      {selectedCharacter && (
+        <CharacterPanel
+          character={selectedCharacter}
+          onStatUpdate={handleStatUpdate}
+          onStatAdd={handleStatAdd}
+          onAvatarUpdate={handleAvatarUpdate}
+          onNameUpdate={handleNameUpdate}
+          onClassUpdate={handleClassUpdate}
+          onLevelUpdate={handleLevelUpdate}
+        />
+      )}
     </Flex>
   );
 };

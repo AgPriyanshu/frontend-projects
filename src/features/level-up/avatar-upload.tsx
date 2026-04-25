@@ -32,6 +32,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
   return (
     <Box
+      className="avatar-upload"
       position="relative"
       cursor="pointer"
       flexShrink={0}

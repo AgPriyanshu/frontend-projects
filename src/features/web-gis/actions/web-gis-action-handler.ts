@@ -2,7 +2,11 @@ import api from "api/api";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
-import type { DatasetNodeResponse, ProcessingToolDefinition, ProcessingToolsResponse } from "api/web-gis/types";
+import type {
+  DatasetNodeResponse,
+  ProcessingToolDefinition,
+  ProcessingToolsResponse,
+} from "api/web-gis/types";
 import { Action, ActionHandler } from "../../chat/agent/action";
 import type { ActionResult, RawUIAction } from "../../chat/agent/types";
 import { workspaceManager } from "../stores/workspace-manager";
@@ -163,9 +167,10 @@ export class WebGISActionHandler extends ActionHandler {
           raw.payload.latitude as number,
           raw.payload.longitude as number
         );
-      case "open_processing_tool":{
+      case "open_processing_tool": {
         const toolName = (raw.payload.tool_name as string) ?? "";
-        const defaults = (raw.payload.defaults as Record<string, unknown>) ?? {};
+        const defaults =
+          (raw.payload.defaults as Record<string, unknown>) ?? {};
         return new OpenProcessingToolAction(toolName, defaults);
       }
       default:
@@ -183,7 +188,9 @@ export class WebGISActionHandler extends ActionHandler {
         case "map_zoom_to":
           return this.handleMapZoomTo(action as MapZoomToAction);
         case "open_processing_tool":
-          return this.handleOpenProcessingTool(action as OpenProcessingToolAction);
+          return this.handleOpenProcessingTool(
+            action as OpenProcessingToolAction
+          );
         default:
           return {
             app: this.app,
@@ -299,9 +306,9 @@ export class WebGISActionHandler extends ActionHandler {
 
     // Try to find the tool definition from React-Query cache first.
     // The queryFn returns AxiosResponse<ApiResponse<ProcessingToolsResponse>>
-    const cached = queryClient.getQueryData<{ data: ApiResponse<ProcessingToolsResponse> }>(
-      QueryKeys.processingTools
-    );
+    const cached = queryClient.getQueryData<{
+      data: ApiResponse<ProcessingToolsResponse>;
+    }>(QueryKeys.processingTools);
     const lowerName = toolName.toLowerCase();
     const toolDef = cached?.data?.data?.tools?.find(
       (t) =>

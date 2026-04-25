@@ -1,6 +1,10 @@
+import { useEffect, useRef } from "react";
 import { Button, HStack, Menu, Portal } from "@chakra-ui/react";
 import { useProcessingJobs, useProcessingTools } from "api/web-gis";
 import { observer } from "mobx-react-lite";
+import api from "api/api";
+import { QueryKeys } from "api/query-keys";
+import { queryClient } from "api/query-client";
 import { workspaceManager } from "../../stores/workspace-manager";
 import { ProcessingJobModal } from "./processing-job-modal";
 import { ProcessingJobListPopover } from "./processing-job-list-popover";
@@ -19,6 +23,37 @@ export const ProcessingBar = observer(() => {
   const activeCount = (jobsData?.data ?? []).filter(
     (j) => j.status === "pending" || j.status === "processing"
   ).length;
+
+  const prevJobsRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!jobsData?.data) return;
+
+    for (const job of jobsData.data) {
+      const prevStatus = prevJobsRef.current[job.id];
+      if (
+        prevStatus &&
+        prevStatus !== "completed" &&
+        job.status === "completed" &&
+        job.outputDataset
+      ) {
+        const name =
+          (job.parameters as any).__output_name || "Processing Output";
+
+        api
+          .post(QueryKeys.layers[0], {
+            name,
+            source: job.outputDataset,
+          })
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
+            queryClient.invalidateQueries({ queryKey: QueryKeys.layers });
+          })
+          .catch(console.error);
+      }
+      prevJobsRef.current[job.id] = job.status;
+    }
+  }, [jobsData]);
 
   return (
     <>

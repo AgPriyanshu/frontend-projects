@@ -11,7 +11,7 @@ export const WorldOfAppsLogo = () => {
       gap={"0.5rem"}
       onClick={() => navigate("/")}
     >
-      <Heading size={"2xl"}>World of Apps</Heading>
+      <Heading size={"2xl"}>Atlas</Heading>
       <TbWorldBolt size={48} />
     </VStack>
   );

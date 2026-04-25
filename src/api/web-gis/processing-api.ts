@@ -8,7 +8,6 @@ import type { AxiosResponse } from "axios";
 import type {
   CreateProcessingJobPayload,
   ProcessingJobResponse,
-  ProcessingToolDefinition,
   ProcessingToolsResponse,
 } from "./types";
 
@@ -36,6 +35,21 @@ export const useProcessingJobs = () => {
     },
     select: (response: AxiosResponse<ApiResponse<ProcessingJobResponse[]>>) =>
       response.data,
+    refetchInterval: (query) => {
+      const response = query.state.data as
+        | AxiosResponse<ApiResponse<ProcessingJobResponse[]>>
+        | undefined;
+      const jobs = response?.data?.data;
+      if (
+        Array.isArray(jobs) &&
+        jobs.some(
+          (job) => job.status === "pending" || job.status === "processing"
+        )
+      ) {
+        return 3000;
+      }
+      return false;
+    },
   });
 };
 

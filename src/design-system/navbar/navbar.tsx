@@ -4,10 +4,10 @@ import { RoutePath } from "app/router/constants";
 import { observer } from "mobx-react-lite";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { RiChatAiLine } from "react-icons/ri";
-import { TbWorldBolt } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage";
 import { chatStore } from "src/features/chat";
+import atlasLogo from "../../assets/logo-vector.svg";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
 
@@ -38,8 +38,19 @@ export const Navbar = observer(() => {
           _hover={{ opacity: 0.8 }}
           transition="opacity 0.2s"
         >
-          <TbWorldBolt size={32} />
-          <Heading size="md">World of Apps</Heading>
+          <img
+            src={atlasLogo}
+            alt="Atlas"
+            style={{ height: "36px", width: "auto" }}
+          />
+          <Heading
+            size="md"
+            fontWeight="bold"
+            letterSpacing="widest"
+            textTransform="uppercase"
+          >
+            Atlas
+          </Heading>
         </HStack>
 
         <HStack gap={4}>

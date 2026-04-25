@@ -5,6 +5,7 @@ import {
   Card,
   Field,
   Fieldset,
+  Heading,
   Input,
   InputGroup,
   VStack,
@@ -14,7 +15,7 @@ import { toaster } from "design-system/toaster";
 import { useForm } from "react-hook-form";
 import { MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from "react-router";
-import { WorldOfAppsLogo } from "shared/components";
+import atlasLogo from "src/assets/logo-vector.svg";
 import { useLogin } from "src/api/auth";
 import { loginSchema, type LoginFormData } from "./schema";
 
@@ -54,66 +55,91 @@ export const LoginPage = () => {
 
   return (
     <Box w={"100vw"} h={"100vh"} position="relative">
-      <WorldOfAppsLogo />
       <AbsoluteCenter>
-        <Card.Root
-          border={"1px solid blackAplha.400"}
-          borderRadius={"lg"}
-          padding={"5"}
-        >
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Fieldset.Root size="lg" maxW="md">
-              <VStack gap={"4"}>
-                <Fieldset.Legend textAlign={"center"} fontSize={"xl"}>
-                  Welcome Back
-                </Fieldset.Legend>
-                <Fieldset.HelperText>
-                  Enter your credentials to access the workspace
-                </Fieldset.HelperText>
-              </VStack>
-              <Fieldset.Content>
-                <Field.Root invalid={!!errors.email}>
-                  <Field.Label>Email</Field.Label>
-                  <InputGroup startElement={<MdEmail />}>
-                    <Input
-                      {...register("email")}
-                      type="email"
-                      size="sm"
-                      placeholder="Enter your email"
-                    />
-                  </InputGroup>
-                  {errors.email && (
-                    <Field.ErrorText>{errors.email.message}</Field.ErrorText>
-                  )}
-                </Field.Root>
+        <VStack gap={8}>
+          {/* Logo */}
+          <VStack
+            gap={2}
+            cursor="pointer"
+            onClick={() => navigate("/")}
+            marginTop={"-13rem"}
+          >
+            <img
+              src={atlasLogo}
+              alt="Atlas"
+              style={{ height: "160px", width: "auto" }}
+            />
+            <Heading
+              size="4xl"
+              fontWeight="bold"
+              letterSpacing="widest"
+              textTransform="uppercase"
+            >
+              Atlas
+            </Heading>
+          </VStack>
 
-                <Field.Root invalid={!!errors.password}>
-                  <Field.Label>Password</Field.Label>
-                  <InputGroup startElement={<MdLock />}>
-                    <Input
-                      {...register("password")}
-                      type="password"
-                      size="sm"
-                      placeholder="Enter your password"
-                    />
-                  </InputGroup>
-                  {errors.password && (
-                    <Field.ErrorText>{errors.password.message}</Field.ErrorText>
-                  )}
-                </Field.Root>
-              </Fieldset.Content>
-              <Button
-                type="submit"
-                color="text.onIntent"
-                bg="intent.primary"
-                borderRadius={"lg"}
-                loading={isSubmitting}
-              >
-                Sign In
-              </Button>
-            </Fieldset.Root>
-          </form>
-        </Card.Root>
+          <Card.Root
+            border={"1px solid blackAplha.400"}
+            borderRadius={"lg"}
+            padding={"5"}
+          >
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Fieldset.Root size="lg" maxW="md">
+                <VStack gap={"4"}>
+                  <Fieldset.Legend textAlign={"center"} fontSize={"xl"}>
+                    Welcome Back
+                  </Fieldset.Legend>
+                  <Fieldset.HelperText>
+                    Enter your credentials to access the workspace
+                  </Fieldset.HelperText>
+                </VStack>
+                <Fieldset.Content>
+                  <Field.Root invalid={!!errors.email}>
+                    <Field.Label>Email</Field.Label>
+                    <InputGroup startElement={<MdEmail />}>
+                      <Input
+                        {...register("email")}
+                        type="email"
+                        size="sm"
+                        placeholder="Enter your email"
+                      />
+                    </InputGroup>
+                    {errors.email && (
+                      <Field.ErrorText>{errors.email.message}</Field.ErrorText>
+                    )}
+                  </Field.Root>
+
+                  <Field.Root invalid={!!errors.password}>
+                    <Field.Label>Password</Field.Label>
+                    <InputGroup startElement={<MdLock />}>
+                      <Input
+                        {...register("password")}
+                        type="password"
+                        size="sm"
+                        placeholder="Enter your password"
+                      />
+                    </InputGroup>
+                    {errors.password && (
+                      <Field.ErrorText>
+                        {errors.password.message}
+                      </Field.ErrorText>
+                    )}
+                  </Field.Root>
+                </Fieldset.Content>
+                <Button
+                  type="submit"
+                  color="text.onIntent"
+                  bg="intent.primary"
+                  borderRadius={"lg"}
+                  loading={isSubmitting}
+                >
+                  Sign In
+                </Button>
+              </Fieldset.Root>
+            </form>
+          </Card.Root>
+        </VStack>
       </AbsoluteCenter>
     </Box>
   );
