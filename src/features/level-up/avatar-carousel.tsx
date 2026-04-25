@@ -53,20 +53,27 @@ export const AvatarCarousel: React.FC<AvatarCarouselProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [hovered, setHovered] = useState(false);
 
-  const currentIndex = isImageSrc(avatar)
-    ? -1
+  const initialIndex = isImageSrc(avatar)
+    ? 0
     : Math.max(0, AVATAR_OPTIONS.indexOf(avatar));
 
-  const activeIndex = currentIndex === -1 ? 0 : currentIndex;
+  const [localIndex, setLocalIndex] = useState(initialIndex);
+
+  // When a file upload comes in, display the image directly via the avatar prop.
+  const displayAvatar = isImageSrc(avatar)
+    ? avatar
+    : AVATAR_OPTIONS[localIndex];
 
   const prev = () => {
     const idx =
-      (activeIndex - 1 + AVATAR_OPTIONS.length) % AVATAR_OPTIONS.length;
+      (localIndex - 1 + AVATAR_OPTIONS.length) % AVATAR_OPTIONS.length;
+    setLocalIndex(idx);
     onSelect(AVATAR_OPTIONS[idx]);
   };
 
   const next = () => {
-    const idx = (activeIndex + 1) % AVATAR_OPTIONS.length;
+    const idx = (localIndex + 1) % AVATAR_OPTIONS.length;
+    setLocalIndex(idx);
     onSelect(AVATAR_OPTIONS[idx]);
   };
 
@@ -84,9 +91,9 @@ export const AvatarCarousel: React.FC<AvatarCarouselProps> = ({
 
   const prevEmoji =
     AVATAR_OPTIONS[
-      (activeIndex - 1 + AVATAR_OPTIONS.length) % AVATAR_OPTIONS.length
+      (localIndex - 1 + AVATAR_OPTIONS.length) % AVATAR_OPTIONS.length
     ];
-  const nextEmoji = AVATAR_OPTIONS[(activeIndex + 1) % AVATAR_OPTIONS.length];
+  const nextEmoji = AVATAR_OPTIONS[(localIndex + 1) % AVATAR_OPTIONS.length];
 
   return (
     <Flex className="avatar-carousel" align="center" gap={1} flexShrink={0}>
@@ -131,7 +138,7 @@ export const AvatarCarousel: React.FC<AvatarCarouselProps> = ({
         onMouseLeave={() => setHovered(false)}
       >
         <AvatarDisplay
-          avatar={avatar}
+          avatar={displayAvatar}
           size="lg"
           borderColor={hovered ? "intent.primary" : "border.default"}
         />

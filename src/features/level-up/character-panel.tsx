@@ -83,7 +83,11 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
         borderBottomWidth="1px"
         borderColor="border.default"
       >
-        <AvatarCarousel avatar={character.avatar} onSelect={onAvatarUpdate} />
+        <AvatarCarousel
+          key={character.id}
+          avatar={character.avatar}
+          onSelect={onAvatarUpdate}
+        />
 
         <VStack align="start" gap={1} flex={1}>
           {/* Editable name — key resets when switching characters. */}
