@@ -15,7 +15,7 @@ import {
   fetchFeaturesAsGeoJSON,
 } from "api/web-gis";
 import { LayerFactory } from "../../services";
-import { workspaceManager } from "../../stores";
+import { workspaceManager } from "shared/map/stores";
 import { ToolButton } from "./tool-button";
 
 interface ToolbarProps {

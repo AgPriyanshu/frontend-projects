@@ -9,7 +9,7 @@ import type {
 } from "api/web-gis/types";
 import { Action, ActionHandler } from "../../chat/agent/action";
 import type { ActionResult, RawUIAction } from "../../chat/agent/types";
-import { workspaceManager } from "../stores/workspace-manager";
+import { workspaceManager } from "shared/map/stores/workspace-manager";
 
 // ---------------------------------------------------------------------------
 // Action classes

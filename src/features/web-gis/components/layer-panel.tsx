@@ -12,7 +12,7 @@ import { TbMap2, TbVector } from "react-icons/tb";
 
 import { DeleteIconButton } from "shared/components";
 import { LayerFactory } from "../services";
-import { workspaceManager } from "../stores";
+import { workspaceManager } from "shared/map/stores";
 
 export const LayerPanel = observer(() => {
   // APIs.

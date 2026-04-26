@@ -7,7 +7,7 @@ import {
   type LayerResponse,
 } from "api/web-gis";
 
-import { LayerModel } from "../domain";
+import { LayerModel } from "shared/map/domain";
 
 export class LayerFactory {
   static isReadyRasterLayer(apiLayer: LayerResponse): boolean {

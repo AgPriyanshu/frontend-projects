@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import api from "api/api";
 import { QueryKeys } from "api/query-keys";
 import { queryClient } from "api/query-client";
-import { workspaceManager } from "../../stores/workspace-manager";
+import { workspaceManager } from "shared/map/stores/workspace-manager";
 import { ProcessingJobModal } from "./processing-job-modal";
 import { ProcessingJobListPopover } from "./processing-job-list-popover";
 

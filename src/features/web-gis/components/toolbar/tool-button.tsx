@@ -1,8 +1,8 @@
 import { IconButton } from "@chakra-ui/react";
 import { Tooltip } from "src/design-system";
 import { observer } from "mobx-react-lite";
-import type { DrawMode } from "../../domain";
-import type { ToolStore } from "../../stores";
+import type { DrawMode } from "shared/map/domain";
+import type { ToolStore } from "shared/map/stores";
 
 interface ToolButtonProps {
   mode: DrawMode;

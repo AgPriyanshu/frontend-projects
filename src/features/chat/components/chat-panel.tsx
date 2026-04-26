@@ -9,7 +9,7 @@ import { useWebSocket } from "../hooks/use-websocket";
 import { SessionList } from "./session-list";
 import { MessageList } from "./message-list";
 import { ChatInput } from "./chat-input";
-import { workspaceManager } from "../../web-gis/stores/workspace-manager";
+import { workspaceManager } from "shared/map/stores/workspace-manager";
 
 const MIN_WIDTH = 360;
 const MAX_WIDTH = 800;

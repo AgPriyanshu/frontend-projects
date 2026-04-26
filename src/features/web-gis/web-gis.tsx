@@ -5,8 +5,8 @@ import { ResizableBox } from "react-resizable";
 import { LayerPanel, MapCanvas, MapControls, Toolbar } from "./components";
 import { DatasetTree } from "./components/data-sources";
 import { ProcessingBar } from "./components/processing";
-import { DEFAULT_WORKSPACE_ID } from "./domain";
-import { workspaceManager } from "./stores";
+import { DEFAULT_WORKSPACE_ID } from "shared/map/domain";
+import { workspaceManager } from "shared/map/stores";
 import { ResizeHandle } from "./components/resize-handle";
 
 export const WebGIS = () => {

@@ -9,7 +9,7 @@ import {
 } from "react-icons/tb";
 import { Tooltip } from "src/design-system";
 
-import { workspaceManager } from "../../stores";
+import { workspaceManager } from "shared/map/stores";
 import { controlButtonStyles, panelStyles } from "./styles";
 
 interface MapControlsProps {

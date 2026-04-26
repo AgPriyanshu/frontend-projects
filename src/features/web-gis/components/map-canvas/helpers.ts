@@ -1,7 +1,7 @@
 import { type LayerResponse, DatasetType } from "api/web-gis";
 import { toaster } from "design-system/toaster";
 import { LayerFactory } from "../../services";
-import type { WorkspaceStore } from "../../stores";
+import type { WorkspaceStore } from "shared/map/stores";
 
 export const addLayerToMap = (
   apiLayer: LayerResponse,

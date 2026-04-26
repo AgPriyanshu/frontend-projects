@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ApiResponse } from "api/types";
 import { useAddLayer, type LayerResponse } from "api/web-gis";
-import { workspaceManager } from "../../stores";
+import { workspaceManager } from "shared/map/stores";
 import { addLayerToMap } from "./helpers";
 
 interface MapCanvasProps {

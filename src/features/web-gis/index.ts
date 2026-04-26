@@ -1,5 +1,3 @@
 export * from "./components";
-export * from "./stores";
-export * from "./domain";
-export * from "./engines";
+export * from "shared/map";
 export { WebGIS } from "./web-gis";

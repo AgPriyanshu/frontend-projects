@@ -69,18 +69,29 @@ src/
 Two distinct strategies coexist and should not be mixed:
 
 1. **React Query** — all server state. Mutations use optimistic updates where appropriate. The `queryClient` singleton (`src/api/query-client.ts`) can be imported anywhere to imperatively read or write the cache.
-2. **MobX** — GIS domain state only. MapLibre GL renders outside the React lifecycle, so MobX stores bridge that gap. Do not use MobX outside the `web-gis` feature.
+2. **MobX** — GIS domain state only. MapLibre GL renders outside the React lifecycle, so MobX stores bridge that gap. MobX is only used for map state; keep it confined to `shared/map/stores/` and the `web-gis` feature.
+
+### Map Engine (`src/shared/map/`)
+
+The map engine is the reusable infrastructure layer shared across features. It follows a strict ports-and-adapters architecture:
+
+- **Engines / Ports** (`shared/map/engines/ports/`) — TypeScript interfaces (`IMapEngine`, `ILayerEngine`, `IDrawEngine`, `IMapManager`) that abstract the underlying map library. Never depend on MapLibre directly outside `shared/map/engines/maplibre/`.
+- **MapLibre Implementation** (`shared/map/engines/maplibre/`) — Concrete implementations of the port interfaces using MapLibre GL JS and Terra Draw.
+- **MobX Stores** (`shared/map/stores/`) — `MapStore`, `LayerStore`, `ToolStore`, `DrawStore` each bind to their respective engine port via a `bind(engine)` method. `WorkspaceStore` owns all sub-stores and is the single unit of a "map workspace".
+- **WorkspaceManager** (`shared/map/stores/workspace-manager.ts`) — Global singleton that manages multiple `WorkspaceStore` instances by ID. Use `workspaceManager.getOrCreateWorkspace(id)` to obtain a workspace.
+- **Domain types** (`shared/map/domain/`) — Engine-agnostic types (`MapView`, `DrawMode`, `LayerType`, `SerializedLayer`, `LayerModel`).
+
+Import via the `shared/*` alias: `import { workspaceManager } from "shared/map/stores/workspace-manager"`.
+
+When adding new map capabilities: define the interface in `shared/map/engines/ports/`, implement it in `shared/map/engines/maplibre/`, and expose it through the relevant MobX store.
 
 ### Web GIS Feature (`src/features/web-gis/`)
 
-The GIS subsystem is the most complex part of the codebase and follows a strict layered architecture:
+Atlas-specific GIS UI built on top of the shared map engine:
 
-- **Engines / Ports** (`engines/ports/`) — TypeScript interfaces (`IMapEngine`, `ILayerEngine`, `IDrawEngine`, `IMapManager`) that abstract the underlying map library. Never depend on MapLibre directly outside the `engines/maplibre/` implementation.
-- **MapLibre Implementation** (`engines/maplibre/`) — Concrete implementations of the port interfaces using MapLibre GL JS and Terra Draw.
-- **MobX Stores** (`stores/`) — `MapStore`, `LayerStore`, `ToolStore`, `DrawStore` each bind to their respective engine port via a `bind(engine)` method. `WorkspaceStore` owns all sub-stores and is the single unit of a "map workspace".
-- **WorkspaceManager** (`stores/workspace-manager.ts`) — Global singleton that manages multiple `WorkspaceStore` instances by ID. Use `workspaceManager.getOrCreateWorkspace(id)` to obtain a workspace.
-
-When adding new map capabilities: define the interface in `engines/ports/`, implement it in `engines/maplibre/`, and expose it through the relevant MobX store.
+- **Components** (`components/`) — Chakra UI components for the map canvas, layer panel, toolbar, draw tools, data sources, and geoprocessing.
+- **Services** (`services/`) — `LayerFactory` converts API layer responses into `LayerModel` instances.
+- **Actions** (`actions/`) — `WebGISActionHandler` integrates map operations with the chat agent.
 
 ### Design System (`src/design-system/`)
 
@@ -88,6 +99,7 @@ Built on Chakra UI v3. Theme customization lives in `design-system/theme/` (sema
 
 ### Shared Utilities (`src/shared/`)
 
+- `shared/map/` — Reusable map engine: port interfaces, MapLibre adapters, MobX stores, domain types. Import via `shared/map` or specific sub-paths (`shared/map/stores`, `shared/map/domain`, etc.).
 - `shared/utils/type-utils.ts` — `toCamelCase` / `toSnakeCase` used by the API interceptors.
 - `shared/local-storage/` — Typed helpers for reading/writing tokens and other persisted values.
 - `shared/enums.ts`, `shared/types.ts` — App-wide enums and types.
