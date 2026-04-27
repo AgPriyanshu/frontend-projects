@@ -62,6 +62,7 @@ export interface DsSearchItem extends DsItem {
   distanceM: number | null;
   shopLat: number | null;
   shopLng: number | null;
+  shopPhone: string;
 }
 
 export interface DsLead {
@@ -131,6 +132,14 @@ export interface DsCreateLeadPayload {
   shopId: string;
   itemId?: string | null;
   message: string;
+  phone?: string;
+  buyerName?: string;
+}
+
+export interface DsCreateReportPayload {
+  shopId?: string | null;
+  itemId?: string | null;
+  reason: string;
 }
 
 export interface DsConfirmImagePayload {

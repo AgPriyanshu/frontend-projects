@@ -3,7 +3,12 @@ import api from "api/api";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
-import type { DsCreateShopPayload, DsShop, DsShopWithDistance } from "./types";
+import type {
+  DsCreateShopPayload,
+  DsSearchItem,
+  DsShop,
+  DsShopWithDistance,
+} from "./types";
 
 export const useMyShop = () => {
   return useQuery({
@@ -20,6 +25,18 @@ export const usePublicShop = (id: string) => {
     queryFn: async () =>
       api.get<ApiResponse<DsShop>>(`/dead-stock/shops/${id}/`),
     select: (r) => r.data.data,
+    enabled: !!id,
+  });
+};
+
+export const usePublicShopItems = (id: string) => {
+  return useQuery({
+    queryKey: [...QueryKeys.deadStock.shop(id), "items"],
+    queryFn: async () =>
+      api.get<ApiResponse<{ items: DsSearchItem[] }>>(
+        `/dead-stock/shops/${id}/items/`
+      ),
+    select: (r) => r.data.data.items,
     enabled: !!id,
   });
 };

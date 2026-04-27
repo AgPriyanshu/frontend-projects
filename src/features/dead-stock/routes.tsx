@@ -3,18 +3,8 @@ import { Route, Routes } from "react-router";
 import { OnboardingFlow } from "./components/owner/onboarding-flow";
 import { DeadStockPage } from "./dead-stock";
 import { InventoryList } from "./components/owner/inventory-list";
-
-const SearchPage = () => (
-  <Box className="ds-search-placeholder">
-    <Text>Search — coming Day 11.</Text>
-  </Box>
-);
-
-const ShopProfilePage = () => (
-  <Box className="ds-shop-profile-placeholder">
-    <Text>Shop profile — coming Day 13.</Text>
-  </Box>
-);
+import { SearchPage } from "./components/search/search-page";
+import { ShopProfile } from "./components/shop/shop-profile";
 
 const LeadsPage = () => (
   <Box className="ds-leads-placeholder">
@@ -26,7 +16,7 @@ export const DeadStockOwnerRoutes = () => (
   <Routes>
     <Route element={<DeadStockPage />}>
       <Route index element={<SearchPage />} />
-      <Route path="shops/:id" element={<ShopProfilePage />} />
+      <Route path="shops/:id" element={<ShopProfile />} />
       <Route path="owner/onboarding" element={<OnboardingFlow />} />
       <Route path="owner/inventory" element={<InventoryList />} />
       <Route path="owner/leads" element={<LeadsPage />} />
