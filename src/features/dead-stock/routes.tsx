@@ -2,6 +2,7 @@ import { Box, Text } from "@chakra-ui/react";
 import { Route, Routes } from "react-router";
 import { OnboardingFlow } from "./components/owner/onboarding-flow";
 import { DeadStockPage } from "./dead-stock";
+import { InventoryList } from "./components/owner/inventory-list";
 
 const SearchPage = () => (
   <Box className="ds-search-placeholder">
@@ -12,12 +13,6 @@ const SearchPage = () => (
 const ShopProfilePage = () => (
   <Box className="ds-shop-profile-placeholder">
     <Text>Shop profile — coming Day 13.</Text>
-  </Box>
-);
-
-const InventoryPage = () => (
-  <Box className="ds-inventory-placeholder">
-    <Text>Inventory — coming Day 09.</Text>
   </Box>
 );
 
@@ -33,7 +28,7 @@ export const DeadStockOwnerRoutes = () => (
       <Route index element={<SearchPage />} />
       <Route path="shops/:id" element={<ShopProfilePage />} />
       <Route path="owner/onboarding" element={<OnboardingFlow />} />
-      <Route path="owner/inventory" element={<InventoryPage />} />
+      <Route path="owner/inventory" element={<InventoryList />} />
       <Route path="owner/leads" element={<LeadsPage />} />
     </Route>
   </Routes>

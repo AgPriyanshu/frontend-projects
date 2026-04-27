@@ -23,11 +23,13 @@ export const usePresignImage = (itemId: string) => {
 
 export const useConfirmImage = (itemId: string) => {
   return useMutation({
-    mutationFn: async (payload: DsConfirmImagePayload) =>
-      api.post<ApiResponse<DsItemImage>>(
+    mutationFn: async (payload: DsConfirmImagePayload) => {
+      const response = await api.post<ApiResponse<DsItemImage>>(
         `/dead-stock/items/${itemId}/images/confirm/`,
         payload
-      ),
+      );
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.deadStock.item(itemId),
@@ -45,6 +47,50 @@ export const useDeleteImage = (itemId: string) => {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.deadStock.item(itemId),
       });
+      queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.myItems });
+    },
+  });
+};
+
+export const useUpdateImage = (itemId: string) => {
+  return useMutation({
+    mutationFn: async ({
+      imageId,
+      ...payload
+    }: {
+      imageId: string;
+      isPrimary?: boolean;
+      position?: number;
+    }) => {
+      const response = await api.patch<ApiResponse<DsItemImage>>(
+        `/dead-stock/items/${itemId}/images/${imageId}/`,
+        payload
+      );
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.deadStock.item(itemId),
+      });
+      queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.myItems });
+    },
+  });
+};
+
+export const useReorderImages = (itemId: string) => {
+  return useMutation({
+    mutationFn: async (imageIds: string[]) => {
+      const response = await api.patch<ApiResponse<DsItemImage[]>>(
+        `/dead-stock/items/${itemId}/images/reorder/`,
+        { imageIds }
+      );
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.deadStock.item(itemId),
+      });
+      queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.myItems });
     },
   });
 };
