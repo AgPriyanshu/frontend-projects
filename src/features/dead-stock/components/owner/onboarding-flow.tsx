@@ -13,8 +13,8 @@ import { queryClient } from "api/query-client";
 import { RoutePath } from "app/router/constants";
 import { clearToken } from "shared/local-storage";
 import { useNavigate } from "react-router";
-import type { ShopDetails } from "../../hooks/use-onboarding-state";
 import { useOnboardingState } from "../../hooks/use-onboarding-state";
+import { LocationStep } from "./steps/location-step";
 import { PhoneStep } from "./steps/phone-step";
 import { ShopDetailsStep } from "./steps/shop-details-step";
 
@@ -40,32 +40,6 @@ const StepBar = ({ current }: { current: number }) => (
       </Box>
     ))}
   </Flex>
-);
-
-const LocationPlaceholder = ({ shopDetails }: { shopDetails: ShopDetails }) => (
-  <VStack
-    className="ds-location-placeholder"
-    gap={4}
-    w="full"
-    maxW="sm"
-    mx="auto"
-  >
-    <Heading size="md" textAlign="center">
-      Pin your location
-    </Heading>
-    <Text color="text.secondary" fontSize="sm" textAlign="center">
-      Map picker coming in the next step. Your shop details are saved:
-    </Text>
-    <Box p={4} borderWidth={1} borderRadius="md" w="full">
-      <Text fontWeight="medium">{shopDetails.name}</Text>
-      <Text fontSize="sm" color="text.secondary">
-        {shopDetails.whatsapp}
-      </Text>
-    </Box>
-    <Text fontSize="sm" color="text.muted">
-      (Location picker — Day 08)
-    </Text>
-  </VStack>
 );
 
 export const OnboardingFlow = () => {
@@ -120,7 +94,7 @@ export const OnboardingFlow = () => {
         )}
 
         {state.step === "location" && (
-          <LocationPlaceholder shopDetails={state.shopDetails} />
+          <LocationStep shopDetails={state.shopDetails} />
         )}
       </VStack>
     </Box>
