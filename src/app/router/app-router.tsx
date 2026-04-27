@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./protected-route";
 import { RoutePath } from "./constants";
 import {
   AppItemPlaceholder,
+  DeadStockOwnerRoutes,
   HomePage,
   LevelUpPage,
   LoginPage,
@@ -35,6 +36,10 @@ export const AppRouter = () => {
         <Route path={RoutePath.LevelUp} element={<LevelUpPage />} />
         <Route path={RoutePath.WhiteBoard} element={<AppItemPlaceholder />} />
         <Route path={RoutePath.Inventory} element={<AppItemPlaceholder />} />
+        <Route
+          path={`${RoutePath.DeadStock}/*`}
+          element={<DeadStockOwnerRoutes />}
+        />
       </Route>
 
       {/* Public routes - no authentication required */}

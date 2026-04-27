@@ -1,8 +1,9 @@
 export const RoutePath = {
+  DeadStock: "/dead-stock",
   DeviceClassifier: "/device-classifier",
   Home: "/",
-  LevelUp: "/level-up",
   Inventory: "/inventory",
+  LevelUp: "/level-up",
   Login: "/login",
   Map: "/map",
   Store: "/store",

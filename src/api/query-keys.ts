@@ -1,3 +1,5 @@
+import type { DsSearchParams } from "./dead-stock/types";
+
 export const QueryKeys = {
   // Todo List.
   todoList: ["/tasks"],
@@ -31,4 +33,17 @@ export const QueryKeys = {
   mergedTerrainTiles: ["/web-gis/terrain/tiles/{z}/{x}/{y}.png"],
   // Level Up characters.
   levelUpCharacters: ["/level-up/characters"],
+  // Dead Stock.
+  deadStock: {
+    categories: ["dead-stock", "categories"] as const,
+    myShop: ["dead-stock", "shops", "me"] as const,
+    shop: (id: string) => ["dead-stock", "shops", id] as const,
+    nearbyShops: (lat: number, lng: number, r: number) =>
+      ["dead-stock", "shops", "nearby", lat, lng, r] as const,
+    myItems: ["dead-stock", "items", "mine"] as const,
+    item: (id: string) => ["dead-stock", "items", id] as const,
+    search: (params: DsSearchParams) =>
+      ["dead-stock", "search", params] as const,
+    leadInbox: ["dead-stock", "leads", "inbox"] as const,
+  },
 };
