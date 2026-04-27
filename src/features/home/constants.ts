@@ -5,6 +5,7 @@ import {
   FaMapMarkedAlt,
   FaRegListAlt,
   FaStoreAlt,
+  FaWarehouse,
 } from "react-icons/fa";
 import { MdDevicesOther, MdOutlineInventory2 } from "react-icons/md";
 import { AppCategory } from "./enums";
@@ -67,5 +68,12 @@ export const apps: AppCard[] = [
     icon: AiFillThunderbolt,
     route: RoutePath.LevelUp,
     category: AppCategory.Productivity,
+  },
+  {
+    title: "Dead Stock",
+    description: "Find nearby slow-moving inventory from local shops",
+    icon: FaWarehouse,
+    route: RoutePath.DeadStock,
+    category: AppCategory.Business,
   },
 ];
