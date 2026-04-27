@@ -1,4 +1,12 @@
-import { Box, Flex, Heading, HStack, IconButton, Menu } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  IconButton,
+  Menu,
+} from "@chakra-ui/react";
 import { queryClient } from "api/query-client";
 import { RoutePath } from "app/router/constants";
 import { observer } from "mobx-react-lite";
@@ -54,6 +62,14 @@ export const Navbar = observer(() => {
         </HStack>
 
         <HStack gap={4}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(RoutePath.DeadStock)}
+            _hover={{ bgColor: "surface.subtle" }}
+          >
+            Dead Stock
+          </Button>
           <ColorModeButton />
           <NotificationDropdown />
           <IconButton
