@@ -68,8 +68,11 @@ export interface DsSearchItem extends DsItem {
 export interface DsLead {
   id: string;
   buyer: string;
+  buyerName: string;
+  buyerPhone: string | null;
   shop: string;
   item: string | null;
+  itemName: string | null;
   message: string;
   contactedAt: string | null;
   createdAt: string;
