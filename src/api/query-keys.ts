@@ -44,6 +44,7 @@ export const QueryKeys = {
     item: (id: string) => ["dead-stock", "items", id] as const,
     search: (params: DsSearchParams) =>
       ["dead-stock", "search", params] as const,
+    autocomplete: (q: string) => ["dead-stock", "autocomplete", q] as const,
     leadInbox: ["dead-stock", "leads", "inbox"] as const,
   },
 };

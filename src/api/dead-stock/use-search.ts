@@ -1,8 +1,22 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import api from "api/api";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
 import type { DsSearchPage, DsSearchParams } from "./types";
+
+export const useSearchAutocomplete = (q: string) =>
+  useQuery({
+    queryKey: QueryKeys.deadStock.autocomplete(q),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<{ suggestions: string[] }>>(
+        "/dead-stock/search/autocomplete/",
+        { params: { q } }
+      );
+      return response.data.data.suggestions;
+    },
+    enabled: q.trim().length >= 2,
+    staleTime: 60_000,
+  });
 
 export const useSearchItems = (params: DsSearchParams) => {
   return useInfiniteQuery({
