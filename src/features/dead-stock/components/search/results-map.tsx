@@ -3,6 +3,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import type { DsSearchItem } from "api/dead-stock";
+import { applySatelliteStyle } from "../../services/satellite-style";
 import {
   mountShopMarkers,
   shopMarkerLayerIds,
@@ -73,6 +74,7 @@ export const ResultsMap = ({
     mapRef.current = map;
 
     map.on("load", () => {
+      applySatelliteStyle(map);
       mountShopMarkers(map, itemsRef.current);
       map.on("moveend", () => setShowSearchArea(true));
       map.on("click", shopMarkerLayerIds.points, (event) => {

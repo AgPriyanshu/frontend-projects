@@ -3,6 +3,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
 import type { DsShop } from "api/dead-stock";
+import { applySatelliteStyle } from "../../services/satellite-style";
 
 interface StaticShopMapProps {
   shop: DsShop;
@@ -23,6 +24,8 @@ export const StaticShopMap = ({ shop }: StaticShopMapProps) => {
       zoom: 13,
       interactive: false,
     });
+    map.on("load", () => applySatelliteStyle(map));
+
     const marker = new maplibregl.Marker({ color: "#f59e0b" })
       .setLngLat([shop.lng, shop.lat])
       .addTo(map);
