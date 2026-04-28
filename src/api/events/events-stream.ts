@@ -101,6 +101,12 @@ const applyProcessingMessage = (message: ProcessingMessage) => {
   }
 };
 
+const applyDeadStockMessage = (message: { type: string }) => {
+  if (message.type === "dead_stock.lead_created") {
+    queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.leadInbox });
+  }
+};
+
 export const useNotificationStream = () => {
   const [isConnected, setIsConnected] = useState(false);
 
@@ -145,9 +151,17 @@ export const useNotificationStream = () => {
 
     eventSource.onmessage = (event) => {
       try {
-        const newNotification = toCamelCase(
-          JSON.parse(event.data)
-        ) as Notification;
+        const rawParsed = JSON.parse(event.data);
+
+        if (
+          typeof rawParsed.type === "string" &&
+          rawParsed.type.startsWith("dead_stock.")
+        ) {
+          applyDeadStockMessage(rawParsed);
+          return;
+        }
+
+        const newNotification = toCamelCase(rawParsed) as Notification;
 
         const processingMessage = tryParseProcessingMessage(
           newNotification.content

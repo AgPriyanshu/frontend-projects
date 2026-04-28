@@ -37,6 +37,18 @@ export const useLeadInbox = () => {
   });
 };
 
+export const useMarkLeadContacted = () => {
+  return useMutation({
+    mutationFn: async (leadId: string) =>
+      api.patch<ApiResponse<DsLead>>(`/dead-stock/leads/${leadId}/contacted/`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.deadStock.leadInbox,
+      });
+    },
+  });
+};
+
 export const invalidateLeadInbox = () => {
   queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.leadInbox });
 };
