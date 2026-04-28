@@ -1,8 +1,9 @@
 import { Box, Heading, Text } from "@chakra-ui/react";
 import { Outlet } from "react-router";
 import { useMyShop } from "api/dead-stock";
+import { DeadStockErrorBoundary } from "./components/_error-boundary";
 
-export const DeadStockPage = () => {
+const DeadStockContent = () => {
   const { data: shop } = useMyShop();
 
   return (
@@ -19,3 +20,9 @@ export const DeadStockPage = () => {
     </Box>
   );
 };
+
+export const DeadStockPage = () => (
+  <DeadStockErrorBoundary>
+    <DeadStockContent />
+  </DeadStockErrorBoundary>
+);
