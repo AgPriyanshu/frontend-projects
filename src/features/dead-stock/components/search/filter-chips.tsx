@@ -1,5 +1,5 @@
-import { Badge, Button, HStack } from "@chakra-ui/react";
-import { FiMapPin } from "react-icons/fi";
+import { Badge, Button, HStack, IconButton } from "@chakra-ui/react";
+import { FiEdit2, FiMapPin } from "react-icons/fi";
 import type { DsCategory, DsSearchParams, DsSort } from "api/dead-stock";
 
 interface FilterChipsProps {
@@ -7,6 +7,7 @@ interface FilterChipsProps {
   categories: DsCategory[];
   onChange: (patch: Partial<DsSearchParams>) => void;
   locationLabel?: string;
+  onEditLocation?: () => void;
 }
 
 const DISTANCES = [1, 5, 10, 25];
@@ -27,13 +28,24 @@ export const FilterChips = ({
   categories,
   onChange,
   locationLabel,
+  onEditLocation,
 }: FilterChipsProps) => (
   <HStack gap={2} overflowX="auto" pb={1} align="center" flexShrink={0}>
     {locationLabel && (
-      <Badge variant="outline" flexShrink={0} gap={1}>
-        <FiMapPin />
-        {locationLabel}
-      </Badge>
+      <HStack gap={1} flexShrink={0}>
+        <Badge variant="outline" gap={1}>
+          <FiMapPin />
+          {locationLabel}
+        </Badge>
+        <IconButton
+          size="xs"
+          variant="ghost"
+          aria-label="Change location"
+          onClick={onEditLocation}
+        >
+          <FiEdit2 />
+        </IconButton>
+      </HStack>
     )}
 
     {DISTANCES.map((distance) => (

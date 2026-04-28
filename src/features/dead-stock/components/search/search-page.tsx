@@ -1,11 +1,12 @@
 import { Box, HStack, VStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import type { DsSearchParams } from "api/dead-stock";
 import { useCategories, useSearchItems } from "api/dead-stock";
 import { useBuyerLocation } from "../../hooks/use-buyer-location";
 import { ViewToggle, type SearchView } from "./_view-toggle";
 import { FilterChips } from "./filter-chips";
+import { LocationPickerDialog } from "./location-picker-dialog";
 import { ResultsList } from "./results-list";
 import { ResultsMap } from "./results-map";
 import { SearchBar } from "./search-bar";
@@ -18,6 +19,10 @@ export const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const buyerLocation = useBuyerLocation();
   const { data: categories = [] } = useCategories();
+  const [locationPickerOpen, setLocationPickerOpen] = useState(false);
+  const [customLocationLabel, setCustomLocationLabel] = useState<string | null>(
+    null
+  );
 
   const view = (searchParams.get("view") || "list") as SearchView;
   const params: DsSearchParams = useMemo(
@@ -65,8 +70,20 @@ export const SearchPage = () => {
     [searchParams, setSearchParams]
   );
 
+  const handleLocationConfirm = useCallback(
+    ({ lat, lng }: { lat: number; lng: number }) => {
+      updateParams({ lat, lng });
+      setCustomLocationLabel("Custom location");
+    },
+    [updateParams]
+  );
+
   const searchQuery = useSearchItems(params);
   const items = flattenResults(searchQuery.data?.pages);
+
+  const locationLabel =
+    customLocationLabel ??
+    (!buyerLocation.isLoading ? buyerLocation.label : undefined);
 
   return (
     <VStack className="search-page" align="stretch" gap={0} h="full">
@@ -97,9 +114,8 @@ export const SearchPage = () => {
             params={params}
             categories={categories}
             onChange={updateParams}
-            locationLabel={
-              !buyerLocation.isLoading ? buyerLocation.label : undefined
-            }
+            locationLabel={locationLabel}
+            onEditLocation={() => setLocationPickerOpen(true)}
           />
         </VStack>
       </Box>
@@ -123,6 +139,14 @@ export const SearchPage = () => {
           />
         </Box>
       </Box>
+
+      <LocationPickerDialog
+        isOpen={locationPickerOpen}
+        currentLat={params.lat}
+        currentLng={params.lng}
+        onClose={() => setLocationPickerOpen(false)}
+        onConfirm={handleLocationConfirm}
+      />
     </VStack>
   );
 };
