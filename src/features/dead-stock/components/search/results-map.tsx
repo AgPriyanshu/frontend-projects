@@ -130,6 +130,19 @@ export const ResultsMap = ({
     }
   }, [items]);
 
+  // Fly to user location once it resolves from the URL params.
+  const hasFlewToLocation = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !lat || !lng || hasFlewToLocation.current) return;
+    hasFlewToLocation.current = true;
+    if (map.isStyleLoaded()) {
+      map.flyTo({ center: [lng, lat], zoom: 12 });
+    } else {
+      map.once("load", () => map.flyTo({ center: [lng, lat], zoom: 12 }));
+    }
+  }, [lat, lng]);
+
   useEffect(() => {
     if (isVisible) {
       window.setTimeout(() => mapRef.current?.resize(), 0);
@@ -154,8 +167,11 @@ export const ResultsMap = ({
   };
 
   return (
-    <Box position="relative" h={{ base: "70vh", md: "680px" }}>
-      <Box ref={containerRef} h="full" borderRadius="md" overflow="hidden" />
+    <Box
+      position="relative"
+      h={{ base: "calc(100vh - 160px)", md: "calc(100vh - 140px)" }}
+    >
+      <Box ref={containerRef} h="full" overflow="hidden" />
       {showSearchArea && (
         <Button
           position="absolute"

@@ -1,14 +1,6 @@
-import {
-  Badge,
-  Box,
-  Button,
-  HStack,
-  Link as ChakraLink,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, HStack, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import type { DsSearchParams } from "api/dead-stock";
 import { useCategories, useSearchItems } from "api/dead-stock";
 import { useBuyerLocation } from "../../hooks/use-buyer-location";
@@ -77,19 +69,20 @@ export const SearchPage = () => {
   const items = flattenResults(searchQuery.data?.pages);
 
   return (
-    <VStack align="stretch" gap={5}>
+    <VStack className="search-page" align="stretch" gap={0} h="full">
       <Box
         position="sticky"
         top={0}
         zIndex={5}
         bg="bg.canvas"
-        py={3}
         borderBottomWidth="1px"
         borderColor="border.default"
+        px={4}
+        py={3}
       >
-        <VStack align="stretch" gap={3}>
-          <HStack justify="space-between" gap={4} align="center" wrap="wrap">
-            <Box flex={1} minW={{ base: "100%", md: "420px" }}>
+        <VStack align="stretch" gap={2}>
+          <HStack gap={3} align="center">
+            <Box flex={1}>
               <SearchBar
                 value={params.q || ""}
                 onChange={(q) => updateParams({ q: q || undefined })}
@@ -100,50 +93,36 @@ export const SearchPage = () => {
               onChange={(nextView) => updateParams({ view: nextView })}
             />
           </HStack>
-          <HStack justify="space-between" gap={3} wrap="wrap">
-            <Badge variant="subtle">
-              Searching in {params.radiusKm || 5}km of {buyerLocation.label}
-            </Badge>
-            <ChakraLink asChild fontSize="sm">
-              <Link to="/dead-stock/owner/onboarding">
-                Log in to save searches
-              </Link>
-            </ChakraLink>
-          </HStack>
           <FilterChips
             params={params}
             categories={categories}
             onChange={updateParams}
+            locationLabel={
+              !buyerLocation.isLoading ? buyerLocation.label : undefined
+            }
           />
         </VStack>
       </Box>
 
-      {searchQuery.isError && (
-        <Text color="intent.danger">Search failed. Try again.</Text>
-      )}
-
-      <Box display={view === "list" ? "block" : "none"}>
-        <ResultsList
-          query={searchQuery}
-          radiusKm={params.radiusKm || 5}
-          onExpandRadius={() => updateParams({ radiusKm: 10 })}
-        />
+      <Box flex={1} px={view === "map" ? 0 : 4} py={view === "map" ? 0 : 4}>
+        <Box display={view === "list" ? "block" : "none"}>
+          <ResultsList
+            query={searchQuery}
+            radiusKm={params.radiusKm || 5}
+            onExpandRadius={() => updateParams({ radiusKm: 10 })}
+          />
+        </Box>
+        <Box display={view === "map" ? "block" : "none"} h="full">
+          <ResultsMap
+            items={items}
+            lat={params.lat}
+            lng={params.lng}
+            radiusKm={params.radiusKm}
+            isVisible={view === "map"}
+            onSearchArea={(area) => updateParams(area)}
+          />
+        </Box>
       </Box>
-      <Box display={view === "map" ? "block" : "none"}>
-        <ResultsMap
-          items={items}
-          lat={params.lat}
-          lng={params.lng}
-          radiusKm={params.radiusKm}
-          isVisible={view === "map"}
-          onSearchArea={(area) => updateParams(area)}
-        />
-      </Box>
-      {view === "map" && items.length === 0 && !searchQuery.isLoading && (
-        <Button onClick={() => updateParams({ radiusKm: 10 })}>
-          Expand to 10km
-        </Button>
-      )}
     </VStack>
   );
 };

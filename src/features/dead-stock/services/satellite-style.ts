@@ -1,6 +1,9 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 
-const SATELLITE_TILES = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}";
+// ESRI World Imagery — free, no API key, CORS-friendly.
+// Note: ESRI uses {z}/{y}/{x} tile ordering (row before column).
+const SATELLITE_TILES =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 
 export const applySatelliteStyle = (map: MapLibreMap): void => {
   const firstLayerId = map.getStyle().layers[0]?.id;

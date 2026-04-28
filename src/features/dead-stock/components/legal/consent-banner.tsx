@@ -19,17 +19,11 @@ export const ConsentBanner = () => {
   return (
     <Box
       className="consent-banner"
-      position="fixed"
-      bottom={0}
-      left={0}
-      right={0}
-      zIndex={1000}
-      bg="surface.default"
+      bg="bg.canvas"
       borderTopWidth="1px"
       borderColor="border.default"
-      px={8}
+      px={6}
       py={3}
-      shadow="lg"
     >
       <Flex align="center" justify="space-between" gap={4} wrap="wrap">
         <Text fontSize="sm" color="text.secondary" flex="1">
