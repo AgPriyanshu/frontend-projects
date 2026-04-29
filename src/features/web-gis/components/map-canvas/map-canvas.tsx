@@ -124,7 +124,7 @@ export const MapCanvas = observer(({ workspaceId }: MapCanvasProps) => {
           <Box
             className="map-canvas-drop-hint"
             p="2rem"
-            bg="bg.panel"
+            bg="surface.container"
             borderRadius="lg"
             border="2px dashed"
             borderColor="blue.500"

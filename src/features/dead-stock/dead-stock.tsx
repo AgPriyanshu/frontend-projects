@@ -5,7 +5,7 @@ import { ConsentBanner } from "./components/legal/consent-banner";
 import { DeadStockFooter } from "./components/legal/footer";
 
 const DeadStockContent = () => (
-  <Flex direction="column" className="dead-stock-page" w="full" h="full">
+  <Flex direction="column" className="dead-stock-page" w="100vw" h="100dvh">
     <Box flex="1" overflow="auto" minH={0}>
       <Outlet />
     </Box>

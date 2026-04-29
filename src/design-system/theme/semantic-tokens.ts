@@ -6,38 +6,38 @@ export const semanticTokens = {
     surface: {
       page: {
         value: {
-          _light: "{colors.palette.neutral.0}",
+          _light: "{colors.palette.neutral.50}",
           _dark: "{colors.palette.neutral.950}",
         },
       },
       container: {
         value: {
-          _light: "{colors.palette.neutral.50}",
+          _light: "{colors.palette.neutral.100}",
           _dark: "{colors.palette.neutral.900}",
         },
       },
       subtle: {
         value: {
-          _light: "{colors.palette.neutral.100}",
+          _light: "{colors.palette.neutral.200}",
           _dark: "{colors.palette.neutral.850}",
         },
       },
       hover: {
         value: {
-          _light: "{colors.palette.neutral.100}",
+          _light: "{colors.palette.neutral.200}",
           _dark: "{colors.palette.neutral.800}",
         },
       },
       disabled: {
         value: {
-          _light: "{colors.palette.neutral.100}",
+          _light: "{colors.palette.neutral.200}",
           _dark: "{colors.palette.neutral.850}",
         },
       },
       inverse: {
         value: {
-          _light: "{colors.palette.neutral.950}",
-          _dark: "{colors.palette.neutral.0}",
+          _light: "{colors.palette.neutral.900}",
+          _dark: "{colors.palette.neutral.50}",
         },
       },
     },
@@ -87,25 +87,25 @@ export const semanticTokens = {
     border: {
       default: {
         value: {
-          _light: "{colors.palette.neutral.200}",
+          _light: "{colors.palette.neutral.300}",
           _dark: "{colors.palette.neutral.800}",
         },
       },
       muted: {
         value: {
-          _light: "{colors.palette.neutral.100}",
+          _light: "{colors.palette.neutral.200}",
           _dark: "{colors.palette.neutral.850}",
         },
       },
       hover: {
         value: {
-          _light: "{colors.palette.neutral.300}",
+          _light: "{colors.palette.neutral.400}",
           _dark: "{colors.palette.neutral.700}",
         },
       },
       disabled: {
         value: {
-          _light: "{colors.palette.neutral.200}",
+          _light: "{colors.palette.neutral.300}",
           _dark: "{colors.palette.neutral.800}",
         },
       },

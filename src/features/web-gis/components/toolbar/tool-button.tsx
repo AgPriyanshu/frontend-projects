@@ -25,7 +25,7 @@ export const ToolButton = observer(
           bgColor={isActive ? "intent.primary" : undefined}
           color={isActive ? "text.onIntent" : "text.secondary"}
           _hover={{
-            bgColor: isActive ? "intent.primary" : "bg.subtle",
+            bgColor: isActive ? "intent.primary" : "surface.subtle",
             color: isActive ? "text.onIntent" : "text.primary",
           }}
           onClick={() => toolStore.toggleTool(mode)}

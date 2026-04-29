@@ -63,6 +63,7 @@ export interface DsSearchItem extends DsItem {
   shopLat: number | null;
   shopLng: number | null;
   shopPhone: string;
+  categorySlug: string | null;
 }
 
 export interface DsLead {
@@ -91,6 +92,12 @@ export interface DsPresignResponse {
   expiresIn: number;
   headers: Record<string, string>;
   bucket: string;
+}
+
+export interface DsAutocompleteSuggestion {
+  name: string;
+  thumbnail: string | null;
+  type: "item" | "category";
 }
 
 export type DsSort = "distance" | "recent" | "price";

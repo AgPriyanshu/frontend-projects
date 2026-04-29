@@ -27,19 +27,19 @@ export const colors = {
     },
 
     neutral: {
-      0: { value: "#FFFFFF" }, // primary text on dark
-      50: { value: "#F9FAFB" },
-      100: { value: "#F3F4F6" },
-      200: { value: "#E5E7EB" },
-      300: { value: "#D1D5DB" },
-      400: { value: "#9CA3AF" }, // secondary / muted text
-      500: { value: "#6B7280" },
-      600: { value: "#4B5563" },
-      700: { value: "#374151" },
-      800: { value: "#1F2937" },
-      850: { value: "#171717" }, // elevated surfaces - true neutral
-      900: { value: "#0F0F0F" }, // cards / surfaces - true neutral
-      950: { value: "#050505" }, // app background - near black
+      0: { value: "#FFFFFF" },
+      50: { value: "#FAFAFA" },
+      100: { value: "#F5F5F5" },
+      200: { value: "#E5E5E5" },
+      300: { value: "#D4D4D4" },
+      400: { value: "#A3A3A3" },
+      500: { value: "#737373" },
+      600: { value: "#525252" },
+      700: { value: "#404040" },
+      800: { value: "#262626" },
+      850: { value: "#1F1F1F" },
+      900: { value: "#171717" },
+      950: { value: "#0A0A0A" },
     },
 
     yellow: {

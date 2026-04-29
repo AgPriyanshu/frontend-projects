@@ -10,6 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { FiArrowLeft } from "react-icons/fi";
 import { Link, useLocation, useParams } from "react-router";
 import type { DsSearchItem } from "api/dead-stock";
 import {
@@ -76,13 +77,13 @@ export const ShopProfile = () => {
   };
 
   return (
-    <VStack align="stretch" gap={5}>
+    <VStack align="stretch" gap={5} px={4} py={5}>
       {location.state?.from && (
-        <Button asChild variant="ghost" alignSelf="start">
+        <Button asChild variant="ghost" alignSelf="start" size="sm">
           <Link
             to={`${location.state.from.pathname}${location.state.from.search}`}
           >
-            Back to results
+            <FiArrowLeft /> Back to results
           </Link>
         </Button>
       )}
@@ -113,6 +114,7 @@ export const ShopProfile = () => {
                   item={item}
                   onContact={setContactItem}
                   contactDisabled={!!recent}
+                  hideShopLink
                 />
                 {recent && (
                   <Text mt={1} fontSize="sm" color="text.secondary">

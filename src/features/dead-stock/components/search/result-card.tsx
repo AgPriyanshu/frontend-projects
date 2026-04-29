@@ -15,12 +15,14 @@ import {
   FiShoppingBag,
 } from "react-icons/fi";
 import type { DsSearchItem } from "api/dead-stock";
+import { ItemPlaceholder } from "../item-placeholder";
 
 interface ResultCardProps {
   item: DsSearchItem;
   onContact?: (item: DsSearchItem) => void;
   contactDisabled?: boolean;
   compact?: boolean;
+  hideShopLink?: boolean;
 }
 
 const formatDistance = (distanceM: number | null) => {
@@ -37,6 +39,7 @@ export const ResultCard = ({
   onContact,
   contactDisabled,
   compact,
+  hideShopLink,
 }: ResultCardProps) => {
   const location = useLocation();
   const primaryImage =
@@ -71,7 +74,11 @@ export const ResultCard = ({
               objectFit="cover"
             />
           ) : (
-            <Box w="full" h="full" minH="132px" bg="gray.200" />
+            <ItemPlaceholder
+              categorySlug={item.categorySlug}
+              itemName={item.name}
+              minH={compact ? "96px" : "132px"}
+            />
           )}
         </Box>
         <VStack align="stretch" gap={2} p={4} flex={1}>
@@ -95,14 +102,16 @@ export const ResultCard = ({
             </Badge>
           </HStack>
           <HStack gap={2} wrap="wrap" mt="auto">
-            <Button asChild size="sm" variant="outline">
-              <Link
-                to={`/dead-stock/shops/${item.shop}`}
-                state={{ from: location }}
-              >
-                <FiShoppingBag /> View shop
-              </Link>
-            </Button>
+            {!hideShopLink && (
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  to={`/dead-stock/shops/${item.shop}`}
+                  state={{ from: location }}
+                >
+                  <FiShoppingBag /> View shop
+                </Link>
+              </Button>
+            )}
             <Button asChild size="sm" variant="outline">
               <a href={`tel:${item.shopPhone}`}>
                 <FiPhone /> Call

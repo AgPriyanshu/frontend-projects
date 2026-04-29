@@ -61,6 +61,7 @@ export const WebGIS = () => {
             className="layers-panel-container"
             w={"full"}
             flex={1}
+            bg={"surface.page"}
             borderColor={"border.default"}
             borderWidth={"1px"}
             borderRadius={"lg"}
@@ -81,6 +82,7 @@ export const WebGIS = () => {
           className="web-gis-map-area"
           flex={1}
           w={"full"}
+          bg={"surface.page"}
           borderColor={"border.default"}
           borderWidth={"1px"}
           borderRadius={"lg"}

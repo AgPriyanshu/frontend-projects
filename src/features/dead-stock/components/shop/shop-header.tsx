@@ -36,14 +36,23 @@ export const ShopHeader = ({ shop }: ShopHeaderProps) => {
         <Box>
           <HStack gap={2} wrap="wrap">
             <Heading size="lg">{shop.name}</Heading>
-            {shop.isVerified && <Badge colorPalette="green">Verified</Badge>}
+            {shop.isVerified && (
+              <Badge bg="intent.success" color="text.onIntent" border="none">
+                Verified
+              </Badge>
+            )}
           </HStack>
           <Text color="text.secondary">
             Updated{" "}
             {formatDistanceToNow(new Date(shop.updatedAt), { addSuffix: true })}
           </Text>
           <Text color="text.secondary">
-            {[shop.address, shop.city, shop.pincode].filter(Boolean).join(", ")}
+            {[shop.address, shop.city, shop.pincode]
+              .filter(Boolean)
+              .join(", ") ||
+              (shop.lat !== null && shop.lng !== null
+                ? `${shop.lat.toFixed(4)}°N, ${shop.lng.toFixed(4)}°E`
+                : "Location not set")}
           </Text>
         </Box>
         <HStack gap={2} wrap="wrap">

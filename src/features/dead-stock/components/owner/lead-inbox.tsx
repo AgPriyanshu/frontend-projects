@@ -54,7 +54,12 @@ const LeadRow = ({ lead }: { lead: DsLead }) => {
               {lead.buyerName}
             </Text>
             {isNew && (
-              <Badge colorPalette="green" size="sm">
+              <Badge
+                bg="intent.success"
+                color="text.onIntent"
+                border="none"
+                size="sm"
+              >
                 New
               </Badge>
             )}
@@ -130,11 +135,15 @@ export const LeadInbox = () => {
   }
 
   return (
-    <Box className="lead-inbox" w="full" maxW="2xl" mx="auto">
+    <Box className="lead-inbox" w="full" maxW="2xl">
       <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
         <HStack gap={2}>
           <Heading size="md">Lead inbox</Heading>
-          {newCount > 0 && <Badge colorPalette="green">{newCount} new</Badge>}
+          {newCount > 0 && (
+            <Badge bg="intent.success" color="text.onIntent" border="none">
+              {newCount} new
+            </Badge>
+          )}
         </HStack>
 
         <HStack gap={1}>

@@ -99,7 +99,7 @@ export const DatasetTree = () => {
           p={2}
           borderBottom="1px solid"
           borderColor="border.subtle"
-          bg="bg.panel"
+          bg="surface.container"
           minH="40px"
         >
           {isSelectMode ? (

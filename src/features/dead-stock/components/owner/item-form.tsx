@@ -93,10 +93,12 @@ export const ItemForm = ({ initialData, onClose }: ItemFormProps) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <VStack gap={4} align="stretch">
-        <ImageUploader
-          itemId={activeItemId}
-          onImagesChange={handleImagesChange}
-        />
+        {activeItemId && (
+          <ImageUploader
+            itemId={activeItemId}
+            onImagesChange={handleImagesChange}
+          />
+        )}
 
         <Field.Root invalid={!!errors.name}>
           <Field.Label>Name *</Field.Label>

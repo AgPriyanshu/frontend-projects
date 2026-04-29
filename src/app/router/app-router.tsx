@@ -36,14 +36,14 @@ export const AppRouter = () => {
         <Route path={RoutePath.LevelUp} element={<LevelUpPage />} />
         <Route path={RoutePath.WhiteBoard} element={<AppItemPlaceholder />} />
         <Route path={RoutePath.Inventory} element={<AppItemPlaceholder />} />
-        <Route
-          path={`${RoutePath.DeadStock}/*`}
-          element={<DeadStockOwnerRoutes />}
-        />
       </Route>
 
       {/* Public routes - no authentication required */}
       <Route path={RoutePath.Login} element={<LoginPage />} />
+      <Route
+        path={`${RoutePath.DeadStock}/*`}
+        element={<DeadStockOwnerRoutes />}
+      />
     </Routes>
   );
 };

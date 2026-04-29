@@ -1,6 +1,15 @@
-import { Box, Input, InputGroup, Text } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  IconButton,
+  Image,
+  Input,
+  InputGroup,
+  Text,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { FiSearch } from "react-icons/fi";
+import { FiArrowRight, FiSearch, FiTag, FiX } from "react-icons/fi";
+import type { DsAutocompleteSuggestion } from "api/dead-stock";
 import { useSearchAutocomplete } from "api/dead-stock";
 
 interface SearchBarProps {
@@ -43,11 +52,11 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  const selectSuggestion = (suggestion: string) => {
+  const selectSuggestion = (suggestion: DsAutocompleteSuggestion) => {
     skipDebounceRef.current = true;
-    setDraft(suggestion);
+    setDraft(suggestion.name);
     window.clearTimeout(timeoutRef.current);
-    onChange(suggestion);
+    onChange(suggestion.name);
     setOpen(false);
     setActiveIndex(-1);
   };
@@ -72,9 +81,51 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
 
   const showDropdown = open && suggestions.length > 0;
 
+  const handleClear = () => {
+    skipDebounceRef.current = true;
+    setDraft("");
+    window.clearTimeout(timeoutRef.current);
+    onChange("");
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleSubmit = () => {
+    window.clearTimeout(timeoutRef.current);
+    onChange(draft);
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
   return (
     <Box className="search-bar" position="relative" ref={containerRef}>
-      <InputGroup startElement={<FiSearch />}>
+      <InputGroup
+        startElement={<FiSearch />}
+        endElement={
+          draft ? (
+            <HStack gap={0.5}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                aria-label="Clear search"
+                onClick={handleClear}
+                color="fg.muted"
+                _hover={{ color: "fg" }}
+              >
+                <FiX />
+              </IconButton>
+              <IconButton
+                size="xs"
+                variant="solid"
+                aria-label="Submit search"
+                onClick={handleSubmit}
+              >
+                <FiArrowRight />
+              </IconButton>
+            </HStack>
+          ) : undefined
+        }
+      >
         <Input
           value={draft}
           onChange={(event) => {
@@ -107,27 +158,56 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
         >
           {suggestions.map((suggestion, index) => (
             <Box
-              key={suggestion}
-              px={4}
-              py={2.5}
+              key={suggestion.name}
+              px={3}
+              py={2}
               cursor="pointer"
               bg={index === activeIndex ? "bg.muted" : "transparent"}
               _hover={{ bg: "bg.muted" }}
               display="flex"
               alignItems="center"
-              gap={2}
+              gap={3}
               onMouseDown={(event) => {
                 // Prevent input blur before click registers.
                 event.preventDefault();
                 selectSuggestion(suggestion);
               }}
             >
-              <FiSearch
-                size={12}
-                color="var(--chakra-colors-fg)"
-                opacity={0.4}
-              />
-              <Text fontSize="sm">{suggestion}</Text>
+              <Box
+                flexShrink={0}
+                w="32px"
+                h="32px"
+                borderRadius="sm"
+                overflow="hidden"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                bg="bg.subtle"
+              >
+                {suggestion.thumbnail ? (
+                  <Image
+                    src={suggestion.thumbnail}
+                    alt={suggestion.name}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                  />
+                ) : suggestion.type === "category" ? (
+                  <FiTag size={14} color="var(--chakra-colors-fg-muted)" />
+                ) : (
+                  <FiSearch size={14} color="var(--chakra-colors-fg-muted)" />
+                )}
+              </Box>
+              <Box flex={1} minW={0}>
+                <Text fontSize="sm" truncate>
+                  {suggestion.name}
+                </Text>
+                {suggestion.type === "category" && (
+                  <Text fontSize="xs" color="fg.muted">
+                    Category
+                  </Text>
+                )}
+              </Box>
             </Box>
           ))}
         </Box>

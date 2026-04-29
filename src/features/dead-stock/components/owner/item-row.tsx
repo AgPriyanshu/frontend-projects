@@ -143,7 +143,7 @@ export const ItemRow = ({ item, onEdit, isMobile }: ItemRowProps) => {
                   objectFit="cover"
                 />
               ) : (
-                <Box w="full" h="full" bg="gray.200" />
+                <Box w="full" h="full" bg="surface.subtle" />
               )}
             </Box>
             <VStack align="start" gap={1}>
@@ -185,7 +185,7 @@ export const ItemRow = ({ item, onEdit, isMobile }: ItemRowProps) => {
                 objectFit="cover"
               />
             ) : (
-              <Box w="full" h="full" bg="gray.200" />
+              <Box w="full" h="full" bg="surface.subtle" />
             )}
           </Box>
           <Text fontWeight="medium" lineClamp={1}>

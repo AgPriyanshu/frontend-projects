@@ -60,17 +60,54 @@ export const useBuyerLocation = () => {
       };
     }
 
+    const reverseGeocode = async (
+      lat: number,
+      lng: number
+    ): Promise<string> => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=14`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = (await response.json()) as {
+          address?: {
+            suburb?: string;
+            neighbourhood?: string;
+            city_district?: string;
+            city?: string;
+            town?: string;
+            village?: string;
+          };
+        };
+        const addr = data.address ?? {};
+        return (
+          addr.suburb ??
+          addr.neighbourhood ??
+          addr.city_district ??
+          addr.city ??
+          addr.town ??
+          addr.village ??
+          "your location"
+        );
+      } catch {
+        return "your location";
+      }
+    };
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        if (cancelled) {
-          return;
-        }
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          label: "your location",
-          source: "gps",
-          isLoading: false,
+        if (cancelled) return;
+        const { latitude, longitude } = position.coords;
+        void reverseGeocode(latitude, longitude).then((label) => {
+          if (!cancelled) {
+            setLocation({
+              lat: latitude,
+              lng: longitude,
+              label,
+              source: "gps",
+              isLoading: false,
+            });
+          }
         });
       },
       () => void fallbackToIp(),

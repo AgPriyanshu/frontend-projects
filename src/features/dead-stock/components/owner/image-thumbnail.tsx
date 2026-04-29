@@ -73,7 +73,7 @@ export const ImageThumbnail = ({
             objectFit="cover"
           />
         ) : (
-          <Box w="full" h="full" bg="gray.200" />
+          <Box w="full" h="full" bg="surface.subtle" />
         )}
 
         {!image.variantsReady && (
@@ -105,7 +105,14 @@ export const ImageThumbnail = ({
         </IconButton>
 
         {image.isPrimary && (
-          <Badge position="absolute" left={2} top={2} colorPalette="green">
+          <Badge
+            position="absolute"
+            left={2}
+            top={2}
+            bg="intent.success"
+            color="text.onIntent"
+            border="none"
+          >
             Primary
           </Badge>
         )}

@@ -20,7 +20,7 @@ import {
   SortableContext,
 } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
-import { FiCamera, FiImage } from "react-icons/fi";
+import { FiImage } from "react-icons/fi";
 import type { DsItemImage } from "api/dead-stock";
 import {
   useConfirmImage,
@@ -103,10 +103,10 @@ export const ImageUploader = ({
 
   const { data: item } = useItem(itemId || "", {
     enabled: !!itemId,
-    refetchInterval: () => {
-      const hasPendingVariants = !!item?.images.some(
-        (image) => !image.variantsReady
-      );
+    refetchInterval: (query) => {
+      const hasPendingVariants = !!(
+        query.state.data as typeof item
+      )?.images.some((image) => !image.variantsReady);
       return hasPendingVariants && Date.now() < pollUntil ? 2000 : false;
     },
   });
@@ -228,7 +228,7 @@ export const ImageUploader = ({
       <Box
         p={5}
         border="1px dashed"
-        borderColor={itemId ? "border.default" : "border.disabled"}
+        borderColor="border.default"
         borderRadius="md"
         bg="bg.muted"
         textAlign="center"
@@ -243,9 +243,7 @@ export const ImageUploader = ({
           hidden
           type="file"
           accept="image/*"
-          capture="environment"
           multiple
-          disabled={!itemId}
           onChange={(event) => {
             if (event.target.files) {
               void handleFiles(event.target.files);
@@ -256,22 +254,12 @@ export const ImageUploader = ({
 
         <VStack gap={3}>
           <Text color="text.secondary" fontSize="sm">
-            {itemId
-              ? "Add up to 5 product photos."
-              : "Create item details first, then add photos."}
+            Add up to 5 product photos.
           </Text>
           <HStack gap={2} justify="center" wrap="wrap">
             <Button
               size="sm"
-              variant="outline"
-              disabled={!itemId || images.length >= MAX_IMAGES}
-              onClick={() => inputRef.current?.click()}
-            >
-              <FiCamera /> Take photo
-            </Button>
-            <Button
-              size="sm"
-              disabled={!itemId || images.length >= MAX_IMAGES}
+              disabled={images.length >= MAX_IMAGES}
               onClick={() => inputRef.current?.click()}
             >
               <FiImage /> Choose file
