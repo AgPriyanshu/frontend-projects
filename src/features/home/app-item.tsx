@@ -1,4 +1,4 @@
-import { Box, Card, Heading, Icon, VStack } from "@chakra-ui/react";
+import { Box, Card, Heading, Icon } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import type { AppCard } from "./types";
 
@@ -11,8 +11,8 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
   return (
     <Card.Root
       key={app.title}
-      width="150px"
-      height="150px"
+      width="8rem"
+      height="8rem"
       cursor="pointer"
       onClick={() => navigate(app.route)}
       transition="all 0.2s"
@@ -25,16 +25,25 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
         borderColor: "intent.primaryHover",
       }}
     >
-      <Card.Body padding={2} pt={6}>
-        <VStack align="center" gap={4} height="full">
-          <Box p={4} borderRadius="lg">
-            <Icon as={app.icon} boxSize={8} color="icon.primary" />
-          </Box>
-
-          <VStack align="center" gap={3} width="full">
-            <Heading size="md">{app.title}</Heading>
-          </VStack>
-        </VStack>
+      <Card.Body
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        p={3}
+      >
+        <Box p={2} borderRadius="lg" bg="surface.subtle" mb={2}>
+          <Icon as={app.icon} boxSize={6} color="icon.primary" />
+        </Box>
+        <Heading
+          size="sm"
+          textAlign="center"
+          fontWeight="medium"
+          lineHeight="short"
+          lineClamp={2}
+        >
+          {app.title}
+        </Heading>
       </Card.Body>
     </Card.Root>
   );

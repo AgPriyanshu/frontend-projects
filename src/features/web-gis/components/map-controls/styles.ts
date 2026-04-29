@@ -2,13 +2,13 @@ export const controlButtonStyles = {
   size: "sm" as const,
   variant: "ghost" as const,
   color: "text.secondary",
-  _hover: { bg: "bg.subtle", color: "text.primary" },
+  _hover: { bg: "surface.hover", color: "text.primary" },
 } as const;
 
 export const panelStyles = {
   direction: "column" as const,
   p: "0.25rem",
-  bg: "bg.panel",
+  bg: "surface.container",
   borderRadius: "xl",
   boxShadow: "md",
   borderWidth: "1px",

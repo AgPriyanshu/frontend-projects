@@ -164,10 +164,10 @@ export const LayerPanel = observer(() => {
             className="layer-panel-item"
             p="0.5rem"
             borderRadius="md"
-            bg="bg.subtle"
+            bg="surface.subtle"
             alignItems="center"
             gap="0.5rem"
-            _hover={{ bg: "bg.muted" }}
+            _hover={{ bg: "surface.hover" }}
           >
             {/* Visibility toggle. */}
             <IconButton

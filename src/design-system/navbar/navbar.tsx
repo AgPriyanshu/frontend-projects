@@ -23,10 +23,10 @@ export const Navbar = observer(() => {
   return (
     <Box
       as="nav"
-      h={"8vh"}
+      h={"6vh"}
       w="full"
       borderBottomWidth="1px"
-      px={8}
+      px={4}
       py={4}
       bg={"surface.container"}
     >
@@ -37,6 +37,7 @@ export const Navbar = observer(() => {
           onClick={() => navigate("/")}
           _hover={{ opacity: 0.8 }}
           transition="opacity 0.2s"
+          ml={"1rem"}
         >
           <img
             src={atlasLogo}

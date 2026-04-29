@@ -18,6 +18,8 @@ export const TermsPage = () => (
     className="terms-page"
     maxW="720px"
     mx="auto"
+    px={6}
+    py={8}
     pb={16}
     css={markdownStyles}
   >

@@ -5,6 +5,7 @@ const SOURCE_ID = "dead-stock-shops";
 const CLUSTERS_ID = "dead-stock-shop-clusters";
 const CLUSTER_COUNT_ID = "dead-stock-shop-cluster-count";
 const POINTS_ID = "dead-stock-shop-points";
+const PIN_IMAGE_ID = "shop-pin";
 
 export const shopMarkerLayerIds = {
   source: SOURCE_ID,
@@ -31,7 +32,30 @@ export const toShopFeatureCollection = (items: DsSearchItem[]) => ({
     })),
 });
 
-export const mountShopMarkers = (map: MapLibreMap, items: DsSearchItem[]) => {
+const PIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44">
+  <path d="M16 0C7.16 0 0 7.16 0 16C0 28 16 44 16 44C16 44 32 28 32 16C32 7.16 24.84 0 16 0Z" fill="#f59e0b" stroke="white" stroke-width="2.5"/>
+  <circle cx="16" cy="16" r="6" fill="white"/>
+</svg>`;
+
+const loadPinImage = (map: MapLibreMap): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (map.hasImage(PIN_IMAGE_ID)) {
+      resolve();
+      return;
+    }
+    const img = new Image(32, 44);
+    img.onload = () => {
+      map.addImage(PIN_IMAGE_ID, img, { pixelRatio: 2 });
+      resolve();
+    };
+    img.onerror = reject;
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(PIN_SVG)}`;
+  });
+
+export const mountShopMarkers = async (
+  map: MapLibreMap,
+  items: DsSearchItem[]
+) => {
   const data = toShopFeatureCollection(items);
   const existingSource = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
@@ -39,6 +63,8 @@ export const mountShopMarkers = (map: MapLibreMap, items: DsSearchItem[]) => {
     existingSource.setData(data);
     return;
   }
+
+  await loadPinImage(map);
 
   map.addSource(SOURCE_ID, {
     type: "geojson",
@@ -74,14 +100,14 @@ export const mountShopMarkers = (map: MapLibreMap, items: DsSearchItem[]) => {
 
   map.addLayer({
     id: POINTS_ID,
-    type: "circle",
+    type: "symbol",
     source: SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
-    paint: {
-      "circle-color": "#f59e0b",
-      "circle-radius": 9,
-      "circle-stroke-width": 2,
-      "circle-stroke-color": "#ffffff",
+    layout: {
+      "icon-image": PIN_IMAGE_ID,
+      "icon-size": 1.7,
+      "icon-anchor": "bottom",
+      "icon-allow-overlap": true,
     },
   });
 };

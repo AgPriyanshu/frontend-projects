@@ -8,9 +8,8 @@ export const DeadStockFooter = () => (
     className="dead-stock-footer"
     borderTopWidth="1px"
     borderColor="border.default"
-    px={8}
-    py={4}
-    mt={4}
+    px={6}
+    py={3}
   >
     <Flex
       direction={{ base: "column", sm: "row" }}

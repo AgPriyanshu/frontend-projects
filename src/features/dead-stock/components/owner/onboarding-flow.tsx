@@ -65,7 +65,7 @@ export const OnboardingFlow = () => {
   const handleLogout = () => {
     clearToken();
     queryClient.clear();
-    navigate(RoutePath.Login);
+    navigate("/dead-stock/login", { replace: true });
   };
 
   return (
