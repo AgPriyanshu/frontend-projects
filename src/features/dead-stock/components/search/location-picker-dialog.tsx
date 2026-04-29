@@ -65,7 +65,7 @@ export const LocationPickerDialog = ({
 }: LocationPickerDialogProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof window.setTimeout>>();
+  const searchTimeoutRef = useRef<number | undefined>(undefined);
 
   const [addressQuery, setAddressQuery] = useState("");
   const [searchResults, setSearchResults] = useState<NominatimResult[]>([]);

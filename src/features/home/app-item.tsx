@@ -40,7 +40,7 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
           textAlign="center"
           fontWeight="medium"
           lineHeight="short"
-          noOfLines={2}
+          lineClamp={2}
         >
           {app.title}
         </Heading>

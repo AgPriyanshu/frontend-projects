@@ -94,6 +94,7 @@ export const ImageUploader = ({
   const [uploads, setUploads] = useState<UploadProgress[]>([]);
   const [limitWarning, setLimitWarning] = useState("");
   const [pollUntil, setPollUntil] = useState(0);
+  const hasPendingVariantsRef = useRef(false);
 
   const presignImage = usePresignImage(itemId || "");
   const confirmImage = useConfirmImage(itemId || "");
@@ -103,16 +104,18 @@ export const ImageUploader = ({
 
   const { data: item } = useItem(itemId || "", {
     enabled: !!itemId,
-    refetchInterval: (query) => {
-      const hasPendingVariants = !!(
-        query.state.data as typeof item
-      )?.images.some((image) => !image.variantsReady);
-      return hasPendingVariants && Date.now() < pollUntil ? 2000 : false;
-    },
+    refetchInterval: () =>
+      hasPendingVariantsRef.current && Date.now() < pollUntil ? 2000 : false,
   });
 
   const images = item?.images ?? EMPTY_IMAGES;
   const sensors = useSensors(useSensor(PointerSensor));
+
+  useEffect(() => {
+    hasPendingVariantsRef.current = images.some(
+      (image) => !image.variantsReady
+    );
+  }, [images]);
 
   useEffect(() => {
     if (itemId) {

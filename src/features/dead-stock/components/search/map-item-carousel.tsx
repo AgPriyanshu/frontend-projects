@@ -113,15 +113,16 @@ export const MapItemCarousel = ({
           </Box>
 
           {/* Clickable image + info — navigates to shop */}
-          <Box
-            as={Link}
+          <Link
             to={`/dead-stock/shops/${item.shop}`}
             state={{ from: location }}
-            display="flex"
-            flex={1}
-            minW={0}
-            _hover={{ bg: "bg.muted" }}
-            transition="background 0.15s"
+            style={{
+              display: "flex",
+              flex: 1,
+              minWidth: 0,
+              textDecoration: "none",
+              color: "inherit",
+            }}
           >
             <Box w="100px" flexShrink={0} bg="bg.muted">
               {primaryImage ? (
@@ -174,31 +175,27 @@ export const MapItemCarousel = ({
               </HStack>
 
               <HStack gap={1.5} wrap="wrap" mt="auto">
-                <IconButton
-                  as="a"
+                <a
                   href={`tel:${item.shopPhone}`}
-                  size="xs"
-                  variant="outline"
-                  aria-label="Call"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <FiPhone />
-                </IconButton>
-                <IconButton
-                  as="a"
+                  <IconButton size="xs" variant="outline" aria-label="Call">
+                    <FiPhone />
+                  </IconButton>
+                </a>
+                <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
-                  size="xs"
-                  variant="outline"
-                  aria-label="WhatsApp"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <FiMessageCircle />
-                </IconButton>
+                  <IconButton size="xs" variant="outline" aria-label="WhatsApp">
+                    <FiMessageCircle />
+                  </IconButton>
+                </a>
               </HStack>
             </VStack>
-          </Box>
+          </Link>
 
           {/* Next button */}
           <Box
