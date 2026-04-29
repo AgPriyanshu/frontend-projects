@@ -37,8 +37,9 @@ export const ProcessingBar = observer(() => {
         job.status === "completed" &&
         job.outputDataset
       ) {
+        const params = job.parameters as Record<string, unknown>;
         const name =
-          (job.parameters as any).__output_name || "Processing Output";
+          (params.__output_name as string | undefined) || "Processing Output";
 
         api
           .post(QueryKeys.layers[0], {

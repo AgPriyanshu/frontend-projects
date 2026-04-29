@@ -47,12 +47,13 @@ export const CreateFolderModal = ({
 
       reset();
       onClose();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       toaster.create({
         title: "Error creating folder",
         type: "error",
-        description: err.message,
+        description:
+          err instanceof Error ? err.message : "An unknown error occurred.",
       });
     }
   };

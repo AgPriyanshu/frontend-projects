@@ -85,7 +85,7 @@ export const LayerPanel = observer(() => {
     }
 
     void syncLayers();
-  }, [apiLayers.length, syncLayers]);
+  }, [apiLayers.length, syncLayers, workspace?.layerStore]);
 
   // Handlers.
   const handleDelete = (layerId: string) => {

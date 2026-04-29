@@ -45,7 +45,7 @@ export class MapLibreMapManager implements IMapManager {
       trackResize: true,
       crossSourceCollisions: false,
       maxParallelImageRequests: 16,
-      transformRequest: (url: any) => {
+      transformRequest: (url: string) => {
         if (url.includes("/web-gis/") || url.includes("/api/")) {
           const token = getAccessToken();
           return {
@@ -55,7 +55,7 @@ export class MapLibreMapManager implements IMapManager {
         }
         return { url };
       },
-    } as any);
+    } as ConstructorParameters<typeof MapLibreMap>[0]);
 
     // Bind engines when map is ready.
     this.mapInstance.on("load", () => {

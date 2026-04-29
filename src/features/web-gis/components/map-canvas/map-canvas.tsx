@@ -89,7 +89,7 @@ export const MapCanvas = observer(({ workspaceId }: MapCanvasProps) => {
         return;
       }
     },
-    [addLayerToMap, sendCreateLayer]
+    [sendCreateLayer, workspace]
   );
 
   return (

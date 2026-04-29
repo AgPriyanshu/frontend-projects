@@ -64,11 +64,12 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
         type: "success",
         description: `Saved ${features.length} feature(s) to ${activeLayer.name}.`,
       });
-    } catch (err: any) {
+    } catch (err) {
       toaster.create({
         title: "Error saving features",
         type: "error",
-        description: err.message,
+        description:
+          err instanceof Error ? err.message : "An unknown error occurred.",
       });
     } finally {
       setIsSaving(false);

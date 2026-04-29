@@ -109,13 +109,14 @@ export const SaveFeaturesModal = ({
       onComplete(newLayer);
       reset();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
 
       toaster.create({
         title: "Error capturing vectors",
         type: "error",
-        description: error.message,
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred.",
       });
     }
   };
@@ -148,7 +149,7 @@ export const SaveFeaturesModal = ({
                 <NativeSelect.Root disabled={isSubmitting}>
                   <NativeSelect.Field {...register("parent")}>
                     <option value="root">Root Directory</option>
-                    {folders.map((folder: any) => (
+                    {folders.map((folder: DatasetNode) => (
                       <option key={folder.id} value={folder.id}>
                         {folder.name}
                       </option>
