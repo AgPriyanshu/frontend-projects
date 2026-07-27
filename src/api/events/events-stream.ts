@@ -8,6 +8,7 @@ import { getAccessToken } from "shared/local-storage";
 import { toCamelCase } from "shared/utils";
 import type { AxiosResponse } from "axios";
 import type { ProcessingJobResponse } from "api/web-gis/types";
+import type { WorkflowRunResponse } from "api/workflow/types";
 import type { Notification } from "./types";
 
 type ProcessingProgressMessage = {
@@ -129,6 +130,115 @@ const applyProcessingMessage = (message: ProcessingMessage) => {
   }
 };
 
+type WorkflowNodeStatusMessage = {
+  type: "workflow_node_status";
+  runId: string;
+  workflowId: string;
+  nodeId: string;
+  status: string;
+  outputDatasetId: string | null;
+  error: string;
+};
+
+type WorkflowRunStatusMessage = {
+  type: "workflow_run_status";
+  runId: string;
+  workflowId: string;
+  status: string;
+  error: string;
+};
+
+type WorkflowMessage = WorkflowNodeStatusMessage | WorkflowRunStatusMessage;
+
+const tryParseWorkflowMessage = (content: string): WorkflowMessage | null => {
+  try {
+    const parsed = JSON.parse(content);
+
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      typeof parsed.type === "string" &&
+      parsed.type.startsWith("workflow_")
+    ) {
+      return toCamelCase(parsed) as WorkflowMessage;
+    }
+  } catch {
+    // Not a JSON workflow payload, treat as a regular notification.
+  }
+
+  return null;
+};
+
+const applyWorkflowMessage = (message: WorkflowMessage) => {
+  const runKey = QueryKeys.workflowRun(message.workflowId, message.runId);
+
+  queryClient.setQueryData(
+    runKey,
+    (old: AxiosResponse<ApiResponse<WorkflowRunResponse>> | undefined) => {
+      if (!old?.data?.data) {
+        return old;
+      }
+
+      const run = old.data.data;
+
+      if (message.type === "workflow_run_status") {
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            data: {
+              ...run,
+              status: message.status,
+              errorMessage: message.error,
+            },
+          },
+        };
+      }
+
+      const currentNodeRuns = run.nodeRuns ?? [];
+      const exists = currentNodeRuns.some((nr) => nr.nodeId === message.nodeId);
+      const nodeRuns = exists
+        ? currentNodeRuns.map((nr) =>
+            nr.nodeId === message.nodeId
+              ? {
+                  ...nr,
+                  status: message.status,
+                  outputDataset: message.outputDatasetId,
+                  errorMessage: message.error,
+                }
+              : nr
+          )
+        : [
+            ...currentNodeRuns,
+            {
+              id: message.nodeId,
+              nodeId: message.nodeId,
+              nodeType: "operation",
+              status: message.status,
+              outputDataset: message.outputDatasetId,
+              errorMessage: message.error,
+              startedAt: null,
+              completedAt: null,
+            },
+          ];
+
+      return { ...old, data: { ...old.data, data: { ...run, nodeRuns } } };
+    }
+  );
+
+  if (
+    message.type === "workflow_run_status" &&
+    message.status !== "running" &&
+    message.status !== "pending"
+  ) {
+    queryClient.invalidateQueries({
+      queryKey: QueryKeys.workflowRuns(message.workflowId),
+    });
+    queryClient.invalidateQueries({ queryKey: QueryKeys.datasets });
+    queryClient.invalidateQueries({ queryKey: QueryKeys.layers });
+  }
+};
+
 const applyDeadStockMessage = (message: { type: string }) => {
   if (message.type === "dead_stock.lead_created") {
     queryClient.invalidateQueries({ queryKey: QueryKeys.deadStock.leadInbox });
@@ -197,6 +307,15 @@ export const useNotificationStream = () => {
 
         if (processingMessage) {
           applyProcessingMessage(processingMessage);
+          return;
+        }
+
+        const workflowMessage = tryParseWorkflowMessage(
+          newNotification.content
+        );
+
+        if (workflowMessage) {
+          applyWorkflowMessage(workflowMessage);
           return;
         }
 

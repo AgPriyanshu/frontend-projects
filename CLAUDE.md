@@ -93,6 +93,16 @@ Atlas-specific GIS UI built on top of the shared map engine:
 - **Services** (`services/`) — `LayerFactory` converts API layer responses into `LayerModel` instances.
 - **Actions** (`actions/`) — `WebGISActionHandler` integrates map operations with the chat agent.
 
+### Node-Graph / Canvas Foundations
+
+No dedicated node-graph editor exists for GIS pipelines yet, but the pieces are already in the codebase:
+
+- **`@xyflow/react` (React Flow) + `dagre`** are already used to build a full node-graph editor in `src/features/workload-tree/components/org-graph/` — `org-graph.tsx` (`ReactFlowProvider` wrapper, `useNodesState`/`useEdgesState`, custom `nodeTypes`, `Background`/`Controls`/`MiniMap`, `fitView`), `layout.ts` (`applyDagreLayout` — builds a `dagre.graphlib.Graph`, fixed node size, computes positions), `person-node.tsx` (custom node using Chakra `Box`/`Flex` + React Flow `Handle`/`Position`). This is the template to copy for any future node-based canvas (e.g. a workflow builder) — swap the node types and edge semantics, keep or drop the dagre auto-layout.
+- **`@dnd-kit/core`/`sortable`/`utilities`** are installed but only used for sortable image lists (`features/dead-stock/components/owner/`) — not for canvas dragging. React Flow's own node dragging, or native HTML5 drag-and-drop (see below), covers canvas interactions without needing dnd-kit.
+- **Native HTML5 drag-and-drop** (no library) is how datasets get dropped onto the map: `features/web-gis/components/map-canvas/map-canvas.tsx` implements `onDragOver`/`onDrop` reading `dataTransfer.getData("application/dataset-id")`, with the drag source set in the dataset tree (`data-sources/dataset-tree-node.tsx`, `react-arborist`-based). Reusable pattern for dragging a data source or operation from a palette onto a canvas.
+- `ProcessingToolDefinition` / `ProcessingJobResponse` (`src/api/web-gis/types.ts`) already model "an operation with typed inputs/outputs and a parameter schema" (`toolName`, `category`, `inputTypes`, `outputType`, `parameters: ProcessingToolParam[]`) — the closest existing analog to a workflow "operation node" definition. `processing-api.ts` (`useProcessingTools`, `useSubmitProcessingJob`, `useProcessingJobs` with polling) and `tool-parameter-form.tsx` (dynamic `react-hook-form` + `zod` form built from a tool's parameter schema) are the reusable pieces for rendering/submitting a node's config.
+- No charting/visx/d3 library is installed — needed only if a future canvas requires inline data previews.
+
 ### Design System (`src/design-system/`)
 
 Built on Chakra UI v3. Theme customization lives in `design-system/theme/` (semantic tokens, recipes, color palette). Always extend the theme rather than writing one-off styles.

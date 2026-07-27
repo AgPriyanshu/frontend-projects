@@ -16,7 +16,7 @@ import {
 } from "api/web-gis";
 import { toaster } from "design-system/toaster";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { ToolParameterForm } from "./tool-parameter-form";
+import { ToolParameterForm } from "shared/components";
 
 const AUTO_SUBMIT_DELAY_MS = 1000;
 

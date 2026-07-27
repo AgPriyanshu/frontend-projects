@@ -30,6 +30,15 @@ export const QueryKeys = {
   // Processing jobs.
   processingJobs: ["/web-gis/processing"],
   processingTools: ["/web-gis/processing/tools"],
+  // Workflows (DAG builder).
+  workflows: ["/web-gis/workflows"],
+  workflow: (id: string) => [`/web-gis/workflows/${id}`],
+  workflowRuns: (workflowId: string) => [
+    `/web-gis/workflows/${workflowId}/runs`,
+  ],
+  workflowRun: (workflowId: string, runId: string) => [
+    `/web-gis/workflows/${workflowId}/runs/${runId}`,
+  ],
   // Merged terrain tiles (SRTM baseline + user DEMs composited).
   mergedTerrainTiles: ["/web-gis/terrain/tiles/{z}/{x}/{y}.png"],
   // Level Up characters.
