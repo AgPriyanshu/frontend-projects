@@ -65,7 +65,7 @@ export const DeadStockLoginPage = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      bg="bg.canvas"
+      bg="surface.page"
       px={4}
       py={8}
     >
@@ -73,7 +73,7 @@ export const DeadStockLoginPage = () => {
         {/* Brand */}
         <VStack gap={1} textAlign="center">
           <BrandHeading size="2xl" />
-          <Text color="fg.muted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             Shop owner portal
           </Text>
         </VStack>
@@ -91,7 +91,7 @@ export const DeadStockLoginPage = () => {
                 <VStack gap={5} align="stretch">
                   <VStack gap={1} align="stretch">
                     <Heading size="md">Welcome back</Heading>
-                    <Text fontSize="sm" color="fg.muted">
+                    <Text fontSize="sm" color="text.muted">
                       Sign in to manage your shop inventory.
                     </Text>
                   </VStack>
@@ -138,7 +138,7 @@ export const DeadStockLoginPage = () => {
         </Card.Root>
 
         {/* Back to search */}
-        <Button asChild variant="ghost" size="sm" color="fg.muted">
+        <Button asChild variant="ghost" size="sm" color="text.muted">
           <Link to="/dead-stock">
             <FiArrowLeft /> Back to search
           </Link>

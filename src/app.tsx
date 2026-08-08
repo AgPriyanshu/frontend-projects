@@ -1,7 +1,7 @@
 import { Center, Flex, VStack } from "@chakra-ui/react";
 import "react-resizable/css/styles.css";
 import { Outlet } from "react-router";
-import { Navbar } from "src/design-system/navbar";
+import { Navbar } from "design-system/navbar";
 import { ChatPanel } from "src/features/chat";
 import { useAgentExecutor } from "src/features/chat/hooks/use-agent-executor";
 

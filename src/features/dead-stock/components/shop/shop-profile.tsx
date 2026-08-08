@@ -18,7 +18,7 @@ import {
   usePublicShop,
   usePublicShopItems,
 } from "api/dead-stock";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import { ResultCard } from "../search/result-card";
 import { getRecentLead } from "../../hooks/use-recent-leads";
 import { LeadDialog } from "./lead-dialog";

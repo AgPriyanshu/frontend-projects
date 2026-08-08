@@ -170,7 +170,7 @@ export const ProcessingJobModal = ({
       onOpenChange={(e) => !e.open && onClose()}
       placement={"center"}
     >
-      <Dialog.Backdrop bg="blackAlpha.300" backdropFilter="blur(2px)" />
+      <Dialog.Backdrop bg="surface.overlay" backdropFilter="blur(2px)" />
       <Dialog.Positioner>
         <Dialog.Content>
           {/* Countdown progress bar — only visible during agent auto-submit */}
@@ -211,7 +211,7 @@ export const ProcessingJobModal = ({
           </Dialog.Header>
           <Dialog.Body>
             <VStack gap="1rem" align="stretch">
-              <Text fontSize="sm" color="fg.muted">
+              <Text fontSize="sm" color="text.muted">
                 {tool.description}
               </Text>
 
@@ -255,7 +255,7 @@ export const ProcessingJobModal = ({
               Cancel
             </Button>
             <Button
-              colorPalette="palette.brand"
+              colorPalette="brand"
               onClick={handleSubmit(onSubmit)}
               loading={isSubmitting}
             >

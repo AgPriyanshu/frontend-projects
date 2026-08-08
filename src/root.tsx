@@ -4,7 +4,7 @@ import { Toaster } from "design-system/toaster";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { QueryProvider } from "src/api";
-import { ThemeProvider } from "src/design-system";
+import { ThemeProvider } from "design-system";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,

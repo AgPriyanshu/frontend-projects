@@ -73,14 +73,14 @@ export const WorkflowToolbar = ({
               </Popover.Header>
               <Popover.Body overflowY="auto" maxH="300px">
                 {runs.length === 0 ? (
-                  <Text fontSize="sm" color="fg.muted">
+                  <Text fontSize="sm" color="text.muted">
                     No runs yet.
                   </Text>
                 ) : (
                   <VStack gap={2} align="stretch">
                     {runs.map((run) => (
                       <Flex key={run.id} justify="space-between" align="center">
-                        <Text fontSize="xs" color="fg.muted">
+                        <Text fontSize="xs" color="text.muted">
                           {new Date(run.createdAt).toLocaleString()}
                         </Text>
                         <Badge colorPalette={RUN_STATUS_COLOR[run.status]}>
@@ -100,7 +100,7 @@ export const WorkflowToolbar = ({
         </Button>
         <Button
           size="sm"
-          colorPalette="palette.brand"
+          colorPalette="brand"
           bg="intent.primary"
           color="white"
           onClick={onRun}

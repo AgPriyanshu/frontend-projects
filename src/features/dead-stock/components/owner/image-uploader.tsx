@@ -30,7 +30,7 @@ import {
   useReorderImages,
   useUpdateImage,
 } from "api/dead-stock";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import {
   compressImage,
   getImageDimensions,
@@ -239,7 +239,7 @@ export const ImageUploader = ({
         border="1px dashed"
         borderColor="border.default"
         borderRadius="md"
-        bg="bg.muted"
+        bg="surface.subtle"
         textAlign="center"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
@@ -295,7 +295,12 @@ export const ImageUploader = ({
               {upload.error || `${upload.progress}%`}
             </Text>
           </HStack>
-          <Box h="6px" bg="bg.muted" borderRadius="full" overflow="hidden">
+          <Box
+            h="6px"
+            bg="surface.subtle"
+            borderRadius="full"
+            overflow="hidden"
+          >
             <Box
               h="full"
               w={`${upload.progress}%`}

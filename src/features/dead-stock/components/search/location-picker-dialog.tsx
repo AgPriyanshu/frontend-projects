@@ -198,7 +198,7 @@ export const LocationPickerDialog = ({
                     left={4}
                     right={4}
                     zIndex={10}
-                    bg="bg.panel"
+                    bg="surface.container"
                     borderWidth="1px"
                     borderColor="border.default"
                     borderRadius="md"
@@ -211,7 +211,7 @@ export const LocationPickerDialog = ({
                         px={3}
                         py={2.5}
                         cursor="pointer"
-                        _hover={{ bg: "bg.muted" }}
+                        _hover={{ bg: "surface.subtle" }}
                         onMouseDown={(e) => {
                           // Prevent input blur before select fires.
                           e.preventDefault();
@@ -227,7 +227,7 @@ export const LocationPickerDialog = ({
                 )}
               </Box>
 
-              <Text px={4} pb={3} fontSize="xs" color="fg.muted">
+              <Text px={4} pb={3} fontSize="xs" color="text.muted">
                 Drag the map so the pin is on your location, then confirm.
               </Text>
 

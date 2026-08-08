@@ -50,7 +50,13 @@ export const ResultsList = ({
 
   if (items.length === 0) {
     return (
-      <Center py={14} flexDir="column" gap={3} bg="bg.muted" borderRadius="md">
+      <Center
+        py={14}
+        flexDir="column"
+        gap={3}
+        bg="surface.subtle"
+        borderRadius="md"
+      >
         <Text fontWeight="semibold">No results in {radiusKm}km</Text>
         <Button onClick={onExpandRadius}>Expand to 10km</Button>
       </Center>

@@ -1,5 +1,5 @@
 import { Box, Flex, IconButton } from "@chakra-ui/react";
-import { Tooltip } from "src/design-system";
+import { Tooltip } from "design-system";
 import { useState } from "react";
 import { SaveFeaturesModal } from "./save-features-modal";
 import { observer } from "mobx-react-lite";
@@ -101,7 +101,7 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
           direction="row"
           gap="0.25rem"
           p="0.25rem"
-          bg="bg.panel"
+          bg="surface.container"
           borderRadius="xl"
           boxShadow="md"
           borderWidth="1px"
@@ -138,7 +138,7 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
             className="toolbar-feature-actions"
             direction="row"
             p="0.25rem"
-            bg="bg.panel"
+            bg="surface.container"
             borderRadius="xl"
             boxShadow="md"
             borderWidth="1px"
@@ -156,7 +156,7 @@ export const Toolbar = observer(({ workspaceId }: ToolbarProps) => {
                 size="xs"
                 variant="plain"
                 color="icon.success"
-                _hover={{ color: "green.600" }}
+                _hover={{ color: "icon.successHover" }}
                 aria-label="Save drawings"
                 onClick={handleSave}
                 loading={isSaving}

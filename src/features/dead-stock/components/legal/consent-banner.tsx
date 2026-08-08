@@ -19,7 +19,7 @@ export const ConsentBanner = () => {
   return (
     <Box
       className="consent-banner"
-      bg="bg.canvas"
+      bg="surface.page"
       borderTopWidth="1px"
       borderColor="border.default"
       px={6}

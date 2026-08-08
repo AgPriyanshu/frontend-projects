@@ -50,7 +50,7 @@ export const NodeConfigPanel = ({
         borderRadius="lg"
         p={4}
       >
-        <Text fontSize="sm" color="fg.muted">
+        <Text fontSize="sm" color="text.muted">
           Select a node to configure it.
         </Text>
       </Box>
@@ -73,7 +73,7 @@ export const NodeConfigPanel = ({
         <Text fontSize="sm" fontWeight="semibold">
           {node.data.datasetName}
         </Text>
-        <Text fontSize="xs" color="fg.muted">
+        <Text fontSize="xs" color="text.muted">
           Data source node. Connect it into an operation to use it as input.
         </Text>
       </VStack>
@@ -90,7 +90,7 @@ export const NodeConfigPanel = ({
         borderRadius="lg"
         p={4}
       >
-        <Text fontSize="sm" color="red.500">
+        <Text fontSize="sm" color="text.danger">
           Unknown tool: {node.data.toolName}
         </Text>
       </Box>
@@ -115,7 +115,7 @@ export const NodeConfigPanel = ({
       <Text fontSize="sm" fontWeight="semibold">
         {tool.label}
       </Text>
-      <Text fontSize="xs" color="fg.muted">
+      <Text fontSize="xs" color="text.muted">
         {tool.description}
       </Text>
 
@@ -127,7 +127,7 @@ export const NodeConfigPanel = ({
         datasetOptions={datasetOptions}
       />
 
-      <Button type="submit" size="sm" colorPalette="palette.brand">
+      <Button type="submit" size="sm" colorPalette="brand">
         Apply
       </Button>
     </VStack>

@@ -91,7 +91,7 @@ export const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
           <Icon
             key={i}
             as={i < stat.value ? FaStar : FaRegStar}
-            color={i < stat.value ? "yellow.400" : "border.default"}
+            color={i < stat.value ? "intent.warning" : "border.default"}
             boxSize={5}
           />
         ))}

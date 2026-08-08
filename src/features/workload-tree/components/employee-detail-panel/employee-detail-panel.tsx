@@ -73,7 +73,7 @@ export const EmployeeDetailPanel = ({
               <Flex justify="space-between" align="start" w="full">
                 <Box>
                   <Drawer.Title fontSize="lg">{employee.name}</Drawer.Title>
-                  <Text fontSize="sm" color="gray.500" mt={0.5}>
+                  <Text fontSize="sm" color="text.muted" mt={0.5}>
                     {employee.designation}
                   </Text>
                 </Box>
@@ -140,7 +140,7 @@ export const EmployeeDetailPanel = ({
                   mt={2}
                   h="6px"
                   borderRadius="full"
-                  bg="gray.100"
+                  bg="surface.subtle"
                   border={"0.5px solid red"}
                   borderColor={`${loadColorMapping[employee.loadStatus]}.600`}
                 >
@@ -166,7 +166,7 @@ export const EmployeeDetailPanel = ({
               ) : (
                 <Flex direction="column" gap={2} mb={4}>
                   {workItems?.length === 0 && (
-                    <Text fontSize="sm" color="gray.400">
+                    <Text fontSize="sm" color="text.muted">
                       No active work items.
                     </Text>
                   )}

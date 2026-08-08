@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react";
 import type { DsSearchParams } from "api/dead-stock";
 import { useCategories, useSearchItems } from "api/dead-stock";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { BrandHeading } from "../brand-heading";
@@ -215,7 +215,7 @@ export const SearchPage = () => {
           <VStack gap={1} align="end" flexShrink={0} pt={1}>
             {getDeadStockOwnerToken() ? (
               <>
-                <Text fontSize="xs" color="fg.muted" whiteSpace="nowrap">
+                <Text fontSize="xs" color="text.muted" whiteSpace="nowrap">
                   Shop owner
                 </Text>
                 <Button
@@ -227,7 +227,7 @@ export const SearchPage = () => {
               </>
             ) : (
               <>
-                <Text fontSize="xs" color="fg.muted" whiteSpace="nowrap">
+                <Text fontSize="xs" color="text.muted" whiteSpace="nowrap">
                   Shop owner?
                 </Text>
                 <HStack gap={2}>

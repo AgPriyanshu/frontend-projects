@@ -316,7 +316,7 @@ export const ResultsMap = ({
           position="absolute"
           top={3}
           left={3}
-          bg="bg.panel"
+          bg="surface.container"
           borderWidth="1px"
           borderColor="border.default"
           borderRadius="full"
@@ -337,24 +337,24 @@ export const ResultsMap = ({
         <IconButton
           size="sm"
           bg="white"
-          color="gray.800"
+          color="text.primary"
           borderRadius="md"
           shadow="md"
           aria-label="Zoom in"
           onClick={handleZoomIn}
-          _hover={{ bg: "gray.100" }}
+          _hover={{ bg: "surface.hover" }}
         >
           <FiPlus />
         </IconButton>
         <IconButton
           size="sm"
           bg="white"
-          color="gray.800"
+          color="text.primary"
           borderRadius="md"
           shadow="md"
           aria-label="Zoom out"
           onClick={handleZoomOut}
-          _hover={{ bg: "gray.100" }}
+          _hover={{ bg: "surface.hover" }}
         >
           <FiMinus />
         </IconButton>
@@ -362,12 +362,12 @@ export const ResultsMap = ({
           <IconButton
             size="sm"
             bg="white"
-            color="gray.800"
+            color="text.primary"
             borderRadius="md"
             shadow="md"
             aria-label="Go to my location"
             onClick={handleMyLocation}
-            _hover={{ bg: "gray.100" }}
+            _hover={{ bg: "surface.hover" }}
           >
             <FiCrosshair />
           </IconButton>

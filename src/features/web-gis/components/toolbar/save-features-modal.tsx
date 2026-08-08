@@ -123,7 +123,7 @@ export const SaveFeaturesModal = ({
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
-      <Dialog.Backdrop bg="blackAlpha.300" backdropFilter="blur(2px)" />
+      <Dialog.Backdrop bg="surface.overlay" backdropFilter="blur(2px)" />
       <Dialog.Positioner>
         <Dialog.Content className="save-features-modal-content">
           <Dialog.Header>
@@ -170,7 +170,7 @@ export const SaveFeaturesModal = ({
               Cancel
             </Button>
             <Button
-              colorPalette="palette.brand"
+              colorPalette="brand"
               onClick={handleSubmit(onSubmit)}
               loading={isSubmitting}
               disabled={!isValid || isSubmitting}

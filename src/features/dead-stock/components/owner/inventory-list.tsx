@@ -17,7 +17,7 @@ import {
 import type { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { FiPlus, FiUpload } from "react-icons/fi";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import { useBulkUploadItems, useMyItems } from "api/dead-stock";
 import type { DsBulkUploadItemsResponse, DsItem } from "api/dead-stock";
 import { ItemForm } from "./item-form";
@@ -124,7 +124,7 @@ export const InventoryList = () => {
           py={16}
           flexDir="column"
           gap={4}
-          bg="bg.muted"
+          bg="surface.subtle"
           borderRadius="lg"
           border="1px dashed"
           borderColor="border.default"
@@ -163,11 +163,11 @@ export const InventoryList = () => {
         borderWidth="1px"
         borderColor="border.default"
         borderRadius="lg"
-        bg="bg.panel"
+        bg="surface.container"
       >
         <Table.Root variant="line">
           <Table.Header>
-            <Table.Row bg="bg.muted">
+            <Table.Row bg="surface.subtle">
               <Table.ColumnHeader>Item</Table.ColumnHeader>
               <Table.ColumnHeader>Quantity</Table.ColumnHeader>
               <Table.ColumnHeader>Price</Table.ColumnHeader>

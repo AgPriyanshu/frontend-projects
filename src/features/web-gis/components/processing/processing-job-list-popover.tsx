@@ -44,7 +44,7 @@ export const ProcessingJobListPopover = ({
               position="absolute"
               top="-6px"
               right="-6px"
-              bg="red.500"
+              bg="intent.danger"
               color="white"
               borderRadius="full"
               fontSize="10px"
@@ -67,7 +67,7 @@ export const ProcessingJobListPopover = ({
           </Popover.Header>
           <Popover.Body overflowY="auto" maxH="360px">
             {jobs.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
+              <Text fontSize="sm" color="text.muted">
                 No jobs yet.
               </Text>
             ) : (

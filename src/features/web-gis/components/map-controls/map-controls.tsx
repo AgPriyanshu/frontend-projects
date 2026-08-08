@@ -7,7 +7,7 @@ import {
   TbNavigation,
   TbPlus,
 } from "react-icons/tb";
-import { Tooltip } from "src/design-system";
+import { Tooltip } from "design-system";
 
 import { workspaceManager } from "shared/map/stores";
 import { controlButtonStyles, panelStyles } from "./styles";

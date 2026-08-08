@@ -18,6 +18,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       p={4}
       borderRightWidth="1px"
       borderColor="border.default"
+      bg="surface.container"
       height="full"
     >
       <VStack align="stretch" gap={4}>
@@ -29,9 +30,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             key={category}
             variant="ghost"
             bg={
-              selectedCategory === category
-                ? "intent.primaryActive"
-                : "transparent"
+              selectedCategory === category ? "intent.primary" : "transparent"
             }
             color={
               selectedCategory === category ? "text.onIntent" : "text.primary"

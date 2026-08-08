@@ -44,7 +44,7 @@ const LeadRow = ({ lead }: { lead: DsLead }) => {
       borderWidth={1}
       borderRadius="lg"
       borderColor="border.default"
-      bg="bg.panel"
+      bg="surface.container"
       w="full"
     >
       <Flex justify="space-between" align="flex-start" gap={3} wrap="wrap">

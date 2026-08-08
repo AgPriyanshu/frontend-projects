@@ -68,7 +68,7 @@ export const MapItemCarousel = ({
       pointerEvents="none"
     >
       <Box
-        bg="bg.panel"
+        bg="surface.container"
         borderRadius="xl"
         borderWidth="1px"
         borderColor="border.default"
@@ -78,7 +78,7 @@ export const MapItemCarousel = ({
       >
         {/* Header row: counter + close */}
         <HStack justify="space-between" px={4} pt={3} pb={1}>
-          <Text fontSize="xs" color="fg.muted" fontWeight="medium">
+          <Text fontSize="xs" color="text.muted" fontWeight="medium">
             {activeIndex + 1} / {items.length}
           </Text>
           <IconButton
@@ -125,7 +125,7 @@ export const MapItemCarousel = ({
               })
             }
           >
-            <Box w="100px" flexShrink={0} bg="bg.muted">
+            <Box w="100px" flexShrink={0} bg="surface.subtle">
               {primaryImage ? (
                 <Image
                   src={primaryImage}
@@ -159,7 +159,7 @@ export const MapItemCarousel = ({
                     {item.price ? `₹${item.price}` : "Ask price"}
                   </Text>
                 </HStack>
-                <Text fontSize="xs" color="fg.muted" lineClamp={1}>
+                <Text fontSize="xs" color="text.muted" lineClamp={1}>
                   {item.shopName}
                 </Text>
               </Box>

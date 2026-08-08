@@ -144,7 +144,7 @@ export const EmployeeForm = ({
                   <Field.Root>
                     <Field.Label>
                       Capacity{" "}
-                      <Text as="span" color="gray.400" fontSize="xs">
+                      <Text as="span" color="text.muted" fontSize="xs">
                         (max active tasks)
                       </Text>
                     </Field.Label>

@@ -30,7 +30,7 @@ export const ShopHeader = ({ shop }: ShopHeaderProps) => {
       borderColor="border.default"
       borderRadius="md"
       p={5}
-      bg="bg.panel"
+      bg="surface.container"
     >
       <VStack align="stretch" gap={4}>
         <Box>

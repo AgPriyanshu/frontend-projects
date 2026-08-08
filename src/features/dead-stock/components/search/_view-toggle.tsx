@@ -9,7 +9,7 @@ interface ViewToggleProps {
 }
 
 export const ViewToggle = ({ value, onChange }: ViewToggleProps) => (
-  <HStack gap={1} bg="bg.muted" p={1} borderRadius="md">
+  <HStack gap={1} bg="surface.subtle" p={1} borderRadius="md">
     <Button
       size="sm"
       variant={value === "list" ? "solid" : "ghost"}

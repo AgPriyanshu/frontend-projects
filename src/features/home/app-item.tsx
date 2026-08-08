@@ -19,6 +19,7 @@ export const AppItem: React.FC<AppItemProps> = ({ app }) => {
       borderRadius={"xl"}
       borderWidth="1px"
       borderColor="border.default"
+      bg="surface.container"
       _hover={{
         transform: "translateY(-4px)",
         shadow: "lg",

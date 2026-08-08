@@ -67,12 +67,12 @@ export const StatRow: React.FC<StatRowProps> = ({
           <Icon
             key={i}
             as={i < stat.value ? FaStar : FaRegStar}
-            color={i < stat.value ? "yellow.400" : "border.default"}
+            color={i < stat.value ? "intent.warning" : "border.default"}
             cursor="pointer"
             boxSize={5}
             onClick={(e) => handleStarClick(e, i)}
             transition="transform 0.1s, color 0.1s"
-            _hover={{ transform: "scale(1.25)", color: "yellow.400" }}
+            _hover={{ transform: "scale(1.25)", color: "intent.warning" }}
           />
         ))}
       </HStack>

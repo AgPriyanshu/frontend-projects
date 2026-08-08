@@ -111,7 +111,7 @@ export const ItemForm = ({ initialData, onClose }: ItemFormProps) => {
             textAlign="center"
             opacity={0.5}
           >
-            <Text fontSize="sm" color="fg.muted">
+            <Text fontSize="sm" color="text.muted">
               Images can be added after saving item details
             </Text>
           </Box>

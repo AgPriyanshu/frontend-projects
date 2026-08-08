@@ -32,13 +32,13 @@ export const OwnerLayout = () => {
       direction="column"
       w="100vw"
       h="100dvh"
-      bg="bg.canvas"
+      bg="surface.page"
     >
       {/* Header */}
       <Box
         borderBottomWidth="1px"
         borderColor="border.default"
-        bg="bg.panel"
+        bg="surface.container"
         px={6}
         py={3}
         flexShrink={0}
@@ -57,9 +57,9 @@ export const OwnerLayout = () => {
                     asChild
                     variant="ghost"
                     size="sm"
-                    color={isActive ? "fg" : "fg.muted"}
+                    color={isActive ? "text.primary" : "text.muted"}
                     fontWeight={isActive ? "semibold" : "normal"}
-                    bg={isActive ? "bg.muted" : "transparent"}
+                    bg={isActive ? "surface.subtle" : "transparent"}
                   >
                     <Link to={to}>
                       {icon}
@@ -73,7 +73,7 @@ export const OwnerLayout = () => {
           <Button
             variant="ghost"
             size="sm"
-            color="fg.muted"
+            color="text.muted"
             onClick={handleLogout}
           >
             <FiLogOut />

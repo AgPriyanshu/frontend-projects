@@ -105,7 +105,21 @@ No dedicated node-graph editor exists for GIS pipelines yet, but the pieces are 
 
 ### Design System (`src/design-system/`)
 
-Built on Chakra UI v3. Theme customization lives in `design-system/theme/` (semantic tokens, recipes, color palette). Always extend the theme rather than writing one-off styles.
+Built on Chakra UI v3. Always extend the theme rather than writing one-off styles.
+
+**Three colour layers — only ever consume the middle one from components:**
+
+1. `theme/colors.ts` — raw scales under `palette.*`. The only file allowed to contain hex literals. Never referenced from a component.
+2. `theme/semantic-tokens.ts` — the vocabulary components use: `surface.*`, `text.*`, `border.*`, `intent.*`, `icon.*`, `object.*`. Every token is light/dark aware.
+3. `tone/` — `Tone` (`neutral | primary | info | success | warning | danger`) plus `toneTokens`, which returns a `{ solid, subtle, border, fg }` token set. Features map their own domain status onto a `Tone` instead of maintaining private status→colour maps.
+
+Rules:
+
+- Never use Chakra's built-in `fg.*` / `bg.*` / `gray.500` / `blue.400` style values — they bypass the semantic layer and break dark mode. Use `text.*` / `surface.*` / `intent.*`.
+- `surface.container` is always elevated above `surface.page` (white on grey in light, lighter grey on near-black in dark). Cards, panels and the navbar use `container`; the app canvas uses `page`.
+- `intent.primary` is the accent _fill_; `intent.primaryText` is the darker variant for small text/icons on a surface. `primaryHover` / `primaryActive` are interaction states — never use them for a resting selected state.
+- `colorPalette="brand"` works because `colors.brand` is aliased at the top level.
+- Third-party DOM (React Flow controls, etc.) is themed via `globalCss` in `theme/theme.tsx`, not per-feature `.css` files.
 
 ### Shared Utilities (`src/shared/`)
 

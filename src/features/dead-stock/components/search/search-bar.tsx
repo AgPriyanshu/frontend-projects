@@ -98,8 +98,8 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
                 variant="ghost"
                 aria-label="Clear search"
                 onClick={handleClear}
-                color="fg.muted"
-                _hover={{ color: "fg" }}
+                color="text.muted"
+                _hover={{ color: "text.primary" }}
               >
                 <FiX />
               </IconButton>
@@ -126,7 +126,7 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
           onKeyDown={handleKeyDown}
           placeholder="Search tools, fixtures, parts..."
           size="lg"
-          bg="bg.panel"
+          bg="surface.container"
         />
       </InputGroup>
 
@@ -138,7 +138,7 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
           left={0}
           right={0}
           zIndex={20}
-          bg="bg.panel"
+          bg="surface.container"
           borderWidth="1px"
           borderColor="border.default"
           borderRadius="md"
@@ -151,8 +151,8 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
               px={3}
               py={2}
               cursor="pointer"
-              bg={index === activeIndex ? "bg.muted" : "transparent"}
-              _hover={{ bg: "bg.muted" }}
+              bg={index === activeIndex ? "surface.subtle" : "transparent"}
+              _hover={{ bg: "surface.subtle" }}
               display="flex"
               alignItems="center"
               gap={3}
@@ -171,7 +171,7 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                bg="bg.subtle"
+                bg="surface.subtle"
               >
                 {suggestion.thumbnail ? (
                   <Image
@@ -192,7 +192,7 @@ export const SearchBar = ({ value, onChange }: SearchBarProps) => {
                   {suggestion.name}
                 </Text>
                 {suggestion.type === "category" && (
-                  <Text fontSize="xs" color="fg.muted">
+                  <Text fontSize="xs" color="text.muted">
                     Category
                   </Text>
                 )}

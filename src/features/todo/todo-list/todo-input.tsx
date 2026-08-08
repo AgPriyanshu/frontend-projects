@@ -36,7 +36,7 @@ export const TodoInput = () => {
 
   return (
     <Flex w="full" gap={3} mb={8} align="center">
-      <Flex flex={1} align="center" gap={3} px={4} py={3} bg="bg">
+      <Flex flex={1} align="center" gap={3} px={4} py={3} bg="surface.page">
         <Box color="text.muted" fontSize="lg">
           <LuPenLine />
         </Box>

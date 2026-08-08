@@ -55,7 +55,7 @@ export const WorkloadTreePage = () => {
   if (isPending) {
     return (
       <Center w="full" h="full">
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="intent.primary" />
       </Center>
     );
   }
@@ -63,7 +63,7 @@ export const WorkloadTreePage = () => {
   if (isError) {
     return (
       <Center w="full" h="full">
-        <Text color="red.500">Failed to load the org chart.</Text>
+        <Text color="text.danger">Failed to load the org chart.</Text>
       </Center>
     );
   }
@@ -81,7 +81,7 @@ export const WorkloadTreePage = () => {
       <Box flex={1} position="relative" overflow="hidden">
         {filteredEmployees.length === 0 ? (
           <Center h="full">
-            <Text color="gray.400">
+            <Text color="text.muted">
               {allEmployees.length === 0
                 ? "No people yet. Add someone to get started."
                 : "No people match the current filter."}

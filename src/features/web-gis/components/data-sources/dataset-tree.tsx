@@ -208,7 +208,7 @@ export const DatasetTree = () => {
                 </Button>
                 <Button
                   size="sm"
-                  colorPalette="palette.brand"
+                  colorPalette="brand"
                   color="white"
                   bgColor="intent.primary"
                   onClick={() => handleOpenUpload(null)}

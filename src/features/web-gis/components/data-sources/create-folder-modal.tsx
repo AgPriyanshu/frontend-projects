@@ -67,7 +67,7 @@ export const CreateFolderModal = ({
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
-      <Dialog.Backdrop bg="blackAlpha.300" backdropFilter="blur(2px)" />
+      <Dialog.Backdrop bg="surface.overlay" backdropFilter="blur(2px)" />
       <Dialog.Positioner>
         <Dialog.Content className="create-folder-modal-content">
           <Dialog.Header>
@@ -98,7 +98,7 @@ export const CreateFolderModal = ({
               Cancel
             </Button>
             <Button
-              colorPalette="palette.brand"
+              colorPalette="brand"
               onClick={handleSubmit(onSubmit)}
               loading={isPending}
               disabled={!isValid || isPending}

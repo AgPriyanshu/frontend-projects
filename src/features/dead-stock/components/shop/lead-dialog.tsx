@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import type { DsSearchItem, DsShop } from "api/dead-stock";
 import { useCreateLead, useRequestOtp, useVerifyOtp } from "api/dead-stock";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import { getAccessToken } from "shared/local-storage/token";
 import { markRecentLead } from "../../hooks/use-recent-leads";
 

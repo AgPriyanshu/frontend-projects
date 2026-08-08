@@ -61,7 +61,7 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({
         right={1}
         opacity={0}
         _groupHover={{ opacity: 1 }}
-        _hover={{ color: "red.500" }}
+        _hover={{ color: "intent.danger" }}
         onClick={(e) => {
           e.stopPropagation();
           onDelete();

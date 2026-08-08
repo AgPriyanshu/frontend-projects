@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMyShop, useUpdateShop } from "api/dead-stock";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import { StaticShopMap } from "../shop/static-shop-map";
 
 const shopSchema = z.object({
@@ -96,7 +96,7 @@ export const OwnerShop = () => {
         borderWidth="1px"
         borderColor="border.default"
         borderRadius="lg"
-        bg="bg.panel"
+        bg="surface.container"
         p={6}
       >
         <VStack gap={4} align="stretch">

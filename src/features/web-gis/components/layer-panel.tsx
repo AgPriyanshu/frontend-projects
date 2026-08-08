@@ -113,7 +113,7 @@ export const LayerPanel = observer(() => {
       <Box
         className="layer-panel layer-panel-loading"
         p="1rem"
-        color="fg.muted"
+        color="text.muted"
         textAlign="center"
       >
         <Text fontSize="sm">Loading layers...</Text>
@@ -126,7 +126,7 @@ export const LayerPanel = observer(() => {
       <Box
         className="layer-panel layer-panel-error"
         p="1rem"
-        color="fg.error"
+        color="text.danger"
         textAlign="center"
       >
         <Text fontSize="sm">Failed to load layers.</Text>
@@ -139,7 +139,7 @@ export const LayerPanel = observer(() => {
       <Box
         className="layer-panel layer-panel-empty"
         p="1rem"
-        color="fg.muted"
+        color="text.muted"
         textAlign="center"
       >
         <Text fontSize="sm">No layers added yet.</Text>
@@ -183,7 +183,7 @@ export const LayerPanel = observer(() => {
             <Flex align="center" gap="0.375rem" flex={1}>
               <Box
                 as="span"
-                color={isRasterLayer ? "green.400" : "blue.400"}
+                color={isRasterLayer ? "object.raster" : "object.vector"}
                 fontSize="sm"
                 flexShrink={0}
               >

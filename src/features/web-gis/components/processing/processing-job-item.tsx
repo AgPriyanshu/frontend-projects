@@ -65,7 +65,7 @@ export const ProcessingJobItem = ({
       )}
 
       {job.status === "failed" && job.errorMessage && (
-        <Text fontSize="xs" color="red.500" mb="0.5rem" truncate>
+        <Text fontSize="xs" color="text.danger" mb="0.5rem" truncate>
           {job.errorMessage}
         </Text>
       )}
@@ -87,7 +87,7 @@ export const ProcessingJobItem = ({
           <Button
             size="xs"
             variant="outline"
-            colorPalette="palette.brand"
+            colorPalette="brand"
             onClick={() => onAddToMap(job)}
           >
             Add to map

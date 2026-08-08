@@ -103,7 +103,7 @@ export const MapCanvas = observer(({ workspaceId }: MapCanvasProps) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       border={isDragging ? "2px dashed" : "none"}
-      borderColor="blue.500"
+      borderColor="border.selected"
       transition="border 0.2s ease"
     >
       {isDragging && (
@@ -127,7 +127,7 @@ export const MapCanvas = observer(({ workspaceId }: MapCanvasProps) => {
             bg="surface.container"
             borderRadius="lg"
             border="2px dashed"
-            borderColor="blue.500"
+            borderColor="border.selected"
             fontSize="1.2rem"
             fontWeight="600"
           >

@@ -2,11 +2,9 @@ import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { Handle, Position } from "@xyflow/react";
 import { TbSettings } from "react-icons/tb";
 
-import {
-  NODE_STATUS_BADGE_BG,
-  NODE_STATUS_BORDER,
-  NODE_STATUS_LABEL,
-} from "../../constants";
+import { toneTokens } from "design-system/tone";
+
+import { NODE_STATUS_LABEL, NODE_STATUS_TONE } from "../../constants";
 import type { OperationNodeData } from "../../types";
 
 interface OperationNodeProps {
@@ -17,13 +15,14 @@ interface OperationNodeProps {
 export const OperationNode = ({ data, selected }: OperationNodeProps) => {
   const { toolLabel, status, errorMessage } = data;
   const statusLabel = NODE_STATUS_LABEL[status];
+  const tone = toneTokens[NODE_STATUS_TONE[status]];
 
   return (
     <Box
       className="workflow-operation-node"
       bg="surface.container"
       borderWidth="2px"
-      borderColor={selected ? "blue.500" : NODE_STATUS_BORDER[status]}
+      borderColor={selected ? "border.selected" : tone.border}
       borderRadius="lg"
       p={3}
       w="200px"
@@ -35,16 +34,16 @@ export const OperationNode = ({ data, selected }: OperationNodeProps) => {
       <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
 
       <Flex gap={2} align="center">
-        <Box as="span" color="purple.400">
+        <Box as="span" color="object.operation">
           <TbSettings />
         </Box>
         <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
           {toolLabel}
         </Text>
-        {status === "running" && <Spinner size="xs" color="blue.400" />}
+        {status === "running" && <Spinner size="xs" color="intent.info" />}
       </Flex>
 
-      <Text fontSize="xs" color="fg.muted" mt={1}>
+      <Text fontSize="xs" color="text.muted" mt={1}>
         Operation
       </Text>
 
@@ -55,8 +54,8 @@ export const OperationNode = ({ data, selected }: OperationNodeProps) => {
           px={2}
           py={0.5}
           borderRadius="full"
-          bg={NODE_STATUS_BADGE_BG[status]}
-          color="white"
+          bg={tone.solid}
+          color="text.onIntent"
           fontSize="10px"
           fontWeight="bold"
         >
@@ -65,7 +64,7 @@ export const OperationNode = ({ data, selected }: OperationNodeProps) => {
       )}
 
       {status === "failed" && errorMessage && (
-        <Text fontSize="xs" color="red.500" mt={1} lineClamp={2}>
+        <Text fontSize="xs" color="text.danger" mt={1} lineClamp={2}>
           {errorMessage}
         </Text>
       )}

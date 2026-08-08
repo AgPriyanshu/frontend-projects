@@ -68,11 +68,11 @@ export const ShopSignupDialog = ({
           <Dialog.Body pb={6}>
             {submitted ? (
               <VStack gap={4} py={4} align="center" textAlign="center">
-                <Box color="green.500" fontSize="3xl">
+                <Box color="intent.success" fontSize="3xl">
                   <FiCheckCircle />
                 </Box>
                 <Text fontWeight="semibold">Request received!</Text>
-                <Text fontSize="sm" color="fg.muted">
+                <Text fontSize="sm" color="text.muted">
                   We'll reach out to you on WhatsApp to set up your shop
                   account.
                 </Text>
@@ -83,7 +83,7 @@ export const ShopSignupDialog = ({
             ) : (
               <form onSubmit={handleSubmit}>
                 <VStack gap={4} align="stretch">
-                  <Text fontSize="sm" color="fg.muted">
+                  <Text fontSize="sm" color="text.muted">
                     Fill in your details and we'll get you set up as a shop
                     owner.
                   </Text>

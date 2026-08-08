@@ -17,6 +17,8 @@ const config = defineConfig({
     body: {
       margin: 0,
       padding: 0,
+      bg: "surface.page",
+      color: "text.primary",
     },
 
     ".outlet-container": {
@@ -25,14 +27,34 @@ const config = defineConfig({
         width: "100%",
       },
     },
+
+    // React Flow renders its own controls, so they are themed here rather than
+    // in a feature stylesheet — this is the one place third-party DOM is styled.
+    ".react-flow__controls-button": {
+      width: "40px",
+      height: "40px",
+      bg: "surface.container",
+      color: "icon.primary",
+      borderBottomWidth: "1px",
+      borderColor: "border.default",
+      _hover: {
+        bg: "surface.hover",
+      },
+      "& svg": {
+        fill: "currentColor",
+      },
+      "&:first-of-type": {
+        borderTopRadius: "md",
+      },
+      "&:last-of-type": {
+        borderBottomRadius: "md",
+      },
+    },
   },
 
   theme: {
     tokens: {
       colors,
-      radii: {
-        default: { value: "{radii.xl}" },
-      },
     },
     semanticTokens: semanticTokens,
     recipes: {

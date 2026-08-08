@@ -43,7 +43,7 @@ const PaletteItem = ({
       borderRadius="md"
       _hover={{ bgColor: "surface.hover" }}
     >
-      <Box as="span" fontSize="sm" color="fg.muted">
+      <Box as="span" fontSize="sm" color="text.muted">
         {icon}
       </Box>
       <Text fontSize="sm" lineClamp={1}>
@@ -85,11 +85,11 @@ export const NodePalette = () => {
         minH={0}
         overflow="auto"
       >
-        <Text fontSize="xs" fontWeight="semibold" color="fg.muted" mb={1}>
+        <Text fontSize="xs" fontWeight="semibold" color="text.muted" mb={1}>
           Data Sources
         </Text>
         {datasets.length === 0 && (
-          <Text fontSize="xs" color="fg.muted">
+          <Text fontSize="xs" color="text.muted">
             No datasets uploaded yet.
           </Text>
         )}
@@ -111,7 +111,7 @@ export const NodePalette = () => {
       </Box>
 
       <Box px={3} py={2} flex={1} minH={0} overflow="auto">
-        <Text fontSize="xs" fontWeight="semibold" color="fg.muted" mb={1}>
+        <Text fontSize="xs" fontWeight="semibold" color="text.muted" mb={1}>
           Operations
         </Text>
         {tools.map((tool) => (

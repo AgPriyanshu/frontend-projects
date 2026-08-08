@@ -56,13 +56,13 @@ export const ResultCard = ({
       borderWidth="1px"
       borderColor="border.default"
       borderRadius="md"
-      bg="bg.panel"
+      bg="surface.container"
       overflow="hidden"
     >
       <HStack align="stretch" gap={0}>
         <Box
           w={compact ? "96px" : { base: "112px", md: "160px" }}
-          bg="bg.muted"
+          bg="surface.subtle"
         >
           {primaryImage ? (
             <Image

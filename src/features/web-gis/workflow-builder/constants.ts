@@ -1,21 +1,13 @@
+import type { Tone } from "design-system/tone";
 import type { CanvasNodeStatus } from "./types";
 
-export const NODE_STATUS_BORDER: Record<CanvasNodeStatus, string> = {
-  idle: "border.default",
-  pending: "border.default",
-  running: "blue.400",
-  completed: "green.400",
-  failed: "red.400",
-  skipped: "gray.300",
-};
-
-export const NODE_STATUS_BADGE_BG: Record<CanvasNodeStatus, string> = {
-  idle: "gray.400",
-  pending: "gray.400",
-  running: "blue.500",
-  completed: "green.500",
-  failed: "red.500",
-  skipped: "gray.400",
+export const NODE_STATUS_TONE: Record<CanvasNodeStatus, Tone> = {
+  idle: "neutral",
+  pending: "neutral",
+  running: "info",
+  completed: "success",
+  failed: "danger",
+  skipped: "neutral",
 };
 
 // The minimap renders raw SVG, so it needs real colours rather than theme tokens.

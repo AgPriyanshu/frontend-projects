@@ -173,7 +173,7 @@ export const WorkflowBuilder = () => {
       gap="0.75rem"
     >
       <Flex align="center" gap={2}>
-        <Text fontSize="xs" color="fg.muted">
+        <Text fontSize="xs" color="text.muted">
           Workflow:
         </Text>
         <NativeSelect.Root size="sm" w="240px">

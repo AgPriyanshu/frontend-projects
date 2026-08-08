@@ -20,7 +20,7 @@ import {
   FiTrash2,
   FiCpu,
 } from "react-icons/fi";
-import { toaster } from "design-system/toaster/toaster-instance";
+import { toaster } from "design-system/toaster";
 import type { DsItem } from "api/dead-stock";
 import { useRefreshItem, useDeleteItem } from "api/dead-stock";
 import { StatusBadge } from "./_status-badge";
@@ -127,7 +127,7 @@ export const ItemRow = ({ item, onEdit, isMobile }: ItemRowProps) => {
         borderWidth="1px"
         borderColor="border.default"
         borderRadius="lg"
-        bg="bg.panel"
+        bg="surface.container"
         w="full"
       >
         <HStack gap={4} align="start" justify="space-between">
@@ -136,7 +136,7 @@ export const ItemRow = ({ item, onEdit, isMobile }: ItemRowProps) => {
               boxSize="60px"
               borderRadius="md"
               overflow="hidden"
-              bg="bg.muted"
+              bg="surface.subtle"
             >
               {primaryImage ? (
                 <Image
@@ -186,7 +186,12 @@ export const ItemRow = ({ item, onEdit, isMobile }: ItemRowProps) => {
     <Table.Row>
       <Table.Cell>
         <HStack gap={3}>
-          <Box boxSize="40px" borderRadius="sm" overflow="hidden" bg="bg.muted">
+          <Box
+            boxSize="40px"
+            borderRadius="sm"
+            overflow="hidden"
+            bg="surface.subtle"
+          >
             {primaryImage ? (
               <Image
                 src={primaryImage}

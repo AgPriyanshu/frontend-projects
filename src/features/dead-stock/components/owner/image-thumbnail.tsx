@@ -53,13 +53,13 @@ export const ImageThumbnail = ({
       borderColor={image.isPrimary ? "intent.primary" : "border.default"}
       borderRadius="md"
       overflow="hidden"
-      bg="bg.panel"
+      bg="surface.container"
       opacity={isDragging ? 0.65 : 1}
     >
       <Box
         position="relative"
         aspectRatio="1"
-        bg="bg.muted"
+        bg="surface.subtle"
         cursor="grab"
         {...attributes}
         {...listeners}
@@ -80,7 +80,7 @@ export const ImageThumbnail = ({
           <Box
             position="absolute"
             inset={0}
-            bg="blackAlpha.500"
+            bg="surface.overlay"
             display="grid"
             placeItems="center"
           >

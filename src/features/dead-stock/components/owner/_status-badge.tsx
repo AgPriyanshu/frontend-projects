@@ -16,7 +16,12 @@ export const StatusBadge = ({ item }: { item: DsItem }) => {
 
   if (staleAt < now) {
     return (
-      <Badge variant="outline" borderColor="fg" color="fg" border="1px solid">
+      <Badge
+        variant="outline"
+        borderColor="text.primary"
+        color="text.primary"
+        border="1px solid"
+      >
         Stale — refresh to publish
       </Badge>
     );
@@ -26,8 +31,8 @@ export const StatusBadge = ({ item }: { item: DsItem }) => {
     return (
       <Badge
         variant="outline"
-        borderColor="fg.muted"
-        color="fg.muted"
+        borderColor="text.muted"
+        color="text.muted"
         border="1px solid"
       >
         Refresh soon

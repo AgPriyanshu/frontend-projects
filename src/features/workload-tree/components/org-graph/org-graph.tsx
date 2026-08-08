@@ -14,7 +14,6 @@ import { useEffect, useMemo } from "react";
 import { minimapColors, nodeTypes } from "./constants";
 import { buildGraph } from "./helpers";
 import { applyDagreLayout } from "./layout";
-import "./org-graph.css";
 
 interface OrgGraphProps {
   employees: Employee[];

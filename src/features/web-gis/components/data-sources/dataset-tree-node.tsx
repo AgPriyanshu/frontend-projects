@@ -143,7 +143,7 @@ export const DatasetTreeNode = ({
           {isFolder ? (
             renderFolderIcon(node.isOpen)
           ) : dataset?.type === DatasetType.RASTER ? (
-            <Box as="span" mx={2} color={"green.400"} fontSize="sm">
+            <Box as="span" mx={2} color={"object.raster"} fontSize="sm">
               <TbMap2 />
             </Box>
           ) : (

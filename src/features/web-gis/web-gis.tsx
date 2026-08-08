@@ -148,7 +148,7 @@ export const WebGIS = () => {
                 borderBottomWidth="1px"
                 borderColor="border.default"
               >
-                <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
+                <Text fontSize="xs" fontWeight="semibold" color="text.muted">
                   Layers
                 </Text>
               </Flex>

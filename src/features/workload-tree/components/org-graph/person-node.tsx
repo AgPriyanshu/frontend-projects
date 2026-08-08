@@ -1,6 +1,7 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Handle, Position } from "@xyflow/react";
 import type { LoadStatus } from "api/workload/types";
+import { toneTokens, type Tone } from "design-system/tone";
 
 interface PersonNodeData {
   name: string;
@@ -11,22 +12,10 @@ interface PersonNodeData {
   capacity: number;
 }
 
-const STATUS_COLORS: Record<LoadStatus, string> = {
-  UNDER: "yellow.500",
-  HEALTHY: "green.400",
-  OVER: "red.500",
-};
-
-const STATUS_BG: Record<LoadStatus, string> = {
-  UNDER: "yellow.50",
-  HEALTHY: "green.50",
-  OVER: "red.50",
-};
-
-const STATUS_BORDER: Record<LoadStatus, string> = {
-  UNDER: "yellow.300",
-  HEALTHY: "green.300",
-  OVER: "red.400",
+const STATUS_TONE: Record<LoadStatus, Tone> = {
+  UNDER: "warning",
+  HEALTHY: "success",
+  OVER: "danger",
 };
 
 const STATUS_LABEL: Record<LoadStatus, string> = {
@@ -50,13 +39,14 @@ interface PersonNodeProps {
 
 export const PersonNode = ({ data, selected }: PersonNodeProps) => {
   const { name, designation, loadStatus, activeTaskCount, capacity } = data;
-  console.log({ data });
+  const tone = toneTokens[STATUS_TONE[loadStatus]];
+
   return (
     <Box
       className="person-node"
-      bg={STATUS_BG[loadStatus]}
+      bg={tone.subtle}
       borderWidth="2px"
-      borderColor={selected ? "blue.500" : STATUS_BORDER[loadStatus]}
+      borderColor={selected ? "border.selected" : tone.border}
       borderRadius="xl"
       p={3}
       w="220px"
@@ -72,8 +62,8 @@ export const PersonNode = ({ data, selected }: PersonNodeProps) => {
           w="40px"
           h="40px"
           borderRadius="full"
-          bg={STATUS_COLORS[loadStatus]}
-          color="white"
+          bg={tone.solid}
+          color="text.onIntent"
           align="center"
           justify="center"
           fontWeight="bold"
@@ -92,7 +82,7 @@ export const PersonNode = ({ data, selected }: PersonNodeProps) => {
           >
             {name}
           </Text>
-          <Text fontSize="xs" color="gray.500" lineClamp={1}>
+          <Text fontSize="xs" color="text.muted" lineClamp={1}>
             {designation}
           </Text>
         </Box>
@@ -103,14 +93,14 @@ export const PersonNode = ({ data, selected }: PersonNodeProps) => {
           px={2}
           py={0.5}
           borderRadius="full"
-          bg={STATUS_COLORS[loadStatus]}
-          color="white"
+          bg={tone.solid}
+          color="text.onIntent"
           fontSize="10px"
           fontWeight="bold"
         >
           {STATUS_LABEL[loadStatus]}
         </Box>
-        <Text fontSize="xs" color="gray.500">
+        <Text fontSize="xs" color="text.muted">
           {activeTaskCount} / {capacity} tasks
         </Text>
       </Flex>

@@ -141,7 +141,7 @@ export const NotificationDropdown = () => {
                         w="8px"
                         h="8px"
                         borderRadius="full"
-                        bg="blue.500"
+                        bg="intent.info"
                         mt={2}
                       />
                     )}
