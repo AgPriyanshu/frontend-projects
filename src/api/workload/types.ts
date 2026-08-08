@@ -34,7 +34,6 @@ export interface UpdateEmployeePayload {
 }
 
 export type WorkItemStatus = "TODO" | "IN_PROGRESS" | "DONE";
-export type WorkItemSource = "MANUAL" | "JIRA";
 
 export interface WorkItem {
   id: string;
@@ -43,7 +42,6 @@ export interface WorkItem {
   status: WorkItemStatus;
   externalKey: string | null;
   url: string | null;
-  source: WorkItemSource;
   createdAt: string;
   updatedAt: string;
 }

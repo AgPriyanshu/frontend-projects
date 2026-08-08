@@ -1,82 +1,24 @@
-import { Flex, Text, IconButton, VStack, Spinner } from "@chakra-ui/react";
-import { FiPlus } from "react-icons/fi";
-import { observer } from "mobx-react-lite";
-import {
-  useChatSessions,
-  useCreateChatSession,
-  useDeleteChatSession,
-  useLLMs,
-} from "api/chat";
+import { Flex, IconButton, Spinner, Text, VStack } from "@chakra-ui/react";
+import { useChatSessions, useCreateChatSession, useLLMs } from "api/chat";
 import type { ChatSessionResponse } from "api/chat/types";
-import { chatStore } from "../store/chat-store";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
-import { useState } from "react";
-import { DeleteIconButton } from "shared/components";
-
-const SessionItem = ({
-  session,
-  isActive,
-  onSelect,
-}: {
-  session: ChatSessionResponse;
-  isActive: boolean;
-  onSelect: () => void;
-}) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const deleteSession = useDeleteChatSession(session.id);
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    deleteSession.mutate(undefined, {
-      onSuccess: () => {
-        if (chatStore.activeSessionId === session.id) {
-          chatStore.setActiveSession(null);
-        }
-        queryClient.invalidateQueries({ queryKey: QueryKeys.chatSessions });
-      },
-    });
-  };
-
-  return (
-    <Flex
-      className="session-item"
-      w={"full"}
-      h={"2rem"}
-      px={3}
-      py={2}
-      cursor="pointer"
-      gap={2.5}
-      bg={isActive ? "surface.hover" : "transparent"}
-      _hover={{ bg: "surface.hover" }}
-      onClick={onSelect}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      transition="all 0.15s ease"
-      alignItems={"center"}
-    >
-      <Text
-        fontSize="xs"
-        flex={1}
-        truncate
-        color={isActive ? "text.primary" : "text.secondary"}
-        fontWeight={isActive ? 500 : 400}
-      >
-        {session.name}
-      </Text>
-      {isHovered && <DeleteIconButton size={"2xs"} onClick={handleDelete} />}
-    </Flex>
-  );
-};
+import { observer } from "mobx-react-lite";
+import { FiPlus } from "react-icons/fi";
+import { chatStore } from "../store/chat-store";
+import { SessionItem } from "./session-item";
 
 export const SessionList = observer(() => {
+  // APIs.
   const { data, isLoading } = useChatSessions();
   const { data: llmData } = useLLMs();
   const createSession = useCreateChatSession();
 
+  // Variables.
   const sessions = data?.data ?? [];
   const llms = llmData?.data ?? [];
 
+  // Handlers.
   const handleCreateSession = () => {
     const firstLlm = llms[0]?.id ?? null;
     createSession.mutate(
@@ -87,6 +29,7 @@ export const SessionList = observer(() => {
             queryKey: QueryKeys.chatSessions,
           });
           const newSession = response.data?.data;
+
           if (newSession?.id) {
             chatStore.setActiveSession(newSession.id);
           }
@@ -100,6 +43,7 @@ export const SessionList = observer(() => {
     chatStore.toggleSessionList();
   };
 
+  // Render.
   return (
     <VStack
       className="session-list"

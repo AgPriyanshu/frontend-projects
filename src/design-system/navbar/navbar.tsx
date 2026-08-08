@@ -10,10 +10,53 @@ import { chatStore } from "src/features/chat";
 import atlasLogo from "../../assets/logo-vector.svg";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
+import { useEffect } from "react";
+import { useCreateChatSession, useLLMs } from "api/chat";
+import { QueryKeys } from "api/query-keys";
 
 export const Navbar = observer(() => {
+  // Hooks.
   const navigate = useNavigate();
+  const createSession = useCreateChatSession();
+  const { data: llmData } = useLLMs();
+  const llms = llmData?.data ?? [];
 
+  // Effects.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isModifier = event.ctrlKey || event.metaKey; // metakey for MacOS
+      if (isModifier && event.key === ".") {
+        event.preventDefault();
+        chatStore.togglePanel();
+      }
+
+      if (event.ctrlKey && event.key === "n" && chatStore.isPanelOpen) {
+        const firstLlm = llms[0]?.id ?? null;
+
+        createSession.mutate(
+          { name: `Chat from shortcut`, llm: firstLlm },
+          {
+            onSuccess: (response) => {
+              queryClient.invalidateQueries({
+                queryKey: QueryKeys.chatSessions,
+              });
+              const newSession = response.data?.data;
+              if (newSession?.id) {
+                chatStore.setActiveSession(newSession.id);
+              }
+            },
+          }
+        );
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Handlers.
   const handleLogout = () => {
     clearToken();
     queryClient.clear();

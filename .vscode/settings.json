@@ -1,3 +1,6 @@
 {
-  "cSpell.words": ["Shortner"]
+  "cSpell.words": ["Shortner"],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }
 }

@@ -1,41 +1,46 @@
 import { Box, Center, Flex, Spinner, Text } from "@chakra-ui/react";
-import { useEmployeeTree } from "api/workload/workload-api";
-import type { Employee, LoadStatus } from "api/workload/types";
+import { type Employee, type LoadStatus, useEmployeeTree } from "api/workload";
 import { useMemo, useState } from "react";
-import { EmployeeForm } from "./components/employee-form/employee-form";
-import { OrgGraph } from "./components/org-graph/org-graph";
-import { PersonDetailPanel } from "./components/person-detail-panel/person-detail-panel";
-import { WorkloadToolbar } from "./components/workload-toolbar";
+import {
+  EmployeeDetailPanel,
+  EmployeeForm,
+  OrgGraphContainer,
+} from "./components";
+import { WorkloadToolbar } from "./components/workload-toolbar/workload-toolbar";
 
 type FilterStatus = LoadStatus | "ALL";
 
 export const WorkloadTreePage = () => {
-  const { data: employees, isPending, isError } = useEmployeeTree();
-
+  // States.
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("ALL");
   const [formOpen, setFormOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
-  const allEmployees = useMemo(() => employees ?? [], [employees]);
+  // APIs.
+  const { data: employees, isPending, isError } = useEmployeeTree();
 
+  // Memos.
+  const allEmployees = useMemo(() => employees ?? [], [employees]);
   const filteredEmployees = useMemo(() => {
-    return allEmployees.filter((emp) => {
+    return allEmployees.filter((employee) => {
       const matchesSearch =
-        emp.name.toLowerCase().includes(search.toLowerCase()) ||
-        emp.designation.toLowerCase().includes(search.toLowerCase());
+        employee.name.toLowerCase().includes(search.toLowerCase()) ||
+        employee.designation.toLowerCase().includes(search.toLowerCase());
 
       const matchesFilter =
-        filterStatus === "ALL" || emp.loadStatus === filterStatus;
+        filterStatus === "ALL" || employee.loadStatus === filterStatus;
 
       return matchesSearch && matchesFilter;
     });
   }, [allEmployees, search, filterStatus]);
 
+  // Variables
   const selectedEmployee =
-    allEmployees.find((e) => e.id === selectedId) ?? null;
+    allEmployees.find((employee) => employee.id === selectedId) ?? null;
 
+  // Handlers.
   const openAddForm = () => {
     setEditingEmployee(null);
     setFormOpen(true);
@@ -46,6 +51,7 @@ export const WorkloadTreePage = () => {
     setFormOpen(true);
   };
 
+  // Renders.
   if (isPending) {
     return (
       <Center w="full" h="full">
@@ -82,7 +88,7 @@ export const WorkloadTreePage = () => {
             </Text>
           </Center>
         ) : (
-          <OrgGraph
+          <OrgGraphContainer
             employees={filteredEmployees}
             selectedId={selectedId}
             onSelectEmployee={setSelectedId}
@@ -91,7 +97,7 @@ export const WorkloadTreePage = () => {
       </Box>
 
       {selectedEmployee && (
-        <PersonDetailPanel
+        <EmployeeDetailPanel
           employee={selectedEmployee}
           onClose={() => setSelectedId(null)}
           onEdit={openEditForm}

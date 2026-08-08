@@ -12,20 +12,20 @@ interface PersonNodeData {
 }
 
 const STATUS_COLORS: Record<LoadStatus, string> = {
-  UNDER: "green.500",
-  HEALTHY: "orange.400",
+  UNDER: "yellow.500",
+  HEALTHY: "green.400",
   OVER: "red.500",
 };
 
 const STATUS_BG: Record<LoadStatus, string> = {
-  UNDER: "green.50",
-  HEALTHY: "orange.50",
+  UNDER: "yellow.50",
+  HEALTHY: "green.50",
   OVER: "red.50",
 };
 
 const STATUS_BORDER: Record<LoadStatus, string> = {
-  UNDER: "green.300",
-  HEALTHY: "orange.300",
+  UNDER: "yellow.300",
+  HEALTHY: "green.300",
   OVER: "red.400",
 };
 
@@ -50,7 +50,7 @@ interface PersonNodeProps {
 
 export const PersonNode = ({ data, selected }: PersonNodeProps) => {
   const { name, designation, loadStatus, activeTaskCount, capacity } = data;
-
+  console.log({ data });
   return (
     <Box
       className="person-node"
@@ -84,7 +84,12 @@ export const PersonNode = ({ data, selected }: PersonNodeProps) => {
         </Flex>
 
         <Box overflow="hidden">
-          <Text fontWeight="semibold" fontSize="sm" lineClamp={1}>
+          <Text
+            fontWeight="semibold"
+            fontSize="sm"
+            lineClamp={1}
+            color="text.primary"
+          >
             {name}
           </Text>
           <Text fontSize="xs" color="gray.500" lineClamp={1}>

@@ -56,6 +56,20 @@ export const colors = {
       950: { value: "#422006" },
     },
 
+    green: {
+      50: { value: "#F0FDF4" },
+      100: { value: "#DCFCE7" },
+      200: { value: "#BBF7D0" },
+      300: { value: "#86EFAC" },
+      400: { value: "#4ADE80" },
+      500: { value: "#22C55E" }, // primary green
+      600: { value: "#16A34A" },
+      700: { value: "#15803D" },
+      800: { value: "#166534" },
+      900: { value: "#14532D" },
+      950: { value: "#052E16" },
+    },
+
     blue: {
       50: { value: "#EFF6FF" },
       100: { value: "#DBEAFE" },

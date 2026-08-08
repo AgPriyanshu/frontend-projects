@@ -1,5 +1,5 @@
-import { navigationService } from "shared/navigation/navigation-service";
 import { RoutePath } from "app/router/constants";
+import { navigationService } from "shared/navigation/navigation-service";
 import { Action } from "./action";
 import type { ActionResult } from "./types";
 

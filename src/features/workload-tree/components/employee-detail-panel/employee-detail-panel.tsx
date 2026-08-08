@@ -17,43 +17,36 @@ import {
   useDeleteWorkItem,
   useEmployeeWorkItems,
   useUpdateWorkItem,
-} from "api/workload/workload-api";
-import type { Employee, WorkItem, WorkItemStatus } from "api/workload/types";
+  type Employee,
+  type WorkItem,
+  type WorkItemStatus,
+} from "api/workload";
 import { useState } from "react";
 import { FaEdit, FaExternalLinkAlt, FaTrash } from "react-icons/fa";
+import { loadColorMapping, statusColorMapping } from "./constants";
 
-const STATUS_COLORS: Record<WorkItemStatus, string> = {
-  TODO: "gray",
-  IN_PROGRESS: "blue",
-  DONE: "green",
-};
-
-const LOAD_COLORS = {
-  UNDER: "green",
-  HEALTHY: "orange",
-  OVER: "red",
-} as const;
-
-interface PersonDetailPanelProps {
+interface EmployeeDetailPanelProps {
   employee: Employee;
   onClose: () => void;
   onEdit: (employee: Employee) => void;
 }
 
-export const PersonDetailPanel = ({
+export const EmployeeDetailPanel = ({
   employee,
   onClose,
   onEdit,
-}: PersonDetailPanelProps) => {
+}: EmployeeDetailPanelProps) => {
+  // States.
+  const [newTitle, setNewTitle] = useState("");
+
+  // APIs.
   const { data: workItems, isPending: loadingItems } = useEmployeeWorkItems(
     employee.id
   );
-
   const { mutate: createItem, isPending: creating } = useCreateWorkItem();
   const { mutate: deleteEmployee } = useDeleteEmployee(employee.id);
 
-  const [newTitle, setNewTitle] = useState("");
-
+  // Handlers.
   const handleAddItem = () => {
     const title = newTitle.trim();
 
@@ -69,6 +62,7 @@ export const PersonDetailPanel = ({
     deleteEmployee(undefined, { onSuccess: onClose });
   };
 
+  // Render.
   return (
     <Drawer.Root open size="md" onOpenChange={(e) => !e.open && onClose()}>
       <Portal>
@@ -108,35 +102,52 @@ export const PersonDetailPanel = ({
             <Drawer.Body overflowY="auto">
               {/* Load summary */}
               <Box
-                bg={`${LOAD_COLORS[employee.loadStatus]}.50`}
+                bg={`${loadColorMapping[employee.loadStatus]}.100`}
                 borderWidth="1px"
-                borderColor={`${LOAD_COLORS[employee.loadStatus]}.200`}
+                borderColor={`${loadColorMapping[employee.loadStatus]}.200`}
                 borderRadius="lg"
                 p={4}
                 mb={5}
               >
                 <Flex justify="space-between" align="center" mb={2}>
-                  <Text fontWeight="semibold" fontSize="sm">
+                  <Text fontWeight="semibold" fontSize="sm" color={"black"}>
                     Workload
                   </Text>
                   <Badge
-                    colorPalette={LOAD_COLORS[employee.loadStatus]}
+                    bg={loadColorMapping[employee.loadStatus] + ".400"}
+                    color={"white"}
                     fontSize="xs"
                   >
                     {employee.loadStatus}
                   </Badge>
                 </Flex>
-                <Text fontSize="2xl" fontWeight="bold">
+                <Text
+                  fontSize="xl"
+                  fontWeight="bold"
+                  color={`${loadColorMapping[employee.loadStatus]}.500`}
+                >
                   {employee.activeTaskCount}
-                  <Text as="span" fontSize="sm" color="gray.500" ml={1}>
+                  <Text
+                    as="span"
+                    fontSize="xl"
+                    color={`${loadColorMapping[employee.loadStatus]}.500`}
+                    ml={1}
+                  >
                     / {employee.capacity} tasks
                   </Text>
                 </Text>
-                <Box mt={2} h="6px" borderRadius="full" bg="gray.100">
+                <Box
+                  mt={2}
+                  h="6px"
+                  borderRadius="full"
+                  bg="gray.100"
+                  border={"0.5px solid red"}
+                  borderColor={`${loadColorMapping[employee.loadStatus]}.600`}
+                >
                   <Box
                     h="6px"
                     borderRadius="full"
-                    bg={`${LOAD_COLORS[employee.loadStatus]}.400`}
+                    bg={`${loadColorMapping[employee.loadStatus]}.400`}
                     w={`${Math.min(employee.loadRatio * 100, 100)}%`}
                     transition="width 0.3s"
                   />
@@ -225,7 +236,7 @@ const WorkItemRow = ({ item, employeeId }: WorkItemRowProps) => {
       _hover={{ bg: "surface.subtle" }}
     >
       <Badge
-        colorPalette={STATUS_COLORS[item.status]}
+        colorPalette={statusColorMapping[item.status]}
         fontSize="10px"
         cursor="pointer"
         onClick={() => updateItem({ status: nextStatus[item.status] })}

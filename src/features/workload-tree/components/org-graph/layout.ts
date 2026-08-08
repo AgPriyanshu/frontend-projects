@@ -1,9 +1,10 @@
-import dagre from "dagre";
 import type { Edge, Node } from "@xyflow/react";
+import dagre from "dagre";
 
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 100;
 
+// Ref - https://reactflow.dev/examples/layout/dagre/
 export const applyDagreLayout = (nodes: Node[], edges: Edge[]): Node[] => {
   const graph = new dagre.graphlib.Graph();
 

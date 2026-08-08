@@ -7,56 +7,14 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
-  type Edge,
-  type Node,
-  type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import type { Employee, LoadStatus } from "api/workload/types";
 import { useEffect, useMemo } from "react";
+import { minimapColors, nodeTypes } from "./constants";
+import { buildGraph } from "./helpers";
 import { applyDagreLayout } from "./layout";
-import { PersonNode } from "./person-node";
-
-const NODE_TYPES: NodeTypes = { person: PersonNode };
-
-const MINIMAP_COLORS: Record<LoadStatus, string> = {
-  UNDER: "#22c55e",
-  HEALTHY: "#fb923c",
-  OVER: "#ef4444",
-};
-
-const buildGraph = (
-  employees: Employee[]
-): {
-  nodes: Node[];
-  edges: Edge[];
-} => {
-  const nodes: Node[] = employees.map((emp) => ({
-    id: emp.id,
-    type: "person",
-    position: { x: 0, y: 0 },
-    data: {
-      name: emp.name,
-      designation: emp.designation,
-      loadStatus: emp.loadStatus,
-      loadRatio: emp.loadRatio,
-      activeTaskCount: emp.activeTaskCount,
-      capacity: emp.capacity,
-    },
-  }));
-
-  const edges: Edge[] = employees
-    .filter((emp) => emp.manager !== null)
-    .map((emp) => ({
-      id: `${emp.manager}->${emp.id}`,
-      source: emp.manager as string,
-      target: emp.id,
-      type: "smoothstep",
-      style: { stroke: "#94a3b8", strokeWidth: 2 },
-    }));
-
-  return { nodes, edges };
-};
+import "./org-graph.css";
 
 interface OrgGraphProps {
   employees: Employee[];
@@ -64,13 +22,15 @@ interface OrgGraphProps {
   onSelectEmployee: (id: string | null) => void;
 }
 
-const OrgGraphInner = ({
+export const OrgGraph = ({
   employees,
   selectedId,
   onSelectEmployee,
 }: OrgGraphProps) => {
+  // Hooks.
   const { fitView } = useReactFlow();
 
+  // Memos.
   const { nodes: rawNodes, edges: rawEdges } = useMemo(
     () => buildGraph(employees),
     [employees]
@@ -81,27 +41,31 @@ const OrgGraphInner = ({
     [rawNodes, rawEdges]
   );
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(layoutNodes);
+  // States.
+  const [nodes, setNodes, onNodesChange] = useNodesState(rawNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(rawEdges);
 
+  // Effects.
   useEffect(() => {
     setNodes(layoutNodes);
     setEdges(rawEdges);
     setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 100);
   }, [layoutNodes, rawEdges, setNodes, setEdges, fitView]);
 
+  // Variables
   const nodesWithSelection = nodes.map((n) => ({
     ...n,
     selected: n.id === selectedId,
   }));
 
+  // Renders.
   return (
     <ReactFlow
       className="org-graph"
       style={{ width: "100%", height: "100%" }}
       nodes={nodesWithSelection}
       edges={edges}
-      nodeTypes={NODE_TYPES}
+      nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={(_event, node) => {
@@ -113,12 +77,11 @@ const OrgGraphInner = ({
       maxZoom={2}
     >
       <Background gap={20} color="#e2e8f0" />
-      <Controls />
+      <Controls style={{ color: "black" }} />
       <MiniMap
         nodeColor={(node) =>
-          MINIMAP_COLORS[
-            (node.data as { loadStatus: LoadStatus }).loadStatus
-          ] ?? "#94a3b8"
+          minimapColors[(node.data as { loadStatus: LoadStatus }).loadStatus] ??
+          "#94a3b8"
         }
         maskColor="rgba(0,0,0,0.05)"
       />
@@ -126,8 +89,8 @@ const OrgGraphInner = ({
   );
 };
 
-export const OrgGraph = (props: OrgGraphProps) => (
+export const OrgGraphContainer = (props: OrgGraphProps) => (
   <ReactFlowProvider>
-    <OrgGraphInner {...props} />
+    <OrgGraph {...props} />
   </ReactFlowProvider>
 );

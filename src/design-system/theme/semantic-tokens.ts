@@ -76,6 +76,24 @@ export const semanticTokens = {
           _dark: "{colors.palette.neutral.900}",
         },
       },
+      success: {
+        value: {
+          _light: "{colors.palette.green.700}",
+          _dark: "{colors.palette.green.400}",
+        },
+      },
+      warning: {
+        value: {
+          _light: "{colors.palette.yellow.700}",
+          _dark: "{colors.palette.yellow.400}",
+        },
+      },
+      danger: {
+        value: {
+          _light: "{colors.palette.red.700}",
+          _dark: "{colors.palette.red.400}",
+        },
+      },
       onIntent: {
         value: "{colors.palette.neutral.0}",
       },
@@ -139,14 +157,14 @@ export const semanticTokens = {
 
       success: {
         value: {
-          _light: "#16a34a",
-          _dark: "#22c55e",
+          _light: "{colors.palette.green.600}",
+          _dark: "{colors.palette.green.500}",
         },
       },
       successHover: {
         value: {
-          _light: "#15803d",
-          _dark: "#16a34a",
+          _light: "{colors.palette.green.700}",
+          _dark: "{colors.palette.green.600}",
         },
       },
 

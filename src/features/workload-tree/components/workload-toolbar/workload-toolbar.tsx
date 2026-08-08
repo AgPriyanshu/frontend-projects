@@ -1,15 +1,9 @@
 import { Button, Flex, Input } from "@chakra-ui/react";
-import type { LoadStatus } from "api/workload/types";
-import { FaPlus, FaSitemap } from "react-icons/fa";
+import type { LoadStatus } from "api/workload";
+import { FaPlus, FaSitemap } from "react-icons/fa6";
+import { filterOptions } from "./constants";
 
-type FilterStatus = LoadStatus | "ALL";
-
-const FILTER_OPTIONS: { label: string; value: FilterStatus }[] = [
-  { label: "All", value: "ALL" },
-  { label: "Under", value: "UNDER" },
-  { label: "Healthy", value: "HEALTHY" },
-  { label: "Overloaded", value: "OVER" },
-];
+export type FilterStatus = LoadStatus | "ALL";
 
 interface WorkloadToolbarProps {
   search: string;
@@ -51,7 +45,7 @@ export const WorkloadToolbar = ({
       />
 
       <Flex gap={1}>
-        {FILTER_OPTIONS.map((opt) => (
+        {filterOptions.map((opt) => (
           <Button
             key={opt.value}
             size="xs"
