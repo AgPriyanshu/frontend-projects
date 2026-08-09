@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, HStack, IconButton, Menu } from "@chakra-ui/react";
-import { useCreateChatSession, useLLMs } from "api/chat";
+import { useCreateChatSession, useLLMs } from "api/agent-chat";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { RoutePath } from "app/router/constants";

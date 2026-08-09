@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
-import { FaRobot, FaUser } from "react-icons/fa";
+import type { ChatMessageResponse } from "api/agent-chat/types";
 import { observer } from "mobx-react-lite";
-import type { ChatMessageResponse } from "api/chat/types";
+import { FaRobot, FaUser } from "react-icons/fa";
 import { MessageContent } from "./message-content";
 
 interface MessageBubbleProps {

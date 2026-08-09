@@ -1,23 +1,26 @@
-import { useCallback, useEffect, useRef } from "react";
-import { EnvVariable } from "app/config/env-variables";
-import { getAccessToken } from "shared/local-storage/token";
 import type {
   AgentStatusMessage,
-  WebSocketIncomingMessage,
   WebSocketErrorMessage,
-} from "api/chat/types";
+  WebSocketIncomingMessage,
+} from "api/agent-chat";
+import { EnvVariable } from "app/config/env-variables";
+import { useCallback, useEffect, useRef } from "react";
+import { getAccessToken } from "shared/local-storage/token";
+import { toCamelCase } from "shared/utils";
 import { chatStore } from "../../store";
 
 const MAX_RECONNECT_ATTEMPTS = 5;
 const BASE_RECONNECT_DELAY_MS = 1000;
 
 export const useWebSocket = (sessionId: string | null) => {
+  // Refs.
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const reconnectTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const reconnectRef = useRef<() => void>(undefined);
   const cleanupRef = useRef<() => void>(undefined);
 
+  // Callbacks.
   const sendMessage = useCallback(
     (message: string, context?: Record<string, unknown>) => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -43,6 +46,26 @@ export const useWebSocket = (sessionId: string | null) => {
 
   const reconnect = useCallback(() => reconnectRef.current?.(), []);
 
+  const receiveMessageHandler = useCallback((event: MessageEvent) => {
+    try {
+      const msg = toCamelCase(JSON.parse(event.data)) as
+        | WebSocketIncomingMessage
+        | WebSocketErrorMessage
+        | AgentStatusMessage;
+
+      if ("error" in msg) {
+        console.error("[WebSocket] Server error:", msg.error);
+      } else if ("type" in msg && msg.type === "agent_status") {
+        chatStore.setAgentStatus((msg as AgentStatusMessage).status);
+      } else {
+        chatStore.handleIncomingMessage(msg as WebSocketIncomingMessage);
+      }
+    } catch {
+      console.error("[WebSocket] Failed to parse message:", event.data);
+    }
+  }, []);
+
+  // Effects.
   useEffect(() => {
     if (!sessionId) {
       return;
@@ -60,6 +83,7 @@ export const useWebSocket = (sessionId: string | null) => {
         wsRef.current = null;
       }
     };
+
     cleanupRef.current = cleanup;
 
     const connect = () => {
@@ -77,28 +101,7 @@ export const useWebSocket = (sessionId: string | null) => {
         reconnectAttempts.current = 0;
       };
 
-      ws.onmessage = (event: MessageEvent) => {
-        try {
-          const msg = JSON.parse(event.data) as
-            | WebSocketIncomingMessage
-            | WebSocketErrorMessage
-            | AgentStatusMessage;
-
-          if ("error" in msg) {
-            console.error("[WebSocket] Server error:", msg.error);
-            return;
-          }
-
-          if ("type" in msg && msg.type === "agent_status") {
-            chatStore.setAgentStatus((msg as AgentStatusMessage).status);
-            return;
-          }
-
-          chatStore.handleIncomingMessage(msg as WebSocketIncomingMessage);
-        } catch {
-          console.error("[WebSocket] Failed to parse message:", event.data);
-        }
-      };
+      ws.onmessage = receiveMessageHandler;
 
       ws.onclose = (event: CloseEvent) => {
         chatStore.setConnectionStatus("disconnected");
@@ -119,11 +122,13 @@ export const useWebSocket = (sessionId: string | null) => {
         }
       };
     };
+
     reconnectRef.current = connect;
 
     connect();
+
     return cleanup;
-  }, [sessionId]);
+  }, [sessionId, receiveMessageHandler]);
 
   return { sendMessage, stopResponse, disconnect, reconnect };
 };

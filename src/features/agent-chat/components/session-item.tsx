@@ -1,7 +1,5 @@
 import { Flex, Text } from "@chakra-ui/react";
-import { type ChatSessionResponse, useDeleteChatSession } from "api/chat";
-import { queryClient } from "api/query-client";
-import { QueryKeys } from "api/query-keys";
+import { type ChatSessionResponse, useDeleteChatSession } from "api/agent-chat";
 import { useState } from "react";
 import { DeleteIconButton } from "shared/components";
 import { chatStore } from "../store";
@@ -24,12 +22,11 @@ export const SessionItem = ({
   // Handlers.
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteSession.mutate(undefined, {
+    deleteSession.mutate(session.id, {
       onSuccess: () => {
         if (chatStore.activeSessionId === session.id) {
           chatStore.setActiveSession(null);
         }
-        queryClient.invalidateQueries({ queryKey: QueryKeys.chatSessions });
       },
     });
   };

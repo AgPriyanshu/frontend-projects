@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
 import type { AxiosResponse } from "axios";
@@ -73,6 +74,26 @@ export const useDeleteChatSession = (sessionId: string) => {
   return useMutation({
     mutationFn: async () => {
       return await api.delete<ApiResponse>(`/ai/chat-sessions/${sessionId}/`);
+    },
+    onSuccess: (_, deletedId: string) => {
+      queryClient.setQueryData(
+        QueryKeys.chatSessions,
+        (
+          old: AxiosResponse<ApiResponse<ChatSessionListResponse>> | undefined
+        ) => {
+          if (!old) {
+            return old;
+          }
+
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              data: (old.data.data ?? []).filter((s) => s.id !== deletedId),
+            },
+          };
+        }
+      );
     },
   });
 };

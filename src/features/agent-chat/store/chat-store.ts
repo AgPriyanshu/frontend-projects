@@ -1,13 +1,10 @@
-import { makeAutoObservable, runInAction } from "mobx";
 import type {
   ChatMessageResponse,
-  UIAction,
   WebSocketIncomingMessage,
-} from "api/chat/types";
-import { queryClient } from "api/query-client";
-import { QueryKeys } from "api/query-keys";
-import { ConnectionStatus } from "./types";
+} from "api/agent-chat/types";
+import { makeAutoObservable } from "mobx";
 import { MessageRole } from "./constants";
+import { ConnectionStatus } from "./types";
 
 export class ChatStore {
   messages: ChatMessageResponse[] = [];
@@ -17,7 +14,6 @@ export class ChatStore {
   isWaitingForResponse = false;
   agentStatus: string | null = null;
   connectionStatus: ConnectionStatus = ConnectionStatus.Disconnected;
-  pendingUIActions: UIAction[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -46,7 +42,10 @@ export class ChatStore {
 
   loadHistory(messages: ChatMessageResponse[]) {
     // Only load if the store is still empty (no live messages arrived yet).
-    if (this.messages.length > 0) return;
+    if (this.messages.length > 0) {
+      return;
+    }
+
     this.messages = messages.filter((m) => !!m.message);
   }
 
@@ -77,81 +76,65 @@ export class ChatStore {
   /**
    * Handle an incoming WebSocket message (either user echo or assistant response).
    */
-  handleIncomingMessage(data: WebSocketIncomingMessage) {
-    runInAction(() => {
-      // If this is the server echo of a user message, replace the optimistic one
-      if (data.role === MessageRole.User) {
+  handleIncomingMessage(incomingMessage: WebSocketIncomingMessage) {
+    switch (incomingMessage.role) {
+      case MessageRole.User: {
         const optimisticIndex = this.messages.findIndex(
           (message) =>
-            message.id.startsWith("temp-") && message.message === data.message
+            message.id.startsWith("temp-") &&
+            message.message === incomingMessage.message
         );
 
         if (optimisticIndex !== -1) {
           this.messages[optimisticIndex] = {
-            id: data.id,
-            sessionId: data.sessionId,
-            message: data.message,
-            userId: data.userId,
-            role: data.role,
+            id: incomingMessage.id,
+            sessionId: incomingMessage.sessionId,
+            message: incomingMessage.message,
+            userId: incomingMessage.userId,
+            role: incomingMessage.role,
           };
-          return;
         }
+        break;
       }
 
-      // Handle assistant message (chunked or whole)
-      if (data.role === MessageRole.Assistant) {
+      case MessageRole.Assistant: {
         this.isWaitingForResponse = false;
         this.agentStatus = null;
-        const existingMessage = this.messages.find((m) => m.id === data.id);
+        const existingMessage = this.messages.find(
+          (message) => message.id === incomingMessage.id
+        );
 
         if (existingMessage) {
-          if (data.message) {
-            existingMessage.message += data.message;
+          if (incomingMessage.message) {
+            existingMessage.message += incomingMessage.message;
           }
         } else {
-          if (data.message || !data.isChunk) {
+          if (incomingMessage.message || !incomingMessage.isChunk) {
             this.messages.push({
-              id: data.id,
-              sessionId: data.sessionId,
-              message: data.message,
-              userId: data.userId,
-              role: data.role,
+              id: incomingMessage.id,
+              sessionId: incomingMessage.sessionId,
+              message: incomingMessage.message,
+              userId: incomingMessage.userId,
+              role: incomingMessage.role,
             });
           }
         }
 
-        if (!data.isChunk) {
-          if (data.ui_action) {
-            this.setPendingUIActions([data.ui_action]);
-          }
-
-          if (this.activeSessionId) {
-            queryClient.invalidateQueries({
-              queryKey: QueryKeys.chatMessages(this.activeSessionId),
-            });
-          }
-        }
-
-        return;
+        break;
       }
 
-      // Standard non-chunk append for any other roles
-      this.messages.push({
-        id: data.id,
-        sessionId: data.sessionId,
-        message: data.message,
-        userId: data.userId,
-        role: data.role,
-      });
-    });
-  }
+      default: {
+        this.messages.push({
+          id: incomingMessage.id,
+          sessionId: incomingMessage.sessionId,
+          message: incomingMessage.message,
+          userId: incomingMessage.userId,
+          role: incomingMessage.role,
+        });
 
-  setPendingUIActions(actions: UIAction[]) {
-    this.pendingUIActions = actions;
-  }
-
-  clearPendingUIActions() {
-    this.pendingUIActions = [];
+        break;
+      }
+    }
   }
 
   setAgentStatus(status: string | null) {

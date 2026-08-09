@@ -42,7 +42,7 @@ export interface WebSocketIncomingMessage {
   userId: number;
   role: MessageRole;
   isChunk?: boolean;
-  ui_action?: UIAction;
+  uiAction?: UIAction;
 }
 
 export interface WebSocketOutgoingMessage {

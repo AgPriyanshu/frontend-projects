@@ -1,6 +1,6 @@
 import { Flex, IconButton, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useChatSessions, useCreateChatSession, useLLMs } from "api/chat";
-import type { ChatSessionResponse } from "api/chat/types";
+import { useChatSessions, useCreateChatSession, useLLMs } from "api/agent-chat";
+import type { ChatSessionResponse } from "api/agent-chat/types";
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { observer } from "mobx-react-lite";

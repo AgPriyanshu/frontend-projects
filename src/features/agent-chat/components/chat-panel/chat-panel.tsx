@@ -1,18 +1,13 @@
 import { Box, VStack } from "@chakra-ui/react";
-import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useState } from "react";
-import { ResizableBox } from "react-resizable";
-import useResizeObserver from "use-resize-observer";
-import type { AxiosResponse } from "axios";
 import {
   useChatMessages,
   useChatSessions,
   useDeleteChatSession,
-} from "api/chat";
-import type { ChatSessionListResponse } from "api/chat/types";
-import type { ApiResponse } from "api/types";
-import { queryClient } from "api/query-client";
-import { QueryKeys } from "api/query-keys";
+} from "api/agent-chat";
+import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
+import { ResizableBox } from "react-resizable";
+import useResizeObserver from "use-resize-observer";
 import { DEFAULT_WIDTH, MAX_WIDTH, MIN_WIDTH } from "../../constants";
 import { useWebSocket } from "../../hooks/use-websocket/use-websocket";
 import { chatStore } from "../../store/chat-store";
@@ -20,6 +15,7 @@ import { ChatPanelBody } from "./chat-panel-body";
 import { ChatPanelTitle } from "./chat-panel-title";
 
 export const ChatPanel = observer(() => {
+  // Store.
   const {
     isPanelOpen,
     activeSessionId,
@@ -28,18 +24,23 @@ export const ChatPanel = observer(() => {
     isSessionListOpen,
   } = chatStore;
 
+  // States.
   const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
 
+  // Hooks.
   const { ref: containerRef, height: containerHeight = 600 } =
     useResizeObserver<HTMLDivElement>();
-
-  const { data: sessionsData } = useChatSessions();
-  const { data: historicalMessages } = useChatMessages(activeSessionId);
   const { sendMessage, stopResponse } = useWebSocket(
     isPanelOpen ? activeSessionId : null
   );
-  const deleteSession = useDeleteChatSession(activeSessionId ?? "");
 
+  // APIs.
+  const { data: sessionsData } = useChatSessions();
+  const { data: historicalMessages } = useChatMessages(activeSessionId);
+  const { mutate: deleteSession, isPending: isDeletingSessionPending } =
+    useDeleteChatSession(activeSessionId ?? "");
+
+  // Effects.
   useEffect(() => {
     if (!isPanelOpen || activeSessionId !== null) return;
     const sessions = sessionsData?.data ?? [];
@@ -56,37 +57,22 @@ export const ChatPanel = observer(() => {
     chatStore.loadHistory(historicalMessages);
   }, [historicalMessages]);
 
+  // Handlers.
   const handleSend = (message: string) => {
     chatStore.addOptimisticMessage(message, 0);
     sendMessage(message);
   };
 
   const handleDeleteSession = () => {
-    if (!activeSessionId) return;
+    if (!activeSessionId) {
+      return;
+    }
+
     const deletedId = activeSessionId;
 
-    deleteSession.mutate(undefined, {
+    deleteSession(deletedId, {
       onSuccess: () => {
-        // Optimistically remove the deleted session from cache before clearing
-        // activeSessionId — otherwise the auto-select effect fires while the
-        // stale list still contains the deleted session and immediately re-selects it.
-        queryClient.setQueryData(
-          QueryKeys.chatSessions,
-          (
-            old: AxiosResponse<ApiResponse<ChatSessionListResponse>> | undefined
-          ) => {
-            if (!old) return old;
-            return {
-              ...old,
-              data: {
-                ...old.data,
-                data: (old.data.data ?? []).filter((s) => s.id !== deletedId),
-              },
-            };
-          }
-        );
         chatStore.setActiveSession(null);
-        queryClient.invalidateQueries({ queryKey: QueryKeys.chatSessions });
       },
     });
   };
@@ -166,7 +152,7 @@ export const ChatPanel = observer(() => {
             connectionStatus={connectionStatus}
             isSessionListOpen={isSessionListOpen}
             activeSessionId={activeSessionId}
-            isDeletingSession={deleteSession.isPending}
+            isDeletingSession={isDeletingSessionPending}
             onDeleteSession={handleDeleteSession}
           />
           <ChatPanelBody
