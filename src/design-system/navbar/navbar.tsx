@@ -1,30 +1,31 @@
 import { Box, Flex, Heading, HStack, IconButton, Menu } from "@chakra-ui/react";
+import { useCreateChatSession, useLLMs } from "api/chat";
 import { queryClient } from "api/query-client";
+import { QueryKeys } from "api/query-keys";
 import { RoutePath } from "app/router/constants";
+import { chatStore } from "features/agent-chat";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { RiChatAiLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage";
-import { chatStore } from "features/agent-chat";
 import atlasLogo from "../../assets/logo-vector.svg";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
-import { useEffect } from "react";
-import { useCreateChatSession, useLLMs } from "api/chat";
-import { QueryKeys } from "api/query-keys";
 
 export const Navbar = observer(() => {
   // Hooks.
   const navigate = useNavigate();
   const createSession = useCreateChatSession();
   const { data: llmData } = useLLMs();
-  const llms = llmData?.data ?? [];
 
   // Effects.
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const llms = llmData?.data ?? [];
       const isModifier = event.ctrlKey || event.metaKey; // metakey for MacOS
+
       if (isModifier && event.key === ".") {
         event.preventDefault();
         chatStore.togglePanel();
@@ -51,10 +52,11 @@ export const Navbar = observer(() => {
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [llmData, createSession]);
 
   // Handlers.
   const handleLogout = () => {
