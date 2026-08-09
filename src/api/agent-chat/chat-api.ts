@@ -75,21 +75,25 @@ export const useDeleteChatSession = (sessionId: string) => {
     mutationFn: async () => {
       return await api.delete<ApiResponse>(`/ai/chat-sessions/${sessionId}/`);
     },
-    onSuccess: (_, deletedId: string) => {
+    onSuccess: (_, deletedSessionId: string) => {
       queryClient.setQueryData(
         QueryKeys.chatSessions,
         (
-          old: AxiosResponse<ApiResponse<ChatSessionListResponse>> | undefined
+          oldChatSessionListResponse:
+            | AxiosResponse<ApiResponse<ChatSessionListResponse>>
+            | undefined
         ) => {
-          if (!old) {
-            return old;
+          if (!oldChatSessionListResponse) {
+            return oldChatSessionListResponse;
           }
 
           return {
-            ...old,
+            ...oldChatSessionListResponse,
             data: {
-              ...old.data,
-              data: (old.data.data ?? []).filter((s) => s.id !== deletedId),
+              ...oldChatSessionListResponse.data,
+              data: (oldChatSessionListResponse.data.data ?? []).filter(
+                (session) => session.id !== deletedSessionId
+              ),
             },
           };
         }
