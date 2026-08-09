@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryKeys } from "api/query-keys";
 import type { ApiResponse } from "api/types";
 import type { AxiosResponse } from "axios";
+import type { MessageRole } from "features/agent-chat/store";
 import api from "../api";
 import type {
   ChatMessageResponse,
@@ -9,7 +11,6 @@ import type {
   CreateChatSessionPayload,
   LLMListResponse,
 } from "./types";
-import { QueryKeys } from "api/query-keys";
 
 export const useChatMessages = (sessionId: string | null) => {
   return useQuery({
@@ -27,7 +28,7 @@ export const useChatMessages = (sessionId: string | null) => {
         sessionId: (m.sessionId ?? m.session) as string,
         message: (m.content ?? m.message ?? "") as string,
         userId: (m.userId ?? m.user) as number,
-        role: m.role as "user" | "assistant",
+        role: m.role as MessageRole,
       })),
     enabled: !!sessionId,
   });

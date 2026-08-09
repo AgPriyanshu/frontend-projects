@@ -2,13 +2,9 @@ import { Center, Flex, VStack } from "@chakra-ui/react";
 import "react-resizable/css/styles.css";
 import { Outlet } from "react-router";
 import { Navbar } from "design-system/navbar";
-import { ChatPanel } from "src/features/chat";
-import { useAgentExecutor } from "src/features/chat/hooks/use-agent-executor";
+import { ChatPanel } from "features/agent-chat";
 
 export const App = () => {
-  // Global agent executor — processes all pending UI actions from chat.
-  useAgentExecutor();
-
   return (
     <VStack h={"100vh"} w="100vw" gap={0}>
       <Navbar />

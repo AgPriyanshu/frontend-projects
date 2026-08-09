@@ -17,6 +17,7 @@ export const ChatInput = ({
   isWaitingForResponse,
   disabled = false,
 }: ChatInputProps) => {
+  // Hooks.
   const { register, handleSubmit, control, reset } = useForm<ChatInputData>({
     resolver: zodResolver(chatInputSchema),
     defaultValues: { chatMessage: "" },
@@ -24,6 +25,7 @@ export const ChatInput = ({
 
   const chatMessage = useWatch({ control, name: "chatMessage" });
 
+  // Handlers.
   const handleSend: SubmitHandler<ChatInputData> = ({ chatMessage }) => {
     onSend(chatMessage);
     reset();

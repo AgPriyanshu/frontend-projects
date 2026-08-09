@@ -4,14 +4,14 @@ import { MessageList } from "../message-list";
 import { SessionList } from "../session-list";
 import { ChatInput } from "./chat-input";
 
-type ChatPanelBodyProps = {
+interface ChatPanelBodyProps {
   handleSend: (message: string) => void;
   handleStop: () => void;
   activeSessionId: string | null;
   isWaitingForResponse: boolean;
   connectionStatus: ConnectionStatus;
   isSessionListOpen: boolean;
-};
+}
 
 export const ChatPanelBody: React.FC<ChatPanelBodyProps> = ({
   activeSessionId,

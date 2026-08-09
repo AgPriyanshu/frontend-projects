@@ -1,5 +1,5 @@
 export * from "./auth";
-export * from "./chat";
+export * from "./agent-chat";
 export * from "./dead-stock";
 export * from "./home";
 export * from "./level-up";

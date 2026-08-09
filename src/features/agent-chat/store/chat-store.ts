@@ -7,6 +7,7 @@ import type {
 import { queryClient } from "api/query-client";
 import { QueryKeys } from "api/query-keys";
 import { ConnectionStatus } from "./types";
+import { MessageRole } from "./constants";
 
 export class ChatStore {
   messages: ChatMessageResponse[] = [];
@@ -79,7 +80,7 @@ export class ChatStore {
   handleIncomingMessage(data: WebSocketIncomingMessage) {
     runInAction(() => {
       // If this is the server echo of a user message, replace the optimistic one
-      if (data.role === "user") {
+      if (data.role === MessageRole.User) {
         const optimisticIndex = this.messages.findIndex(
           (message) =>
             message.id.startsWith("temp-") && message.message === data.message
@@ -98,7 +99,7 @@ export class ChatStore {
       }
 
       // Handle assistant message (chunked or whole)
-      if (data.role === "assistant") {
+      if (data.role === MessageRole.Assistant) {
         this.isWaitingForResponse = false;
         this.agentStatus = null;
         const existingMessage = this.messages.find((m) => m.id === data.id);

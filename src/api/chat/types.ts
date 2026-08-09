@@ -1,3 +1,4 @@
+import type { MessageRole } from "features/agent-chat/store/constants";
 import type { UIActionType } from "./constants";
 
 export interface ChatSessionResponse {
@@ -31,7 +32,7 @@ export interface ChatMessageResponse {
   sessionId: string;
   message: string;
   userId: number;
-  role: "user" | "assistant";
+  role: MessageRole;
 }
 
 export interface WebSocketIncomingMessage {
@@ -39,7 +40,7 @@ export interface WebSocketIncomingMessage {
   sessionId: string;
   message: string;
   userId: number;
-  role: "user" | "assistant";
+  role: MessageRole;
   isChunk?: boolean;
   ui_action?: UIAction;
 }

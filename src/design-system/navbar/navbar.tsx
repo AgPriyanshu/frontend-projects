@@ -6,7 +6,7 @@ import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { RiChatAiLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { clearToken } from "shared/local-storage";
-import { chatStore } from "src/features/chat";
+import { chatStore } from "features/agent-chat";
 import atlasLogo from "../../assets/logo-vector.svg";
 import { ColorModeButton } from "../color-mode";
 import { NotificationDropdown } from "./notification-dropdown";
