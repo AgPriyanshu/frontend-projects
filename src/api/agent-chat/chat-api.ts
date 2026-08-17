@@ -76,6 +76,7 @@ export const useDeleteChatSession = (sessionId: string) => {
       return await api.delete<ApiResponse>(`/ai/chat-sessions/${sessionId}/`);
     },
     onSuccess: (_, deletedSessionId: string) => {
+      // For immediate update of the list.
       queryClient.setQueryData(
         QueryKeys.chatSessions,
         (
@@ -98,6 +99,9 @@ export const useDeleteChatSession = (sessionId: string) => {
           };
         }
       );
+
+      // To make sessions list consistent with backend server state.
+      queryClient.invalidateQueries({ queryKey: QueryKeys.chatSessions });
     },
   });
 };
